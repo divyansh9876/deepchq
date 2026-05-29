@@ -36,7 +36,7 @@ function RegisterForm() {
       router.push(`/search/${searchId}`);
       return;
     }
-    router.push("/dashboard");
+    router.push("/chat");
   }
 
   return (

@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(`${base}/landing/login?error=user_create_failed`);
     }
 
-    const res = NextResponse.redirect(`${base}/dashboard`);
+    const res = NextResponse.redirect(`${base}/chat`);
     res.cookies.set("user_id", user.id, {
       httpOnly: true,
       path: "/",

@@ -1,11 +1,11 @@
 import { BRAND_NAME } from "@/lib/brand";
 
-export const POPULAR_SEARCHES = [
-  { name: "Elon Musk", image: "https://i.pravatar.cc/80?u=elon" },
-  { name: "Playboi Carti", image: "https://i.pravatar.cc/80?u=carti" },
-  { name: "Taylor Swift", image: "https://i.pravatar.cc/80?u=taylor" },
-  { name: "Kim Kardashian", image: "https://i.pravatar.cc/80?u=kim" },
-];
+import { POPULAR_SEARCH_CARDS } from "@/lib/popular-searches";
+
+export const POPULAR_SEARCHES = POPULAR_SEARCH_CARDS.map((p) => ({
+  name: p.name,
+  image: p.image,
+}));
 
 export const USE_CASES = [
   {

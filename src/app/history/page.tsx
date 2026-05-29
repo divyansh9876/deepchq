@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
+import { useRouter } from "next/navigation";
+import { AppDisclaimer, AppShell } from "@/components/app/AppSidebar";
 
 interface SearchRow {
   id: string;
@@ -13,37 +14,39 @@ interface SearchRow {
 }
 
 export default function HistoryPage() {
+  const router = useRouter();
   const [history, setHistory] = useState<SearchRow[]>([]);
 
   useEffect(() => {
+    fetch("/api/account").then((r) => {
+      if (r.status === 401) router.replace("/landing/login?next=/history");
+    });
     fetch("/api/search")
       .then((r) => r.json())
       .then((d) => setHistory(d.searches ?? []));
-  }, []);
+  }, [router]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <Logo />
-          <Link href="/dashboard" className="text-sm text-blue-600">
-            Dashboard
-          </Link>
-        </div>
-      </header>
-      <main className="mx-auto max-w-3xl px-6 py-10">
-        <h1 className="text-2xl font-bold">Search history</h1>
+    <AppShell>
+      <main className="flex-1 overflow-y-auto px-6 py-10">
+        <h1 className="text-2xl font-bold text-gray-900">History</h1>
+        <p className="mt-1 text-sm text-gray-500">Your past people searches</p>
         <ul className="mt-8 space-y-2">
           {history.length === 0 && (
-            <li className="text-sm text-gray-500">No searches yet.</li>
+            <li className="rounded-xl border border-dashed border-gray-300 bg-white px-4 py-8 text-center text-sm text-gray-500">
+              No searches yet.{" "}
+              <Link href="/chat" className="text-blue-600 underline">
+                Start a new search
+              </Link>
+            </li>
           )}
           {history.map((s) => (
             <li key={s.id}>
               <Link
                 href={`/search/${s.id}`}
-                className="flex justify-between rounded-xl border bg-white px-4 py-3 text-sm hover:border-blue-300"
+                className="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm hover:border-blue-300"
               >
-                <span className="font-medium">{s.queryName}</span>
+                <span className="font-medium text-gray-900">{s.queryName}</span>
                 <span className="text-gray-500">
                   {s.mode} · {s.status}
                 </span>
@@ -52,6 +55,7 @@ export default function HistoryPage() {
           ))}
         </ul>
       </main>
-    </div>
+      <AppDisclaimer />
+    </AppShell>
   );
 }

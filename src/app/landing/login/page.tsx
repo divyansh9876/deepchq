@@ -36,7 +36,8 @@ function LoginForm() {
       setError(data.error ?? "Login failed");
       return;
     }
-    router.push("/dashboard");
+    const next = searchParams.get("next") ?? "/chat";
+    router.push(next);
   }
 
   function oauth(provider: "google" | "apple") {
