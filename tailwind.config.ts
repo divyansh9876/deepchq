@@ -11,7 +11,7 @@ const config: Config = {
       colors: {
         brand: {
           blue: "#2563eb",
-          dark: "#0a0a0a",
+          navy: "#0f172a",
         },
       },
       keyframes: {

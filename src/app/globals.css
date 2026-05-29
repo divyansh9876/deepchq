@@ -4,8 +4,28 @@
 
 :root {
   --brand-blue: #2563eb;
+  --brand-navy: #0f172a;
+  --surface: #ffffff;
+  --surface-muted: #f8fafc;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-muted: #64748b;
 }
 
 body {
-  @apply antialiased text-gray-900 bg-white;
+  @apply antialiased bg-white text-slate-900;
+}
+
+@layer components {
+  .btn-primary {
+    @apply rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50;
+  }
+
+  .btn-outline {
+    @apply rounded-full border border-slate-900 px-6 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-50;
+  }
+
+  .marketing-section {
+    @apply px-6 py-20;
+  }
 }

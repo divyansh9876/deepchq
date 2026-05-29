@@ -7,22 +7,22 @@ import { TERMS_LAST_UPDATED, TERMS_SECTIONS } from "@/lib/legal/terms-sections";
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-black text-gray-300">
-      <MarketingNav dark />
+    <div className="min-h-screen bg-white text-slate-900">
+      <MarketingNav />
       <main className="mx-auto max-w-3xl px-6 py-16">
-        <p className="text-center text-xs uppercase tracking-wide text-gray-500">
+        <p className="text-center text-xs uppercase tracking-wide text-slate-500">
           {BRAND_NAME}
         </p>
-        <h1 className="mt-2 text-center text-3xl font-bold text-gray-200">
+        <h1 className="mt-2 text-center text-3xl font-bold text-slate-900">
           Terms of Use
         </h1>
-        <hr className="my-8 border-gray-800" />
+        <hr className="my-8 border-slate-200" />
 
-        <p className="mb-10 text-sm text-gray-500">
-          <strong className="text-gray-400">In General.</strong> These Terms govern
+        <p className="mb-10 text-sm text-slate-600">
+          <strong className="text-slate-800">In General.</strong> These Terms govern
           your access to {BRAND_NAME}. By using our website or app you agree to these
           Terms and our{" "}
-          <Link href="/privacy" className="text-blue-400 underline">
+          <Link href="/privacy" className="text-blue-600 underline">
             Privacy Policy
           </Link>
           .
@@ -30,21 +30,15 @@ export default function TermsPage() {
 
         <LegalDocument sections={TERMS_SECTIONS} />
 
-        <p className="mt-12 border-t border-gray-800 pt-8 text-xs text-gray-500">
+        <p className="mt-12 border-t border-slate-200 pt-8 text-xs text-slate-500">
           Last update: {TERMS_LAST_UPDATED}
         </p>
 
         <div className="mt-10 flex flex-wrap justify-center gap-4">
-          <Link
-            href="/landing/register"
-            className="rounded-full bg-white px-8 py-3 text-sm font-medium text-black"
-          >
+          <Link href="/landing/register" className="btn-primary">
             Join now
           </Link>
-          <Link
-            href="/ads/google/step/1"
-            className="rounded-full border border-gray-600 px-8 py-3 text-sm font-medium text-white"
-          >
+          <Link href="/ads/google/step/1" className="btn-outline">
             Try Now
           </Link>
         </div>

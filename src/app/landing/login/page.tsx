@@ -49,7 +49,7 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-purple-50">
+    <div className="min-h-screen bg-white">
       <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center p-8">
         <Logo className="mb-8" />
         <div className="rounded-2xl bg-white p-8 shadow-lg">
@@ -74,7 +74,7 @@ function LoginForm() {
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               type="submit"
-              className="w-full rounded-full bg-gray-900 py-3 font-medium text-white"
+              className="btn-primary w-full !py-3"
             >
               Continue
             </button>

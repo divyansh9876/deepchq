@@ -40,7 +40,7 @@ function RegisterForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-purple-50">
+    <div className="min-h-screen bg-white">
       <div className="mx-auto grid min-h-screen max-w-5xl grid-cols-1 lg:grid-cols-2">
         <div className="hidden flex-col justify-center p-12 lg:flex">
           <h1 className="text-4xl font-bold">
@@ -79,7 +79,7 @@ function RegisterForm() {
               {error && <p className="text-sm text-red-600">{error}</p>}
               <button
                 type="submit"
-                className="w-full rounded-full bg-gray-900 py-3 font-medium text-white"
+                className="btn-primary w-full !py-3"
               >
                 Continue
               </button>

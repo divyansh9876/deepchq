@@ -24,7 +24,7 @@ function AccountContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <header className="border-b bg-white px-6 py-4">
         <Logo />
       </header>
@@ -41,7 +41,7 @@ function AccountContent() {
         <div className="mt-6 flex flex-col gap-3">
           <Link
             href="/pricing"
-            className="rounded-full bg-gray-900 py-3 text-center font-medium text-white"
+            className="btn-primary block text-center"
           >
             Manage subscription
           </Link>

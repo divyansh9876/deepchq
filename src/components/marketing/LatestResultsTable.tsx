@@ -2,9 +2,9 @@ import type { LatestResult } from "@/lib/marketing/home-content";
 
 function StackedLines({ lines }: { lines: string[] }) {
   return (
-    <div className="flex flex-col text-gray-400">
+    <div className="flex flex-col text-slate-500">
       {lines.map((line, i) => (
-        <span key={i} className={i === 0 ? "text-gray-300" : ""}>
+        <span key={i} className={i === 0 ? "text-slate-700" : ""}>
           {line}
         </span>
       ))}
@@ -14,9 +14,9 @@ function StackedLines({ lines }: { lines: string[] }) {
 
 export function LatestResultsTable({ rows }: { rows: LatestResult[] }) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-gray-800 bg-black/40">
+    <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
       <table className="w-full min-w-[720px] text-left text-sm">
-        <thead className="border-b border-gray-800 bg-gray-900/60 text-xs uppercase tracking-wide text-gray-500">
+        <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
           <tr>
             <th className="px-5 py-4 font-medium">Name</th>
             <th className="px-5 py-4 font-medium">Gender</th>
@@ -24,11 +24,11 @@ export function LatestResultsTable({ rows }: { rows: LatestResult[] }) {
             <th className="px-5 py-4 font-medium">Location</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-800/80">
+        <tbody className="divide-y divide-slate-100">
           {rows.map((row) => (
-            <tr key={row.name} className="hover:bg-gray-900/30">
-              <td className="px-5 py-4 font-medium text-white">{row.name}</td>
-              <td className="px-5 py-4 text-gray-300">{row.gender}</td>
+            <tr key={row.name} className="hover:bg-slate-50">
+              <td className="px-5 py-4 font-medium text-blue-600">{row.name}</td>
+              <td className="px-5 py-4 text-slate-600">{row.gender}</td>
               <td className="px-5 py-4">
                 <StackedLines
                   lines={[row.phoneCode, row.phoneMasked, row.phoneSuffix]}

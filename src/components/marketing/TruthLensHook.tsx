@@ -8,13 +8,11 @@ import { BRAND_NAME } from "@/lib/brand";
  */
 export function TruthLensHook({
   tryHref = "/ads/google/step/1",
-  className = "",
 }: {
   tryHref?: string;
-  className?: string;
 }) {
   return (
-    <section className={`px-6 py-16 md:py-20 ${className}`}>
+    <section className="bg-white px-6 py-16 md:py-20">
       <div className="relative mx-auto max-w-4xl overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-xl shadow-black/5">
         {/* Dotted world-map texture */}
         <div

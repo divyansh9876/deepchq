@@ -54,7 +54,7 @@ export function ContinueButton({
   label?: string;
 }) {
   const cls =
-    "mt-8 block w-full rounded-full bg-gray-900 py-4 text-center font-medium text-white transition hover:bg-gray-800 disabled:opacity-50 disabled:pointer-events-none";
+    "btn-primary mt-8 block w-full !py-4 text-center disabled:pointer-events-none";
   if (href && !disabled) {
     return (
       <Link href={href} className={cls}>

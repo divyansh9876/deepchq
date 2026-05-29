@@ -7,7 +7,7 @@ export function FaqAccordion({ items }: { items: FaqItem[] }) {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <dl className="divide-y divide-gray-800 border border-gray-800 rounded-2xl overflow-hidden">
+    <dl className="overflow-hidden rounded-2xl border border-slate-200 bg-white divide-y divide-slate-200">
       {items.map((item, i) => {
         const isOpen = open === i;
         return (
@@ -15,16 +15,16 @@ export function FaqAccordion({ items }: { items: FaqItem[] }) {
             <dt>
               <button
                 type="button"
-                className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium text-white hover:bg-gray-900/50"
+                className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium text-slate-900 hover:bg-slate-50"
                 onClick={() => setOpen(isOpen ? null : i)}
                 aria-expanded={isOpen}
               >
                 {item.question}
-                <span className="text-gray-500">{isOpen ? "−" : "+"}</span>
+                <span className="text-slate-400">{isOpen ? "−" : "+"}</span>
               </button>
             </dt>
             {isOpen && (
-              <dd className="px-5 pb-4 text-sm leading-relaxed text-gray-400">
+              <dd className="px-5 pb-4 text-sm leading-relaxed text-slate-600">
                 {item.answer}
               </dd>
             )}
