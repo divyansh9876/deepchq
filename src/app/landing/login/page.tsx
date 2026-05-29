@@ -1,15 +1,27 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 
 function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const oauthError = searchParams.get("error");
+    if (oauthError) {
+      setError(
+        oauthError === "google_auth_failed"
+          ? "Google sign-in failed. Check OAuth env vars and redirect URI."
+          : oauthError.replace(/_/g, " "),
+      );
+    }
+  }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,10 +39,12 @@ function LoginForm() {
     router.push("/dashboard");
   }
 
-  async function oauth(provider: "google" | "apple") {
-    const res = await fetch(`/api/auth/oauth?provider=${provider}`);
-    const data = await res.json();
-    setError(data.message ?? data.error ?? "OAuth unavailable");
+  function oauth(provider: "google" | "apple") {
+    if (provider === "google") {
+      window.location.href = `/api/auth/oauth?provider=google`;
+      return;
+    }
+    setError("Apple Sign In is not enabled yet. Use email or Google.");
   }
 
   return (

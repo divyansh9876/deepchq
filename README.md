@@ -71,12 +71,15 @@ Full Play Console checklist: [mobile/README.md](mobile/README.md).
 
 ## Environment
 
+Full setup: **[docs/ENV-SETUP.md](docs/ENV-SETUP.md)** · Where to paste keys: **[docs/WHERE-TO-PUT-KEYS.md](docs/WHERE-TO-PUT-KEYS.md)** · Fill-in file: `cp config/env.values.template config/env.values`
+
 | Variable | Purpose |
 |----------|---------|
+| `NEXT_PUBLIC_APP_URL` | **Required** — public HTTPS URL; redeploy after changing |
 | `DATABASE_URL` | JSON store path (default `./data/deepchq.json`) |
+| `ALLOW_DEV_UNLOCK` | `true` locally; **`false` in production** |
 | `SERPER_API_KEY` | Optional real web search; mock data when unset |
-| `ALLOW_DEV_UNLOCK=true` | Unlock reports without Stripe in development |
-| `STRIPE_SECRET_KEY` | Enable real checkout |
+| `STRIPE_SECRET_KEY` + `STRIPE_PRICE_*` + `STRIPE_WEBHOOK_SECRET` | Real paid subscriptions |
 
 ## Key routes
 

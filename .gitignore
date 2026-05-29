@@ -15,3 +15,5 @@ mobile/android
 mobile/.env
 *.keystore
 scripts/ads/config.json
+config/env.values
+config/env.local

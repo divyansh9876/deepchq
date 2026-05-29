@@ -88,22 +88,16 @@ function RegisterForm() {
             <div className="space-y-2">
               <button
                 type="button"
-                onClick={() =>
-                  fetch("/api/auth/oauth?provider=google").then((r) =>
-                    r.json().then((d) => setError(d.message ?? d.error)),
-                  )
-                }
+                onClick={() => {
+                  window.location.href = "/api/auth/oauth?provider=google";
+                }}
                 className="w-full rounded-full border py-3 text-sm font-medium"
               >
                 Continue with Google
               </button>
               <button
                 type="button"
-                onClick={() =>
-                  fetch("/api/auth/oauth?provider=apple").then((r) =>
-                    r.json().then((d) => setError(d.message ?? d.error)),
-                  )
-                }
+                onClick={() => setError("Apple Sign In is not enabled yet. Use email or Google.")}
                 className="w-full rounded-full border py-3 text-sm font-medium"
               >
                 Continue with Apple
