@@ -8,6 +8,7 @@ import { ReportView } from "@/components/ReportView";
 import { ScanProgress } from "@/components/ScanProgress";
 import { BlurredPaywallPreview } from "@/components/BlurredPaywallPreview";
 import { CandidateList, type CandidateRow } from "@/components/CandidateList";
+import { BRAND_SLUG } from "@/lib/brand";
 import type { PersonReport } from "@/lib/types";
 
 function SearchDetailContent() {
@@ -103,7 +104,7 @@ function SearchDetailContent() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `deepchq-report.md`;
+    a.download = `${BRAND_SLUG}-report.md`;
     a.click();
   }
 

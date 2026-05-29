@@ -1,3 +1,4 @@
+import { BRAND_NAME } from "@/lib/brand";
 import { dbClient } from "@/lib/db";
 import { newId } from "@/lib/id";
 import type { PersonReport, SearchMode } from "@/lib/types";
@@ -179,7 +180,7 @@ function sleep(ms: number) {
 
 function reportToMarkdown(report: PersonReport): string {
   const lines = [
-    `# Deepchq Report: ${report.queryName}`,
+    `# ${BRAND_NAME} Report: ${report.queryName}`,
     "",
     `*${report.sourcesScanned} public sources scanned · ${report.generatedAt}*`,
     "",

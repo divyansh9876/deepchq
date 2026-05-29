@@ -1,3 +1,4 @@
+import { BRAND_NAME } from "@/lib/brand";
 import type { WebResult } from "./web-search";
 import type { ReportSection } from "@/lib/types";
 
@@ -112,7 +113,7 @@ export function buildAiSummary(
   const social = sections.find((s) => s.id === "social_accounts");
   const mentionCount = sections.find((s) => s.id === "web_mentions")?.items.length ?? 0;
 
-  let summary = `Deepchq scanned public sources for **${queryName}**. `;
+  let summary = `${BRAND_NAME} scanned public sources for **${queryName}**. `;
   summary += `We found ${social?.items.length ?? 0} social-related signals and ${mentionCount} web mention entries. `;
   summary +=
     "This report aggregates only publicly available information and should not be used for employment, credit, or tenant screening decisions.";

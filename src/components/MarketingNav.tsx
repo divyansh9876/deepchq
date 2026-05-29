@@ -33,10 +33,10 @@ export function MarketingNav({ dark = false }: { dark?: boolean }) {
           Sign Up
         </Link>
         <Link
-          href="/landing4/step1"
-          className="rounded-full bg-gray-900 px-4 py-2 text-sm font-medium text-white"
+          href="/ads/google/step/1"
+          className={`rounded-full px-4 py-2 text-sm font-medium ${dark ? "bg-white text-black" : "bg-gray-900 text-white"}`}
         >
-          ✦ Try Now
+          Try Now
         </Link>
       </div>
     </header>

@@ -1,3 +1,4 @@
+import { BRAND_SLUG } from "@/lib/brand";
 import { getMarkdownArtifact } from "@/lib/search/store";
 
 export async function GET(
@@ -12,7 +13,7 @@ export async function GET(
   return new Response(artifact.body, {
     headers: {
       "Content-Type": "text/markdown",
-      "Content-Disposition": `attachment; filename="deepchq-${id}.md"`,
+      "Content-Disposition": `attachment; filename="${BRAND_SLUG}-${id}.md"`,
     },
   });
 }
