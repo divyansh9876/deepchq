@@ -1,0 +1,12 @@
+node_modules
+.next
+.env
+.env.local
+.env.docker
+data/
+*.db
+.DS_Store
+mobile/node_modules
+mobile/android
+mobile/.env
+*.keystore

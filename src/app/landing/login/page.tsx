@@ -1,0 +1,102 @@
+"use client";
+
+import { Suspense, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Logo } from "@/components/Logo";
+
+function LoginForm() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      setError(data.error ?? "Login failed");
+      return;
+    }
+    router.push("/dashboard");
+  }
+
+  async function oauth(provider: "google" | "apple") {
+    const res = await fetch(`/api/auth/oauth?provider=${provider}`);
+    const data = await res.json();
+    setError(data.message ?? data.error ?? "OAuth unavailable");
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-purple-50">
+      <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center p-8">
+        <Logo className="mb-8" />
+        <div className="rounded-2xl bg-white p-8 shadow-lg">
+          <h2 className="text-xl font-bold">Log in</h2>
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <input
+              type="email"
+              required
+              placeholder="E-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-xl border px-4 py-3"
+            />
+            <input
+              type="password"
+              required
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-xl border px-4 py-3"
+            />
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            <button
+              type="submit"
+              className="w-full rounded-full bg-gray-900 py-3 font-medium text-white"
+            >
+              Continue
+            </button>
+          </form>
+          <div className="my-6 text-center text-sm text-gray-400">or</div>
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => oauth("google")}
+              className="w-full rounded-full border py-3 text-sm font-medium"
+            >
+              Continue with Google
+            </button>
+            <button
+              type="button"
+              onClick={() => oauth("apple")}
+              className="w-full rounded-full border py-3 text-sm font-medium"
+            >
+              Continue with Apple
+            </button>
+          </div>
+          <p className="mt-6 text-center text-sm text-gray-500">
+            No account?{" "}
+            <Link href="/landing/register" className="text-blue-600">
+              Sign up
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="p-12">Loading…</div>}>
+      <LoginForm />
+    </Suspense>
+  );
+}
