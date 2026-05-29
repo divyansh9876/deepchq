@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { UtmCapture } from "@/components/UtmCapture";
+import { FunnelAttribution } from "@/components/funnel/FunnelAttribution";
 
 export default function Landing4Layout({
   children,
@@ -9,7 +9,7 @@ export default function Landing4Layout({
   return (
     <>
       <Suspense fallback={null}>
-        <UtmCapture />
+        <FunnelAttribution platform="google" />
       </Suspense>
       {children}
     </>

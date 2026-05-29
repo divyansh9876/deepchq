@@ -10,3 +10,4 @@ mobile/node_modules
 mobile/android
 mobile/.env
 *.keystore
+scripts/ads/config.json

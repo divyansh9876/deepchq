@@ -6,8 +6,11 @@ export type FunnelSession = {
   step: number;
   fullName: string | null;
   email: string | null;
+  platform: string | null;
   utmJson: string | null;
   gclid: string | null;
+  fbclid: string | null;
+  scCid: string | null;
   createdAt: Date;
   updatedAt: Date;
 };

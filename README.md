@@ -4,7 +4,7 @@ AI-powered people search from public sources.
 
 ## Features
 
-- **Google Ads funnel** (`/landing4/step1` → step4) with UTM/`gclid` capture
+- **Paid ad funnels** — Google, Instagram, Snapchat (`/ads/{platform}/step/1` → 4) with UTM + `gclid` / `fbclid` / Snap click ID capture; legacy Google path `/landing4/step1`
 - **Marketing homepage** — dark hero search, use cases, FAQ
 - **Registration & login** — email/password (+ OAuth placeholders)
 - **People search pipeline** — SSE scan progress, structured report sections
@@ -41,6 +41,10 @@ See [docs/DOCKER.md](docs/DOCKER.md) for production and reverse-proxy notes.
 3. Set `NEXT_PUBLIC_APP_URL` to your Render URL and redeploy.
 
 Details: [docs/RENDER.md](docs/RENDER.md).
+
+Ad campaign URLs, UTMs, and pixel mapping: [docs/MARKETING-ADS.md](docs/MARKETING-ADS.md).
+
+Automated ad generation (manual publish gate): [docs/AD-AUTOMATION-PLAYBOOK.md](docs/AD-AUTOMATION-PLAYBOOK.md) — run `npm run ads:generate`.
 
 ## Push to a new GitHub repo
 
@@ -79,7 +83,8 @@ Full Play Console checklist: [mobile/README.md](mobile/README.md).
 | Path | Description |
 |------|-------------|
 | `/` | Marketing homepage |
-| `/landing4/step1-4` | Ad conversion funnel |
+| `/ads/google\|instagram\|snapchat/step/1-4` | Platform ad funnels |
+| `/landing4/step1-4` | Legacy Google Ads funnel |
 | `/landing/register` | Sign up |
 | `/dashboard` | Search + history |
 | `/search/[id]` | Live scan + report |

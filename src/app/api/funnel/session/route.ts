@@ -6,6 +6,9 @@ import { z } from "zod";
 const createSchema = z.object({
   utm: z.record(z.string()).optional(),
   gclid: z.string().optional(),
+  fbclid: z.string().optional(),
+  scCid: z.string().optional(),
+  platform: z.enum(["google", "instagram", "snapchat"]).optional(),
 });
 
 const patchSchema = z.object({
@@ -25,8 +28,11 @@ export async function POST(req: NextRequest) {
     step: 1,
     fullName: null,
     email: null,
+    platform: body.platform ?? null,
     utmJson: body.utm ? JSON.stringify(body.utm) : null,
     gclid: body.gclid ?? null,
+    fbclid: body.fbclid ?? null,
+    scCid: body.scCid ?? null,
     createdAt: now,
     updatedAt: now,
   });

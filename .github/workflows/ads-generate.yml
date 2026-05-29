@@ -1,0 +1,43 @@
+name: Generate ad campaigns
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Write ads config
+        env:
+          ADS_BASE_URL: ${{ secrets.ADS_BASE_URL }}
+        run: |
+          BASE="${ADS_BASE_URL:-https://deepchq.app}"
+          cat > scripts/ads/config.json <<EOF
+          {
+            "baseUrl": "${BASE}",
+            "instagramHandle": "@deepchq",
+            "dailyBudgetUsd": 50,
+            "geoTargets": ["US"],
+            "languages": ["en"],
+            "publishMode": "draft_only"
+          }
+          EOF
+
+      - run: npm run ads:generate
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: generated-ads
+          path: generated/ads/
+          retention-days: 30
