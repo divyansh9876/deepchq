@@ -12,6 +12,8 @@ FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+# Next.js expects public/ for static assets; repo may only have .gitkeep
+RUN mkdir -p public
 RUN npm run build
 
 FROM base AS runner
