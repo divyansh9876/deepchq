@@ -14,19 +14,51 @@ const PLATFORM_ICON: Record<string, string> = {
   youtube: "▶",
 };
 
-function SourceChips({ domains, locked }: { domains: string[]; locked: boolean }) {
+export type PreviewMeta = {
+  hiddenSocialCount: number;
+  hiddenPaaCount: number;
+  totalSocialCount: number;
+  totalPaaCount: number;
+};
+
+function SourceChips({ domains }: { domains: string[] }) {
   if (!domains.length) return null;
   return (
     <div className="mt-4 flex flex-wrap items-center gap-2">
       {domains.slice(0, 8).map((d) => (
         <span
           key={d}
-          className={`rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-600 ${locked ? "blur-sm" : ""}`}
+          className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-600"
         >
           {d}
         </span>
       ))}
       <span className="text-xs text-gray-400">{domains.length} sources</span>
+    </div>
+  );
+}
+
+function UnlockBanner({
+  onUnlock,
+  unlockLoading,
+}: {
+  onUnlock?: () => void;
+  unlockLoading?: boolean;
+}) {
+  return (
+    <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+      <p className="text-sm text-amber-900">
+        Preview mode — unlock to see all social accounts, full bio, and follow-up
+        questions.
+      </p>
+      <button
+        type="button"
+        onClick={onUnlock}
+        disabled={unlockLoading}
+        className="mt-3 rounded-full bg-gray-900 px-6 py-2 text-sm font-medium text-white disabled:opacity-50"
+      >
+        {unlockLoading ? "Loading…" : "Unlock full report"}
+      </button>
     </div>
   );
 }
@@ -78,11 +110,13 @@ function FindWithAiPanel({ queryName }: { queryName: string }) {
 export function DeepSearchResults({
   report,
   locked,
+  previewMeta,
   onUnlock,
   unlockLoading,
 }: {
   report: PersonReport;
   locked: boolean;
+  previewMeta?: PreviewMeta | null;
   onUnlock?: () => void;
   unlockLoading?: boolean;
 }) {
@@ -92,10 +126,14 @@ export function DeepSearchResults({
   const [followUpInput, setFollowUpInput] = useState("");
 
   const bio = report.biography ?? report.aiSummary ?? "";
-  const bioPreview = bio.length > 420 && !bioExpanded ? `${bio.slice(0, 420)}...` : bio;
+  const bioIsTeaser = locked && bio.endsWith("…");
+  const bioPreview =
+    !locked && bio.length > 420 && !bioExpanded ? `${bio.slice(0, 420)}...` : bio;
   const social = report.socialProfiles ?? [];
   const domains = report.sourceDomains ?? [];
   const paa = report.peopleAlsoAsk ?? [];
+  const hiddenSocial = previewMeta?.hiddenSocialCount ?? 0;
+  const hiddenPaa = previewMeta?.hiddenPaaCount ?? 0;
 
   function copyBio() {
     navigator.clipboard.writeText(bio).catch(() => {});
@@ -105,7 +143,10 @@ export function DeepSearchResults({
     if (!followUpInput.trim()) return;
     setFollowUps((prev) => [
       ...prev,
-      { q: followUpInput.trim(), a: `Based on public sources for ${report.queryName}, we would cross-reference directories and social signals. Full AI follow-up requires an unlocked report.` },
+      {
+        q: followUpInput.trim(),
+        a: `Based on public sources for ${report.queryName}, we would cross-reference directories and social signals. Full AI follow-up requires an unlocked report.`,
+      },
     ]);
     setFollowUpInput("");
   }
@@ -133,12 +174,13 @@ export function DeepSearchResults({
           )}
 
           {bio && (
-            <div className={`mt-8 ${locked ? "relative" : ""}`}>
-              <div
-                className={`text-sm leading-relaxed text-gray-700 ${locked ? "blur-[4px] select-none" : ""}`}
-              >
-                {bioPreview}
-              </div>
+            <div className="mt-8">
+              <p className="text-sm leading-relaxed text-gray-700">{bioPreview}</p>
+              {bioIsTeaser && (
+                <p className="mt-2 text-sm font-medium text-amber-800">
+                  Unlock to read the full biography
+                </p>
+              )}
               {!locked && bio.length > 420 && (
                 <button
                   type="button"
@@ -157,7 +199,7 @@ export function DeepSearchResults({
                   Copy
                 </button>
               )}
-              <SourceChips domains={domains} locked={locked} />
+              <SourceChips domains={domains} />
             </div>
           )}
 
@@ -195,54 +237,59 @@ export function DeepSearchResults({
           )}
 
           {locked && (
-            <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-              <p className="text-sm text-amber-900">
-                Preview mode — unlock to see social accounts, full bio, and follow-up
-                questions.
-              </p>
-              <button
-                type="button"
-                onClick={onUnlock}
-                disabled={unlockLoading}
-                className="mt-3 rounded-full bg-gray-900 px-6 py-2 text-sm font-medium text-white disabled:opacity-50"
-              >
-                {unlockLoading ? "Loading…" : "Unlock full report"}
-              </button>
-            </div>
+            <UnlockBanner onUnlock={onUnlock} unlockLoading={unlockLoading} />
           )}
 
           {social.length > 0 && (
             <section className="mt-10">
               <h2 className="text-lg font-semibold text-gray-900">Social Accounts</h2>
-              <ul className={`mt-4 space-y-2 ${locked ? "blur-md select-none" : ""}`}>
-                {social.map((s) => (
-                  <li key={s.platform}>
-                    <a
-                      href={locked ? "#" : s.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 hover:border-gray-300"
-                      onClick={(e) => locked && e.preventDefault()}
+              <ul className="mt-4 space-y-2">
+                {social.map((s, i) => {
+                  const rowLocked = locked && i > 0;
+                  const heavyBlur = locked && i >= 2;
+                  return (
+                    <li
+                      key={`${s.platform}-${i}`}
+                      className={heavyBlur ? "relative" : undefined}
                     >
-                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-sm font-bold">
-                        {PLATFORM_ICON[s.platform] ?? "•"}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-gray-900">{s.label}</p>
-                        <p className="truncate text-xs text-gray-500">
-                          {s.handle} • {s.label}
-                        </p>
-                      </div>
-                      <span className="text-gray-400">↗</span>
-                    </a>
-                  </li>
-                ))}
+                      <a
+                        href={rowLocked ? "#" : s.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 hover:border-gray-300 ${heavyBlur ? "blur-[6px] select-none" : ""}`}
+                        onClick={(e) => rowLocked && e.preventDefault()}
+                      >
+                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-sm font-bold">
+                          {PLATFORM_ICON[s.platform] ?? "•"}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-gray-900">{s.label}</p>
+                          <p
+                            className={`truncate text-xs text-gray-500 ${locked && i === 1 ? "opacity-90" : ""}`}
+                          >
+                            {s.handle}
+                          </p>
+                        </div>
+                        {!rowLocked && <span className="text-gray-400">↗</span>}
+                        {rowLocked && (
+                          <span className="text-xs font-medium text-amber-700">Locked</span>
+                        )}
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
+              {locked && hiddenSocial > 0 && (
+                <p className="mt-3 rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-center text-sm text-gray-600">
+                  +{hiddenSocial} more account{hiddenSocial === 1 ? "" : "s"} in full
+                  report
+                </p>
+              )}
             </section>
           )}
 
           {paa.length > 0 && (
-            <section className={`mt-10 ${locked ? "blur-sm select-none" : ""}`}>
+            <section className="mt-10">
               <h2 className="text-lg font-semibold text-gray-900">People also ask</h2>
               <ul className="mt-4 space-y-2">
                 {paa.map((q) => (
@@ -254,6 +301,24 @@ export function DeepSearchResults({
                   </li>
                 ))}
               </ul>
+              {locked && hiddenPaa > 0 && (
+                <div className="relative mt-2 overflow-hidden rounded-xl">
+                  <ul className="space-y-2 blur-sm select-none" aria-hidden>
+                    {Array.from({ length: Math.min(2, hiddenPaa) }).map((_, i) => (
+                      <li
+                        key={i}
+                        className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm text-gray-400"
+                      >
+                        More questions about {report.queryName}…
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-white/60 to-white" />
+                  <p className="relative -mt-8 pb-1 text-center text-sm font-medium text-gray-600">
+                    +{hiddenPaa} more question{hiddenPaa === 1 ? "" : "s"} unlocked
+                  </p>
+                </div>
+              )}
             </section>
           )}
 
@@ -268,7 +333,12 @@ export function DeepSearchResults({
                 <p className="mt-2 text-gray-600">{item.a}</p>
               </div>
             ))}
-            {!locked && (
+            {locked ? (
+              <div className="mt-4 flex items-center gap-3 rounded-full border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-500">
+                <span aria-hidden>🔒</span>
+                Unlock to ask follow-up questions
+              </div>
+            ) : (
               <div className="mt-4 flex gap-2">
                 <input
                   type="text"

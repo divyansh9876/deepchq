@@ -14,6 +14,15 @@ const config: Config = {
           dark: "#0a0a0a",
         },
       },
+      keyframes: {
+        "lens-pulse": {
+          "0%, 100%": { transform: "translate(-50%, -50%) scale(1)" },
+          "50%": { transform: "translate(-50%, -50%) scale(1.04)" },
+        },
+      },
+      animation: {
+        "lens-pulse": "lens-pulse 3s ease-in-out infinite",
+      },
     },
   },
   plugins: [],

@@ -4,7 +4,10 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AppShell } from "@/components/app/AppSidebar";
-import { DeepSearchResults } from "@/components/app/DeepSearchResults";
+import {
+  DeepSearchResults,
+  type PreviewMeta,
+} from "@/components/app/DeepSearchResults";
 import { ScanProgress } from "@/components/ScanProgress";
 import type { PersonReport } from "@/lib/types";
 
@@ -17,6 +20,7 @@ function SearchDetailContent() {
   const [locked, setLocked] = useState(true);
   const [scanning, setScanning] = useState(true);
   const [unlockLoading, setUnlockLoading] = useState(false);
+  const [previewMeta, setPreviewMeta] = useState<PreviewMeta | null>(null);
 
   const load = useCallback(async () => {
     const checkout = searchParams.get("checkout") === "success";
@@ -27,6 +31,7 @@ function SearchDetailContent() {
     setStatus(data.search?.status ?? "unknown");
     if (data.report) setReport(data.report);
     setLocked(data.locked ?? true);
+    setPreviewMeta(data.previewMeta ?? null);
     if (data.search?.status === "completed" || data.search?.status === "failed") {
       setScanning(false);
     }
@@ -91,6 +96,7 @@ function SearchDetailContent() {
         <DeepSearchResults
           report={report}
           locked={locked}
+          previewMeta={previewMeta}
           onUnlock={unlock}
           unlockLoading={unlockLoading}
         />

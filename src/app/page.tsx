@@ -8,6 +8,7 @@ import { MarketingFooter } from "@/components/MarketingFooter";
 import { FaqAccordion } from "@/components/marketing/FaqAccordion";
 import { LatestResultsTable } from "@/components/marketing/LatestResultsTable";
 import { PopularSearchChips } from "@/components/marketing/PopularSearchChips";
+import { TruthLensHook } from "@/components/marketing/TruthLensHook";
 import { BRAND_NAME } from "@/lib/brand";
 import {
   getFaqItems,
@@ -94,6 +95,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <TruthLensHook className="bg-black" />
 
       <section className="px-6 py-20">
         <div className="mx-auto max-w-3xl text-center">
