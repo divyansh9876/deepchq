@@ -4,6 +4,14 @@ import { newId } from "@/lib/id";
 import type { PersonReport, SearchMode } from "@/lib/types";
 import { webSearch } from "./web-search";
 import { extractFromResults, buildAiSummary } from "./extract";
+import {
+  buildBiography,
+  buildPeopleAlsoAsk,
+  extractSocialProfiles,
+  extractSourceDomains,
+  inferSubtitle,
+  isLowConfidence,
+} from "./synthesize";
 
 type EmitFn = (type: string, payload: Record<string, unknown>) => Promise<void>;
 
@@ -122,12 +130,34 @@ export async function runPeopleSearch(
       aiSummary = buildAiSummary(queryName, sections, "research");
     }
 
+    const socialProfiles = extractSocialProfiles(queryName, unique);
+    const sourceDomains = extractSourceDomains(unique);
+    const snippets = unique.map((r) => r.snippet);
+    const biography = buildBiography(queryName, unique, socialProfiles.length);
+    const subtitle = inferSubtitle(queryName, snippets);
+    const lowConfidence = isLowConfidence(unique, socialProfiles);
+
+    dbClient.candidates.create({
+      id: newId("cand"),
+      searchId,
+      displayName: queryName,
+      avatarUrl: null,
+      location: subtitle.includes("·") ? subtitle.split("·").pop()?.trim() ?? null : null,
+      confidence: lowConfidence ? 42 : 94,
+    });
+
     const report: PersonReport = {
       queryName,
       sourcesScanned,
       sections,
       aiSummary,
       generatedAt: new Date().toISOString(),
+      subtitle,
+      biography,
+      sourceDomains,
+      peopleAlsoAsk: buildPeopleAlsoAsk(queryName),
+      socialProfiles,
+      lowConfidence,
     };
 
     dbClient.artifacts.create({

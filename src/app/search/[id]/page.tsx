@@ -3,12 +3,9 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
-import { ReportView } from "@/components/ReportView";
+import { AppShell } from "@/components/app/AppSidebar";
+import { DeepSearchResults } from "@/components/app/DeepSearchResults";
 import { ScanProgress } from "@/components/ScanProgress";
-import { BlurredPaywallPreview } from "@/components/BlurredPaywallPreview";
-import { CandidateList, type CandidateRow } from "@/components/CandidateList";
-import { BRAND_SLUG } from "@/lib/brand";
 import type { PersonReport } from "@/lib/types";
 
 function SearchDetailContent() {
@@ -19,7 +16,6 @@ function SearchDetailContent() {
   const [report, setReport] = useState<PersonReport | null>(null);
   const [locked, setLocked] = useState(true);
   const [scanning, setScanning] = useState(true);
-  const [candidates, setCandidates] = useState<CandidateRow[]>([]);
   const [unlockLoading, setUnlockLoading] = useState(false);
 
   const load = useCallback(async () => {
@@ -39,29 +35,6 @@ function SearchDetailContent() {
   useEffect(() => {
     load();
   }, [load]);
-
-  useEffect(() => {
-    if (status !== "completed") return;
-    fetch(`/api/search/${id}/candidates`)
-      .then((r) => r.json())
-      .then((d) =>
-        setCandidates(
-          (d.candidates ?? []).map(
-            (c: {
-              id: string;
-              displayName: string;
-              location: string | null;
-              confidence: number | null;
-            }) => ({
-              id: c.id,
-              displayName: c.displayName,
-              location: c.location,
-              confidence: c.confidence,
-            }),
-          ),
-        ),
-      );
-  }, [id, status]);
 
   async function unlock() {
     setUnlockLoading(true);
@@ -97,30 +70,12 @@ function SearchDetailContent() {
     }
   }
 
-  async function exportMarkdown() {
-    const res = await fetch(`/api/search/${id}/export`);
-    if (!res.ok) return;
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${BRAND_SLUG}-report.md`;
-    a.click();
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <Logo />
-          <Link href="/history" className="text-sm text-gray-600">
-            History
-          </Link>
-        </div>
-      </header>
-      <main className="mx-auto max-w-3xl px-6 py-10">
-        {scanning && status !== "completed" && status !== "failed" && (
-          <div className="mb-8">
+    <AppShell>
+      {scanning && status !== "completed" && status !== "failed" && (
+        <div className="flex flex-1 flex-col items-center justify-center px-6 py-12">
+          <p className="mb-6 text-lg font-medium text-gray-700">Scanning public sources…</p>
+          <div className="w-full max-w-md">
             <ScanProgress
               searchId={id}
               onComplete={() => {
@@ -129,42 +84,35 @@ function SearchDetailContent() {
               }}
             />
           </div>
-        )}
+        </div>
+      )}
 
-        {candidates.length > 0 && (
-          <CandidateList candidates={candidates} />
-        )}
+      {report && !scanning && (
+        <DeepSearchResults
+          report={report}
+          locked={locked}
+          onUnlock={unlock}
+          unlockLoading={unlockLoading}
+        />
+      )}
 
-        {report && locked && (
-          <div className="mb-6">
-            <BlurredPaywallPreview
-              searchId={id}
-              onUnlock={unlock}
-              loading={unlockLoading}
-            />
+      {!report && !scanning && status === "failed" && (
+        <div className="flex flex-1 items-center justify-center p-12 text-center">
+          <div>
+            <p className="text-gray-600">Search failed. Please try again.</p>
+            <Link href="/chat" className="mt-4 inline-block text-blue-600 underline">
+              New Search
+            </Link>
           </div>
-        )}
+        </div>
+      )}
 
-        {report && (
-          <>
-            <ReportView report={report} locked={locked} onUnlock={unlock} />
-            {!locked && (
-              <button
-                type="button"
-                onClick={exportMarkdown}
-                className="mt-6 rounded-full border px-6 py-2 text-sm font-medium"
-              >
-                Export Markdown
-              </button>
-            )}
-          </>
-        )}
-
-        {!report && !scanning && (
-          <p className="text-gray-500">Loading report…</p>
-        )}
-      </main>
-    </div>
+      {!report && !scanning && status !== "failed" && (
+        <div className="flex flex-1 items-center justify-center text-gray-500">
+          Loading report…
+        </div>
+      )}
+    </AppShell>
   );
 }
 

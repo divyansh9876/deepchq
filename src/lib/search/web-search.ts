@@ -31,6 +31,43 @@ export async function webSearch(query: string): Promise<WebResult[]> {
 }
 
 function mockResults(query: string): WebResult[] {
+  const q = query.toLowerCase();
+  if (q.includes("mrbeast") || q.includes("jimmy donaldson")) {
+    return [
+      {
+        title: "MrBeast - Wikipedia",
+        url: "https://en.wikipedia.org/wiki/MrBeast",
+        snippet:
+          "Jimmy Donaldson, known as MrBeast, is an American YouTuber and philanthropist known for expensive stunts and charitable giveaways.",
+      },
+      {
+        title: "MrBeast - YouTube",
+        url: "https://www.youtube.com/@MrBeast",
+        snippet: "Official YouTube channel with billions of views and subscriber milestones.",
+      },
+      {
+        title: "MrBeast (@MrBeast) / X",
+        url: "https://x.com/MrBeast",
+        snippet: "Posts and announcements from MrBeast on X (Twitter).",
+      },
+      {
+        title: "MrBeast (@mrbeast) • Instagram",
+        url: "https://www.instagram.com/mrbeast/",
+        snippet: "Photos and reels from MrBeast on Instagram.",
+      },
+      {
+        title: "MrBeast (@mrbeast) | TikTok",
+        url: "https://www.tiktok.com/@mrbeast",
+        snippet: "Short-form videos and behind-the-scenes content on TikTok.",
+      },
+      {
+        title: "MrBeast | Facebook",
+        url: "https://www.facebook.com/MrBeast",
+        snippet: "Public Facebook page for MrBeast community updates.",
+      },
+    ];
+  }
+
   const slug = encodeURIComponent(query);
   return [
     {

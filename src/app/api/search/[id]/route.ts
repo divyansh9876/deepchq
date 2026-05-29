@@ -29,6 +29,9 @@ export async function GET(
   const preview = report
     ? {
         ...report,
+        biography: unlocked ? report.biography : blurText(report.biography ?? ""),
+        socialProfiles: report.socialProfiles,
+        peopleAlsoAsk: unlocked ? report.peopleAlsoAsk : report.peopleAlsoAsk?.slice(0, 2),
         sections: report.sections.map((s) => ({
           ...s,
           items: s.items.map((item) => ({

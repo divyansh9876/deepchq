@@ -9,6 +9,13 @@ export type SearchStatus =
   | "completed"
   | "failed";
 
+export interface SocialProfile {
+  platform: string;
+  label: string;
+  handle: string;
+  url: string;
+}
+
 export interface ReportSection {
   id: string;
   title: string;
@@ -21,6 +28,16 @@ export interface PersonReport {
   sections: ReportSection[];
   aiSummary?: string;
   generatedAt: string;
+  /** e.g. "Youtuber · United States" */
+  subtitle?: string;
+  /** Long-form bio paragraph */
+  biography?: string;
+  /** Unique domains for source chips */
+  sourceDomains?: string[];
+  peopleAlsoAsk?: string[];
+  socialProfiles?: SocialProfile[];
+  /** Show "Find with AI" clarifying questions */
+  lowConfidence?: boolean;
 }
 
 export interface SearchEventPayload {
