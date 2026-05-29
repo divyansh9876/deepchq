@@ -1,5 +1,5 @@
 import type { WebResult } from "./web-search";
-import type { PersonReport, SocialProfile } from "@/lib/types";
+import type { PersonReport, ReportSection, SocialProfile } from "@/lib/types";
 
 const PLATFORM_META: { test: RegExp; platform: string; label: string }[] = [
   { test: /facebook/i, platform: "facebook", label: "Facebook" },
@@ -9,6 +9,14 @@ const PLATFORM_META: { test: RegExp; platform: string; label: string }[] = [
   { test: /linkedin/i, platform: "linkedin", label: "LinkedIn" },
   { test: /youtube/i, platform: "youtube", label: "YouTube" },
 ];
+
+/** Sections shown in DeepSearch-style report (excluding header + social list). */
+export const REPORT_INSIGHT_IDS = [
+  "email",
+  "location",
+  "connections",
+  "web_mentions",
+] as const;
 
 function domainFromUrl(url: string): string {
   try {
@@ -30,20 +38,31 @@ export function extractSocialProfiles(
     if (!meta || seen.has(meta.platform)) continue;
     seen.add(meta.platform);
 
-    const handle =
+    const handleFromTitle =
       r.title.match(/@([\w.]+)/)?.[1] ??
-      r.title.match(/\|\s*([^|]+)\s*\|/)?.[1]?.trim() ??
-      queryName.replace(/\s+/g, "");
+      r.title.match(/\((@[\w.]+)\)/)?.[1]?.replace("@", "") ??
+      r.url.match(/@([\w.]+)/)?.[1];
+
+    const slug = queryName.replace(/\s+/g, "").toLowerCase();
+    const handle = handleFromTitle ?? slug;
 
     profiles.push({
       platform: meta.platform,
       label: meta.label,
-      handle: meta.platform === "facebook" ? queryName : `@${handle.replace(/^@/, "")}`,
+      handle:
+        meta.platform === "facebook"
+          ? queryName
+          : `@${handle.replace(/^@/, "")}`,
       url: r.url,
     });
   }
 
-  return profiles.slice(0, 6);
+  const order = ["linkedin", "instagram", "facebook", "x", "tiktok", "youtube"];
+  profiles.sort(
+    (a, b) => order.indexOf(a.platform) - order.indexOf(b.platform),
+  );
+
+  return profiles.slice(0, 8);
 }
 
 export function extractSourceDomains(results: WebResult[]): string[] {
@@ -51,16 +70,21 @@ export function extractSourceDomains(results: WebResult[]): string[] {
   for (const r of results) {
     domains.add(domainFromUrl(r.url));
   }
-  return [...domains].slice(0, 12);
+  return [...domains].slice(0, 14);
 }
 
-export function buildPeopleAlsoAsk(queryName: string): string[] {
+export function buildPeopleAlsoAsk(
+  queryName: string,
+  subtitle?: string,
+): string[] {
+  const role =
+    subtitle?.split("·")[0]?.trim().toLowerCase() ?? "public figure";
   return [
-    `Who is ${queryName} and how did they become famous?`,
-    `What type of content is ${queryName} best known for?`,
-    `How does ${queryName} fund large-scale projects or giveaways?`,
-    `What businesses or brands has ${queryName} founded or invested in?`,
-    `How has ${queryName} influenced their industry or online culture?`,
+    `Who is ${queryName} and what is their public background?`,
+    `What is ${queryName} known for as a ${role}?`,
+    `Which social platforms is ${queryName} most active on?`,
+    `Where is ${queryName} based or most frequently mentioned?`,
+    `What public records or news mention ${queryName}?`,
   ];
 }
 
@@ -76,9 +100,11 @@ export function inferSubtitle(
   else if (/singer|musician|artist/i.test(text)) parts.push("Singer");
   else if (/investor/i.test(text)) parts.push("Investor");
   else if (/actor|actress/i.test(text)) parts.push("Actor");
+  else if (/influencer|creator/i.test(text)) parts.push("Influencer");
 
   if (/united states|american|u\.s\./i.test(text)) parts.push("United States");
   else if (/canada|canadian/i.test(text)) parts.push("Canada");
+  else if (/india|indian/i.test(text)) parts.push("India");
   else if (/united kingdom|british/i.test(text)) parts.push("United Kingdom");
 
   if (parts.length === 0) {
@@ -113,10 +139,69 @@ export function buildBiography(
     .slice(0, 4);
 
   if (snippets.length >= 2) {
-    return `${queryName} appears in multiple public web sources. ${snippets.join(" ")} ${socialCount > 0 ? `Our scan found ${socialCount} related social or directory signals that may correspond to this name.` : "Verify details using the linked sources below, as common names may match different individuals."}`;
+    return `${queryName} is a public figure with multiple listings across social platforms, directories, and news indexes. ${snippets[0]} ${snippets[1]} ${socialCount > 0 ? `This scan surfaced ${socialCount} social or directory signals that may correspond to this name.` : "Verify the sources below, as common names can match different people."}`;
   }
 
-  return `${queryName} was searched across public directories, social platforms, and news indexes. Limited biographical text was available in the current scan; use the source links and social accounts below to verify you have the correct person.`;
+  return `${queryName} appears in public web directories and social search results. This report summarizes publicly available signals only — including possible social accounts, location hints, and web mentions — so you can confirm whether this is the person you intended to find.`;
+}
+
+export function enrichReportSections(
+  queryName: string,
+  sections: ReportSection[],
+  results: WebResult[],
+  subtitle?: string,
+): ReportSection[] {
+  const locationHint = subtitle?.includes("·")
+    ? subtitle.split("·").pop()?.trim()
+    : null;
+
+  return sections.map((section) => {
+    if (section.id === "location" && locationHint) {
+      const hasReal = section.items.some((i) => !i.text.includes("not found"));
+      if (!hasReal) {
+        return {
+          ...section,
+          items: [
+            {
+              text: `Likely region: ${locationHint} (inferred from public profile signals).`,
+            },
+            ...section.items,
+          ],
+        };
+      }
+    }
+
+    if (section.id === "email") {
+      const hasReal = section.items.some((i) => i.text.includes("@"));
+      if (!hasReal && results.length > 0) {
+        return {
+          ...section,
+          items: [
+            {
+              text: `No verified public email found for ${queryName}. Unlock may surface pattern hints from directory listings.`,
+            },
+          ],
+        };
+      }
+    }
+
+    if (section.id === "connections" && results.length >= 3) {
+      return {
+        ...section,
+        items: [
+          {
+            text: `Public mentions and co-tags associated with ${queryName} in news and social results.`,
+          },
+          {
+            text: `Cross-links from ${domainFromUrl(results[0]?.url ?? "")} and related directory pages.`,
+            sourceUrl: results[0]?.url,
+          },
+        ],
+      };
+    }
+
+    return section;
+  });
 }
 
 export function isLowConfidence(
@@ -127,4 +212,21 @@ export function isLowConfidence(
   const hasBioSnippet = results.some((r) => r.snippet.length > 80);
   if (!hasBioSnippet && socialProfiles.length === 0) return true;
   return false;
+}
+
+export function socialSecondaryLine(profile: SocialProfile): string {
+  try {
+    const host = new URL(profile.url).hostname.replace(/^www\./, "");
+    return `${profile.handle} · ${host}`;
+  } catch {
+    return profile.handle;
+  }
+}
+
+export function insightSectionsForReport(
+  report: PersonReport,
+): ReportSection[] {
+  return report.sections.filter((s) =>
+    (REPORT_INSIGHT_IDS as readonly string[]).includes(s.id),
+  );
 }

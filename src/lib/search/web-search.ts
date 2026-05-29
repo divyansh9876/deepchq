@@ -65,20 +65,52 @@ function mockResults(query: string): WebResult[] {
         url: "https://www.facebook.com/MrBeast",
         snippet: "Public Facebook page for MrBeast community updates.",
       },
+      {
+        title: "MrBeast | LinkedIn",
+        url: "https://www.linkedin.com/in/mrbeast",
+        snippet: "Business and philanthropy updates on LinkedIn.",
+      },
     ];
   }
 
   const slug = encodeURIComponent(query);
+  const handle = query.replace(/\s+/g, "").toLowerCase();
+
   return [
     {
-      title: `${query} - LinkedIn`,
-      url: `https://www.linkedin.com/search/results/people/?keywords=${slug}`,
+      title: `${query} | LinkedIn`,
+      url: `https://www.linkedin.com/in/${handle}`,
       snippet: `Professional profile and career history for ${query}.`,
     },
     {
-      title: `${query} profiles | Facebook`,
-      url: `https://www.facebook.com/public/${slug}`,
-      snippet: `Public posts and profile information associated with ${query}.`,
+      title: `${query} (@${handle}) • Instagram`,
+      url: `https://www.instagram.com/${handle}/`,
+      snippet: `Photos, reels, and public posts associated with ${query} on Instagram.`,
+    },
+    {
+      title: `${query} | Facebook`,
+      url: `https://www.facebook.com/${handle}`,
+      snippet: `Public Facebook profile and posts for ${query}.`,
+    },
+    {
+      title: `${query} (@${handle}) / X`,
+      url: `https://x.com/${handle}`,
+      snippet: `Posts and public mentions of ${query} on X.`,
+    },
+    {
+      title: `${query} (@${handle}) | TikTok`,
+      url: `https://www.tiktok.com/@${handle}`,
+      snippet: `Short videos and creator content linked to ${query}.`,
+    },
+    {
+      title: `${query} - YouTube`,
+      url: `https://www.youtube.com/@${handle}`,
+      snippet: `Videos and channels that may relate to ${query}.`,
+    },
+    {
+      title: `Whitepages - ${query}`,
+      url: `https://www.whitepages.com/name/${slug}`,
+      snippet: `Directory listing with location and contact hints for ${query}.`,
     },
     {
       title: `${query} - Google News`,
@@ -86,14 +118,14 @@ function mockResults(query: string): WebResult[] {
       snippet: `Recent news mentions and articles referencing ${query}.`,
     },
     {
-      title: `Whitepages - ${query}`,
-      url: `https://www.whitepages.com/name/${slug}`,
-      snippet: `Directory listing with location hints for ${query}.`,
+      title: `${query} - Spokeo`,
+      url: `https://www.spokeo.com/${handle}`,
+      snippet: `Aggregated public records and social links for ${query}.`,
     },
     {
-      title: `${query} on X`,
-      url: `https://x.com/search?q=${slug}`,
-      snippet: `Social posts and public mentions of ${query}.`,
+      title: `${query} - TruePeopleSearch`,
+      url: `https://www.truepeoplesearch.com/results?name=${slug}`,
+      snippet: `People-search index entries that may match ${query}.`,
     },
   ];
 }

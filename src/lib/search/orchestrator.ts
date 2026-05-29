@@ -7,6 +7,7 @@ import { extractFromResults, buildAiSummary } from "./extract";
 import {
   buildBiography,
   buildPeopleAlsoAsk,
+  enrichReportSections,
   extractSocialProfiles,
   extractSourceDomains,
   inferSubtitle,
@@ -104,7 +105,7 @@ export async function runPeopleSearch(
     });
 
     const unique = dedupeByUrl(allResults);
-    const { sections, claims: claimRows } = extractFromResults(queryName, unique);
+    let { sections, claims: claimRows } = extractFromResults(queryName, unique);
 
     for (const c of claimRows) {
       dbClient.claims.create({
@@ -135,7 +136,13 @@ export async function runPeopleSearch(
     const snippets = unique.map((r) => r.snippet);
     const biography = buildBiography(queryName, unique, socialProfiles.length);
     const subtitle = inferSubtitle(queryName, snippets);
+    sections = enrichReportSections(queryName, sections, unique, subtitle);
     const lowConfidence = isLowConfidence(unique, socialProfiles);
+    const sourceCount = Math.max(
+      unique.length,
+      sourceDomains.length,
+      sourcesScanned,
+    );
 
     dbClient.candidates.create({
       id: newId("cand"),
@@ -148,14 +155,14 @@ export async function runPeopleSearch(
 
     const report: PersonReport = {
       queryName,
-      sourcesScanned,
+      sourcesScanned: sourceCount,
       sections,
       aiSummary,
       generatedAt: new Date().toISOString(),
       subtitle,
       biography,
       sourceDomains,
-      peopleAlsoAsk: buildPeopleAlsoAsk(queryName),
+      peopleAlsoAsk: buildPeopleAlsoAsk(queryName, subtitle),
       socialProfiles,
       lowConfidence,
     };
