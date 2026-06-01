@@ -115,8 +115,10 @@ Passwords are hashed (SHA-256) before storage.
 
    ```
    http://localhost:3000/api/auth/oauth/callback
-   https://YOUR-SERVICE.onrender.com/api/auth/oauth/callback
+   https://deepchq.onrender.com/api/auth/oauth/callback
    ```
+
+   Must match **exactly** (no trailing slash). Same host as `NEXT_PUBLIC_APP_URL`.
 
 5. Copy **Client ID** → `GOOGLE_CLIENT_ID`  
 6. Copy **Client secret** → `GOOGLE_CLIENT_SECRET`  
@@ -128,7 +130,9 @@ Passwords are hashed (SHA-256) before storage.
 2. Browser → `/api/auth/oauth?provider=google`  
 3. Redirect to Google login  
 4. Google → `/api/auth/oauth/callback`  
-5. User created or matched by email → `user_id` cookie → `/dashboard`
+5. User created or matched by email → `user_id` cookie → `/chat`
+
+**Stuck on `/api/auth/oauth/callback`?** Don't refresh that URL. Click Google sign-in again. Ensure Render has `GOOGLE_*` keys, disk for `DATABASE_URL`, and redirect URI in Google Console matches production URL.
 
 ### C. Apple Sign-In
 

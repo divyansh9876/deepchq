@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbClient } from "@/lib/db";
+import { authCookieOptions } from "@/lib/auth/cookies";
 import { newId } from "@/lib/id";
 import { z } from "zod";
 import crypto from "crypto";
@@ -32,6 +33,6 @@ export async function POST(req: NextRequest) {
   }
 
   const res = NextResponse.json({ userId: id, email: body.email });
-  res.cookies.set("user_id", id, { httpOnly: true, path: "/", maxAge: 86400 * 30 });
+  res.cookies.set("user_id", id, authCookieOptions(86400 * 30));
   return res;
 }

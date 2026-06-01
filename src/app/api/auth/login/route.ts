@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbClient } from "@/lib/db";
+import { authCookieOptions } from "@/lib/auth/cookies";
 import { z } from "zod";
 import crypto from "crypto";
 
@@ -25,6 +26,6 @@ export async function POST(req: NextRequest) {
     email: user.email,
     planTier: user.planTier,
   });
-  res.cookies.set("user_id", user.id, { httpOnly: true, path: "/", maxAge: 86400 * 30 });
+  res.cookies.set("user_id", user.id, authCookieOptions(86400 * 30));
   return res;
 }

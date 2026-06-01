@@ -1,13 +1,13 @@
+import { appBaseUrl } from "./app-url";
+
 const GOOGLE_AUTH = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN = "https://oauth2.googleapis.com/token";
 const GOOGLE_USERINFO = "https://www.googleapis.com/oauth2/v2/userinfo";
 
+export { appBaseUrl };
+
 export function isGoogleOAuthConfigured() {
   return Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
-}
-
-export function appBaseUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
 }
 
 export function googleRedirectUri() {
@@ -44,12 +44,14 @@ export async function exchangeGoogleCode(code: string): Promise<{
   });
 
   if (!tokenRes.ok) {
-    throw new Error("Google token exchange failed");
+    const detail = await tokenRes.text();
+    console.error("[google-oauth] token exchange failed:", detail);
+    throw new Error("token_exchange_failed");
   }
 
   const tokenData = (await tokenRes.json()) as { access_token?: string };
   if (!tokenData.access_token) {
-    throw new Error("No access token from Google");
+    throw new Error("no_access_token");
   }
 
   const profileRes = await fetch(GOOGLE_USERINFO, {
@@ -57,12 +59,13 @@ export async function exchangeGoogleCode(code: string): Promise<{
   });
 
   if (!profileRes.ok) {
-    throw new Error("Google profile fetch failed");
+    console.error("[google-oauth] profile fetch failed:", profileRes.status);
+    throw new Error("profile_fetch_failed");
   }
 
   const profile = (await profileRes.json()) as { email?: string; name?: string };
   if (!profile.email) {
-    throw new Error("Google account has no email");
+    throw new Error("no_email");
   }
 
   return { email: profile.email, name: profile.name };

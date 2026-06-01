@@ -15,11 +15,15 @@ function LoginForm() {
   useEffect(() => {
     const oauthError = searchParams.get("error");
     if (oauthError) {
-      setError(
-        oauthError === "google_auth_failed"
-          ? "Google sign-in failed. Check OAuth env vars and redirect URI."
-          : oauthError.replace(/_/g, " "),
-      );
+      const messages: Record<string, string> = {
+        google_auth_failed:
+          "Google sign-in failed. Check OAuth env vars and redirect URI.",
+        invalid_oauth_state:
+          "Sign-in session expired. Click Continue with Google again (don't refresh the callback page).",
+        token_exchange_failed:
+          "Google rejected the login. In Google Cloud Console, set redirect URI to https://deepchq.onrender.com/api/auth/oauth/callback and redeploy Render.",
+      };
+      setError(messages[oauthError] ?? oauthError.replace(/_/g, " "));
     }
   }, [searchParams]);
 
@@ -42,7 +46,8 @@ function LoginForm() {
 
   function oauth(provider: "google" | "apple") {
     if (provider === "google") {
-      window.location.href = `/api/auth/oauth?provider=google`;
+      const next = searchParams.get("next") ?? "/chat";
+      window.location.href = `/api/auth/oauth?provider=google&next=${encodeURIComponent(next)}`;
       return;
     }
     setError("Apple Sign In is not enabled yet. Use email or Google.");
