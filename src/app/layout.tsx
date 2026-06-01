@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: BRAND_NAME,
   description: "AI-powered people search from public sources",
+  verification: {
+    google: "hAV7gKx5gY3t9KiASTddDwMimyfSaEWKWjjMKRv3Jlw",
+  },
 };
 
 export default function RootLayout({
