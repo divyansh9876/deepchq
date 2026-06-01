@@ -5,7 +5,7 @@ AI-powered people search from public sources.
 ## Features
 
 - **Paid ad funnels** — Google, Instagram, Snapchat (`/ads/{platform}/step/1` → 4) with UTM + `gclid` / `fbclid` / Snap click ID capture; legacy Google path `/landing4/step1`
-- **Marketing homepage** — dark hero search, use cases, FAQ
+- **Marketing homepage** — white theme, hero search, use cases, FAQ
 - **Registration & login** — email/password (+ OAuth placeholders)
 - **People search pipeline** — SSE scan progress, structured report sections
 - **Deep Research mode** — extended queries + critique pass
@@ -59,15 +59,16 @@ Use `--private` instead of `--public` if you prefer a private repo.
 
 ## Google Play (Android)
 
-The `mobile/` folder is a **Capacitor** app that wraps your **hosted** Docker URL in a WebView.
+The `mobile/` folder is a **Capacitor** app — same Deepchq UI as the website, loaded from your Render URL.
 
 ```bash
 cd mobile && cp .env.example .env
-# CAPACITOR_SERVER_URL=https://your-domain.com
+# CAPACITOR_SERVER_URL=https://deepchq.onrender.com
 chmod +x scripts/sync-android.sh && ./scripts/sync-android.sh
+npm run cap:open   # Android Studio
 ```
 
-Full Play Console checklist: [mobile/README.md](mobile/README.md).
+**Play Store upload (step-by-step):** [docs/PLAY-STORE.md](docs/PLAY-STORE.md) · [mobile/README.md](mobile/README.md)
 
 ## Environment
 

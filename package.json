@@ -11,7 +11,9 @@
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f deepchq",
-    "ads:generate": "tsx scripts/ads/generate.ts"
+    "ads:generate": "tsx scripts/ads/generate.ts",
+    "mobile:sync": "cd mobile && ./scripts/sync-android.sh",
+    "mobile:open": "cd mobile && npm run cap:open"
   },
   "dependencies": {
     "nanoid": "^5.1.0",

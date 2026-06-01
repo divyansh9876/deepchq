@@ -1,11 +1,11 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 /**
- * Points the WebView at your deployed Docker/hosted URL.
- * Set CAPACITOR_SERVER_URL before `cap sync` (see mobile/.env.example).
+ * Capacitor loads your live Deepchq website inside a native Android shell.
+ * Set CAPACITOR_SERVER_URL in mobile/.env before `npm run android:sync`.
  */
 const serverUrl =
-  process.env.CAPACITOR_SERVER_URL ?? "https://your-domain.com";
+  process.env.CAPACITOR_SERVER_URL ?? "https://deepchq.onrender.com";
 
 const config: CapacitorConfig = {
   appId: "com.deepchq.app",
@@ -21,13 +21,14 @@ const config: CapacitorConfig = {
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
-      backgroundColor: "#000000",
-      showSpinner: false,
+      launchShowDuration: 1500,
+      backgroundColor: "#ffffff",
+      showSpinner: true,
+      spinnerColor: "#0f172a",
     },
     StatusBar: {
-      style: "DARK",
-      backgroundColor: "#000000",
+      style: "LIGHT",
+      backgroundColor: "#ffffff",
     },
   },
 };

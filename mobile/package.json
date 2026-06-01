@@ -6,7 +6,7 @@
   "scripts": {
     "cap:sync": "cap sync android",
     "cap:open": "cap open android",
-    "android:setup": "npm install && cap add android && cap sync android",
+    "android:setup": "npm install && ./scripts/sync-android.sh",
     "android:build": "cd android && ./gradlew assembleRelease",
     "android:bundle": "cd android && ./gradlew bundleRelease"
   },
