@@ -9,6 +9,9 @@ export const PLAN_AMOUNT_PAISE: Record<
   pro: { weekly: 99900, quarterly: 249900, yearly: 799900 },
 };
 
+const PLAN_KEYS: PlanKey[] = ["basic", "pro"];
+const INTERVALS: PlanInterval[] = ["weekly", "quarterly", "yearly"];
+
 function envAmount(key: string, fallback: number): number {
   const raw = process.env[key];
   if (!raw) return fallback;
@@ -27,6 +30,50 @@ export function getPlanAmountPaise(
   return envAmount(`${prefix}_${suffix}`, defaults);
 }
 
+/** Razorpay Dashboard plan_id for plan + billing interval */
+export function getRazorpayPlanId(
+  plan: PlanKey,
+  interval: PlanInterval,
+): string | undefined {
+  const key = `RAZORPAY_PLAN_${plan.toUpperCase()}_${interval.toUpperCase()}`;
+  const id = process.env[key]?.trim();
+  return id || undefined;
+}
+
+export function hasRazorpayPlan(
+  plan: PlanKey,
+  interval: PlanInterval,
+): boolean {
+  return Boolean(getRazorpayPlanId(plan, interval));
+}
+
+export function allSubscriptionPlansConfigured(): boolean {
+  return PLAN_KEYS.every((p) =>
+    INTERVALS.every((i) => hasRazorpayPlan(p, i)),
+  );
+}
+
+/** Billing cycles for auto-renew (max ~10 years per Razorpay limits) */
+export function getSubscriptionTotalCount(interval: PlanInterval): number {
+  switch (interval) {
+    case "weekly":
+      return 520;
+    case "quarterly":
+      return 40;
+    case "yearly":
+      return 10;
+  }
+}
+
+export function isRazorpaySubscriptionsEnabled(): boolean {
+  if (process.env.RAZORPAY_USE_SUBSCRIPTIONS === "false") return false;
+  return allSubscriptionPlansConfigured();
+}
+
 export function formatInr(paise: number): string {
   return `₹${(paise / 100).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+}
+
+export function planLabel(plan: PlanKey, interval: PlanInterval): string {
+  return `Deepchq ${plan.charAt(0).toUpperCase() + plan.slice(1)} (${interval})`;
 }

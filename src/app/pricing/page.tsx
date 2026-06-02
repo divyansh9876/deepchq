@@ -41,14 +41,21 @@ function PricingContent() {
   const [interval, setInterval] = useState<PlanInterval>("weekly");
   const [devLoading, setDevLoading] = useState<PlanKey | null>(null);
   const [razorpayKeyId, setRazorpayKeyId] = useState<string | null>(null);
+  const [subscriptionsEnabled, setSubscriptionsEnabled] = useState(false);
   const [configReady, setConfigReady] = useState(false);
 
   useEffect(() => {
     fetch("/api/config/public")
       .then((r) => r.json())
-      .then((d: { razorpayKeyId?: string | null; paymentsEnabled?: boolean }) => {
-        setRazorpayKeyId(d.razorpayKeyId ?? null);
-      })
+      .then(
+        (d: {
+          razorpayKeyId?: string | null;
+          subscriptionsEnabled?: boolean;
+        }) => {
+          setRazorpayKeyId(d.razorpayKeyId ?? null);
+          setSubscriptionsEnabled(Boolean(d.subscriptionsEnabled));
+        },
+      )
       .catch(() => setRazorpayKeyId(null))
       .finally(() => setConfigReady(true));
   }, []);
@@ -146,10 +153,11 @@ function PricingContent() {
                       interval={interval}
                       searchId={searchId}
                       razorpayKeyId={razorpayKeyId!}
+                      useSubscriptions={subscriptionsEnabled}
                       label={
                         p.name === "Basic" ? "Get Started" : "Subscribe"
                       }
-                      description={`Deepchq ${p.name} — ${interval}`}
+                      description={`Deepchq ${p.name} — ${interval} (auto-renew)`}
                       className="btn-primary block w-full"
                       onSuccess={onPaid}
                       onAuthRequired={goSignIn}
@@ -177,7 +185,9 @@ function PricingContent() {
           {!configReady
             ? ""
             : razorpayConfigured
-              ? "Secure checkout powered by Razorpay."
+              ? subscriptionsEnabled
+                ? "Recurring subscription via Razorpay. Renews each billing period until you cancel."
+                : "Secure checkout via Razorpay. Add RAZORPAY_PLAN_* env vars for auto-renew subscriptions (see docs/RAZORPAY-SUBSCRIPTIONS.md)."
               : "Payments are not configured on the server. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET, then redeploy."}
         </p>
       </main>

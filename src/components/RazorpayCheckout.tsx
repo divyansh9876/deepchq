@@ -4,9 +4,15 @@ import Script from "next/script";
 import { useCallback, useState } from "react";
 import type { PlanInterval, PlanKey } from "@/lib/razorpay-plans";
 
-type RazorpaySuccessResponse = {
+type RazorpayOrderResponse = {
   razorpay_payment_id: string;
   razorpay_order_id: string;
+  razorpay_signature: string;
+};
+
+type RazorpaySubscriptionResponse = {
+  razorpay_payment_id: string;
+  razorpay_subscription_id: string;
   razorpay_signature: string;
 };
 
@@ -15,7 +21,6 @@ type RazorpayFailedResponse = {
     code: string;
     description: string;
     reason?: string;
-    metadata?: { order_id?: string; payment_id?: string };
   };
 };
 
@@ -28,12 +33,13 @@ declare global {
   interface Window {
     Razorpay?: RazorpayConstructor;
   }
-};
+}
 
 type SubscriptionProps = {
   plan: PlanKey;
   interval: PlanInterval;
   searchId?: string;
+  useSubscriptions?: boolean;
   amountPaise?: never;
 };
 
@@ -42,6 +48,7 @@ type AmountProps = {
   plan?: never;
   interval?: never;
   searchId?: never;
+  useSubscriptions?: never;
 };
 
 type Props = (SubscriptionProps | AmountProps) & {
@@ -59,6 +66,7 @@ export function RazorpayCheckout({
   plan,
   interval,
   searchId,
+  useSubscriptions = true,
   razorpayKeyId,
   currency = "INR",
   label = "Pay now",
@@ -75,10 +83,37 @@ export function RazorpayCheckout({
   } | null>(null);
 
   const keyId = razorpayKeyId ?? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-  const isSubscription = Boolean(plan && interval);
+  const isPlanCheckout = Boolean(plan && interval);
 
-  const verifyPayment = useCallback(
-    async (response: RazorpaySuccessResponse) => {
+  const verifySubscription = useCallback(
+    async (response: RazorpaySubscriptionResponse) => {
+      const res = await fetch("/api/verify-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          razorpay_subscription_id: response.razorpay_subscription_id,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature,
+          plan,
+          interval,
+          searchId,
+        }),
+      });
+      const data = await res.json();
+      if (res.status === 401) {
+        onAuthRequired?.();
+        throw new Error("Sign in required");
+      }
+      if (!res.ok) {
+        throw new Error(data.error ?? "Subscription verification failed");
+      }
+      return data as { redirectUrl?: string };
+    },
+    [plan, interval, searchId, onAuthRequired],
+  );
+
+  const verifyOneTimePlan = useCallback(
+    async (response: RazorpayOrderResponse) => {
       const res = await fetch("/api/verify-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -123,29 +158,101 @@ export function RazorpayCheckout({
       return;
     }
 
-    let orderBody:
-      | { plan: PlanKey; interval: PlanInterval; currency: string; searchId?: string }
-      | { amount: number; currency: string; receipt: string };
-
-    if (isSubscription && plan && interval) {
-      orderBody = { plan, interval, currency, searchId };
-    } else if (amountPaise !== undefined && amountPaise >= 100) {
-      orderBody = {
-        amount: amountPaise,
-        currency,
-        receipt: `web_${Date.now()}`,
-      };
-    } else {
-      setMessage({
-        type: "error",
-        text: "Minimum payment amount is ₹1 (100 paise).",
-      });
-      return;
-    }
-
     setLoading(true);
 
     try {
+      const recurring =
+        isPlanCheckout && useSubscriptions && plan && interval;
+
+      if (recurring) {
+        const subRes = await fetch("/api/razorpay/create-subscription", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ plan, interval, searchId }),
+        });
+        const subData = await subRes.json();
+
+        if (subRes.status === 401) {
+          onAuthRequired?.();
+          throw new Error("Sign in required");
+        }
+        if (!subRes.ok) {
+          throw new Error(subData.error ?? "Could not start subscription");
+        }
+
+        const rzp = new window.Razorpay({
+          key: keyId,
+          subscription_id: subData.subscription_id,
+          name: "Deepchq",
+          description,
+          prefill: subData.customer_email
+            ? { email: subData.customer_email }
+            : undefined,
+          handler: async (response: RazorpaySubscriptionResponse) => {
+            try {
+              const data = await verifySubscription(response);
+              if (onSuccess) {
+                onSuccess(data.redirectUrl);
+              } else {
+                setMessage({
+                  type: "success",
+                  text: "Subscription active. Your plan renews automatically.",
+                });
+              }
+            } catch (err) {
+              setMessage({
+                type: "error",
+                text:
+                  err instanceof Error
+                    ? err.message
+                    : "Subscription verification failed",
+              });
+            } finally {
+              setLoading(false);
+            }
+          },
+          modal: {
+            ondismiss: () => {
+              setLoading(false);
+              setMessage({ type: "info", text: "Payment cancelled." });
+            },
+          },
+        });
+
+        rzp.on("payment.failed", (response: RazorpayFailedResponse) => {
+          setLoading(false);
+          setMessage({
+            type: "error",
+            text:
+              response.error?.description ??
+              "Payment failed. Please try again.",
+          });
+        });
+
+        rzp.open();
+        return;
+      }
+
+      let orderBody:
+        | { plan: PlanKey; interval: PlanInterval; currency: string; searchId?: string }
+        | { amount: number; currency: string; receipt: string };
+
+      if (isPlanCheckout && plan && interval) {
+        orderBody = { plan, interval, currency, searchId };
+      } else if (amountPaise !== undefined && amountPaise >= 100) {
+        orderBody = {
+          amount: amountPaise,
+          currency,
+          receipt: `web_${Date.now()}`,
+        };
+      } else {
+        setLoading(false);
+        setMessage({
+          type: "error",
+          text: "Minimum payment amount is ₹1 (100 paise).",
+        });
+        return;
+      }
 
       const orderRes = await fetch("/api/create-order", {
         method: "POST",
@@ -169,10 +276,10 @@ export function RazorpayCheckout({
         name: "Deepchq",
         description,
         order_id: orderData.order_id,
-        handler: async (response: RazorpaySuccessResponse) => {
+        handler: async (response: RazorpayOrderResponse) => {
           try {
-            if (isSubscription) {
-              const data = await verifyPayment(response);
+            if (isPlanCheckout) {
+              const data = await verifyOneTimePlan(response);
               if (onSuccess) {
                 onSuccess(data.redirectUrl);
               } else {
@@ -243,15 +350,16 @@ export function RazorpayCheckout({
     currency,
     description,
     interval,
-    isSubscription,
+    isPlanCheckout,
     keyId,
     onAuthRequired,
     onSuccess,
     plan,
-    razorpayKeyId,
     scriptReady,
     searchId,
-    verifyPayment,
+    useSubscriptions,
+    verifyOneTimePlan,
+    verifySubscription,
   ]);
 
   return (

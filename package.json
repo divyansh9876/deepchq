@@ -12,6 +12,7 @@
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f deepchq",
     "ads:generate": "tsx scripts/ads/generate.ts",
+    "razorpay:create-plans": "tsx scripts/razorpay/create-plans.ts",
     "mobile:sync": "cd mobile && ./scripts/sync-android.sh",
     "mobile:open": "cd mobile && npm run cap:open"
   },

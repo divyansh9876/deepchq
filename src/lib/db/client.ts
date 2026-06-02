@@ -221,6 +221,44 @@ export const dbClient = {
         d.subscriptions.push(row);
       });
     },
+    update(id: string, patch: Partial<Subscription>) {
+      mutate((d) => {
+        const i = d.subscriptions.findIndex((s) => s.id === id);
+        if (i >= 0) d.subscriptions[i] = { ...d.subscriptions[i], ...patch };
+      });
+    },
+    getByRazorpayId(razorpayId: string) {
+      return (
+        readDb().subscriptions.find(
+          (s) => s.stripeSubscriptionId === razorpayId,
+        ) ?? null
+      );
+    },
+    getActiveByUserId(userId: string) {
+      return (
+        readDb().subscriptions.find(
+          (s) => s.userId === userId && s.status === "active",
+        ) ?? null
+      );
+    },
+    markReplacedForUser(userId: string) {
+      mutate((d) => {
+        for (const s of d.subscriptions) {
+          if (s.userId === userId && s.status === "active") {
+            s.status = "replaced";
+          }
+        }
+      });
+    },
+    markCancelledForUser(userId: string) {
+      mutate((d) => {
+        for (const s of d.subscriptions) {
+          if (s.userId === userId && s.status === "active") {
+            s.status = "cancelled";
+          }
+        }
+      });
+    },
   },
   candidates: {
     listBySearch(searchId: string) {

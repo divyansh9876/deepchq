@@ -1,7 +1,7 @@
-import { createHmac, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { isRazorpayEnabled } from "@/lib/razorpay";
+import { verifyOrderPaymentSignature } from "@/lib/razorpay-signature";
 
 const schema = z.object({
   razorpay_order_id: z.string().min(1),
@@ -9,27 +9,7 @@ const schema = z.object({
   razorpay_signature: z.string().min(1),
 });
 
-function verifySignature(
-  orderId: string,
-  paymentId: string,
-  signature: string,
-  secret: string,
-): boolean {
-  const expected = createHmac("sha256", secret)
-    .update(`${orderId}|${paymentId}`)
-    .digest("hex");
-
-  try {
-    const a = Buffer.from(expected, "utf8");
-    const b = Buffer.from(signature, "utf8");
-    if (a.length !== b.length) return false;
-    return timingSafeEqual(a, b);
-  } catch {
-    return false;
-  }
-}
-
-/** Verify payment signature only (no plan activation). */
+/** Verify one-time order payment signature only (no plan activation). */
 export async function POST(req: NextRequest) {
   if (!isRazorpayEnabled()) {
     return NextResponse.json(
@@ -48,7 +28,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const valid = verifySignature(
+  const valid = verifyOrderPaymentSignature(
     body.razorpay_order_id,
     body.razorpay_payment_id,
     body.razorpay_signature,
