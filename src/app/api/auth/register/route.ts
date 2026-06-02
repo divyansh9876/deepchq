@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { dbClient } from "@/lib/db";
 import { authCookieOptions } from "@/lib/auth/cookies";
 import { newId } from "@/lib/id";
+import { claimSearchesForUser } from "@/lib/search/claim-searches";
 import { z } from "zod";
 import crypto from "crypto";
 
@@ -31,6 +32,12 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "Email already registered" }, { status: 400 });
   }
+
+  claimSearchesForUser(
+    id,
+    body.email,
+    req.cookies.get("last_search")?.value,
+  );
 
   const res = NextResponse.json({ userId: id, email: body.email });
   res.cookies.set("user_id", id, authCookieOptions(86400 * 30));

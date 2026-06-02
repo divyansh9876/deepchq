@@ -33,6 +33,14 @@ export async function listSearches(userId?: string | null, limit = 20) {
   return dbClient.searches.list(userId, limit);
 }
 
+export async function listSearchesForAccount(
+  userId: string,
+  email: string,
+  limit = 20,
+) {
+  return dbClient.searches.listForAccount(userId, email, limit);
+}
+
 export async function listSources(searchId: string) {
   return dbClient.sources.listBySearch(searchId);
 }

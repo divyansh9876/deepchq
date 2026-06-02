@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { dbClient } from "@/lib/db";
 import { newId } from "@/lib/id";
 import { runPeopleSearch } from "@/lib/search/orchestrator";
-import { listSearches } from "@/lib/search/store";
+import { claimSearchesForUser } from "@/lib/search/claim-searches";
+import { listSearchesForAccount } from "@/lib/search/store";
 import { getSessionUser } from "@/lib/auth/session";
 import { z } from "zod";
 
@@ -38,8 +39,18 @@ export async function POST(req: NextRequest) {
   return res;
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const user = await getSessionUser();
-  const rows = await listSearches(user?.id);
+  if (!user) {
+    return NextResponse.json({ searches: [] });
+  }
+
+  claimSearchesForUser(
+    user.id,
+    user.email,
+    req.cookies.get("last_search")?.value,
+  );
+
+  const rows = await listSearchesForAccount(user.id, user.email);
   return NextResponse.json({ searches: rows });
 }

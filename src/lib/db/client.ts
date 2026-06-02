@@ -293,6 +293,35 @@ export const dbClient = {
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
         .slice(0, limit);
     },
+    listForAccount(userId: string, email: string, limit = 20) {
+      const emailNorm = email.trim().toLowerCase();
+      const rows = readDb().searches.filter(
+        (s) =>
+          s.userId === userId ||
+          (s.userId === null &&
+            s.queryEmail?.trim().toLowerCase() === emailNorm),
+      );
+      return rows
+        .slice()
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .slice(0, limit);
+    },
+    claimForUser(userId: string, emailNorm: string, lastSearchId?: string) {
+      let claimed = 0;
+      mutate((d) => {
+        for (const s of d.searches) {
+          if (s.userId === userId) continue;
+          const emailMatch =
+            s.queryEmail?.trim().toLowerCase() === emailNorm;
+          const lastMatch = Boolean(lastSearchId && s.id === lastSearchId);
+          if (s.userId === null && (emailMatch || lastMatch)) {
+            s.userId = userId;
+            claimed += 1;
+          }
+        }
+      });
+      return claimed;
+    },
   },
   searchEvents: {
     create(row: SearchEvent) {

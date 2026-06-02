@@ -5,6 +5,7 @@ import { appBaseUrl } from "@/lib/auth/app-url";
 import { authCookieOptions } from "@/lib/auth/cookies";
 import { exchangeGoogleCode } from "@/lib/auth/google-oauth";
 import { redirectWithHtml } from "@/lib/auth/redirect";
+import { claimSearchesForUser } from "@/lib/search/claim-searches";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +65,12 @@ export async function GET(req: NextRequest) {
     if (!user) {
       return redirectWithHtml(`${base}/landing/login?error=user_create_failed`);
     }
+
+    claimSearchesForUser(
+      user.id,
+      user.email,
+      req.cookies.get("last_search")?.value,
+    );
 
     const destination = `${base}${nextPath}`;
     const res = redirectWithHtml(destination);

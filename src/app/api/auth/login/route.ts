@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbClient } from "@/lib/db";
 import { authCookieOptions } from "@/lib/auth/cookies";
+import { claimSearchesForUser } from "@/lib/search/claim-searches";
 import { z } from "zod";
 import crypto from "crypto";
 
@@ -20,6 +21,12 @@ export async function POST(req: NextRequest) {
   if (!user?.passwordHash || user.passwordHash !== hashPassword(body.password)) {
     return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
   }
+
+  claimSearchesForUser(
+    user.id,
+    user.email,
+    req.cookies.get("last_search")?.value,
+  );
 
   const res = NextResponse.json({
     userId: user.id,

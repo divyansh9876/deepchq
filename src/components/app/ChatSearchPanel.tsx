@@ -17,6 +17,7 @@ export function ChatSearchPanel() {
       const res = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ queryName: q, mode: "search" }),
       });
       if (!res.ok) {
