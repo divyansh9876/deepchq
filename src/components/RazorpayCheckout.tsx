@@ -2,6 +2,7 @@
 
 import Script from "next/script";
 import { useCallback, useState } from "react";
+import type { PlanInterval, PlanKey } from "@/lib/razorpay-plans";
 
 type RazorpaySuccessResponse = {
   razorpay_payment_id: string;
@@ -27,22 +28,42 @@ declare global {
   interface Window {
     Razorpay?: RazorpayConstructor;
   }
-}
+};
 
-type Props = {
+type SubscriptionProps = {
+  plan: PlanKey;
+  interval: PlanInterval;
+  searchId?: string;
+  amountPaise?: never;
+};
+
+type AmountProps = {
   amountPaise: number;
+  plan?: never;
+  interval?: never;
+  searchId?: never;
+};
+
+type Props = (SubscriptionProps | AmountProps) & {
   currency?: string;
   label?: string;
   description?: string;
   className?: string;
+  onSuccess?: (redirectUrl?: string) => void;
+  onAuthRequired?: () => void;
 };
 
 export function RazorpayCheckout({
   amountPaise,
+  plan,
+  interval,
+  searchId,
   currency = "INR",
   label = "Pay now",
   description = "Complete your payment",
   className = "btn-primary",
+  onSuccess,
+  onAuthRequired,
 }: Props) {
   const [scriptReady, setScriptReady] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -52,23 +73,34 @@ export function RazorpayCheckout({
   } | null>(null);
 
   const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+  const isSubscription = Boolean(plan && interval);
 
-  const verifyPayment = useCallback(async (response: RazorpaySuccessResponse) => {
-    const res = await fetch("/api/verify-payment", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        razorpay_order_id: response.razorpay_order_id,
-        razorpay_payment_id: response.razorpay_payment_id,
-        razorpay_signature: response.razorpay_signature,
-      }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.error ?? "Payment verification failed");
-    }
-    return data;
-  }, []);
+  const verifyPayment = useCallback(
+    async (response: RazorpaySuccessResponse) => {
+      const res = await fetch("/api/verify-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature,
+          plan,
+          interval,
+          searchId,
+        }),
+      });
+      const data = await res.json();
+      if (res.status === 401) {
+        onAuthRequired?.();
+        throw new Error("Sign in required");
+      }
+      if (!res.ok) {
+        throw new Error(data.error ?? "Payment verification failed");
+      }
+      return data as { redirectUrl?: string };
+    },
+    [plan, interval, searchId, onAuthRequired],
+  );
 
   const startCheckout = useCallback(async () => {
     setMessage(null);
@@ -89,7 +121,7 @@ export function RazorpayCheckout({
       return;
     }
 
-    if (amountPaise < 100) {
+    if (!isSubscription && amountPaise < 100) {
       setMessage({
         type: "error",
         text: "Minimum payment amount is ₹1 (100 paise).",
@@ -100,17 +132,22 @@ export function RazorpayCheckout({
     setLoading(true);
 
     try {
+      const orderBody =
+        isSubscription
+          ? { plan, interval, currency, searchId }
+          : { amount: amountPaise, currency, receipt: `web_${Date.now()}` };
+
       const orderRes = await fetch("/api/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: amountPaise,
-          currency,
-          receipt: `web_${Date.now()}`,
-        }),
+        body: JSON.stringify(orderBody),
       });
       const orderData = await orderRes.json();
 
+      if (orderRes.status === 401) {
+        onAuthRequired?.();
+        throw new Error("Sign in required");
+      }
       if (!orderRes.ok) {
         throw new Error(orderData.error ?? "Could not create order");
       }
@@ -124,11 +161,35 @@ export function RazorpayCheckout({
         order_id: orderData.order_id,
         handler: async (response: RazorpaySuccessResponse) => {
           try {
-            await verifyPayment(response);
-            setMessage({
-              type: "success",
-              text: `Payment successful. ID: ${response.razorpay_payment_id}`,
-            });
+            if (isSubscription) {
+              const data = await verifyPayment(response);
+              if (onSuccess) {
+                onSuccess(data.redirectUrl);
+              } else {
+                setMessage({
+                  type: "success",
+                  text: "Payment successful. Your plan is now active.",
+                });
+              }
+            } else {
+              const res = await fetch("/api/verify-signature", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                }),
+              });
+              if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error ?? "Verification failed");
+              }
+              setMessage({
+                type: "success",
+                text: `Payment successful. ID: ${response.razorpay_payment_id}`,
+              });
+            }
           } catch (err) {
             setMessage({
               type: "error",
@@ -171,8 +232,14 @@ export function RazorpayCheckout({
     amountPaise,
     currency,
     description,
+    interval,
+    isSubscription,
     keyId,
+    onAuthRequired,
+    onSuccess,
+    plan,
     scriptReady,
+    searchId,
     verifyPayment,
   ]);
 
@@ -191,7 +258,7 @@ export function RazorpayCheckout({
       >
         {loading ? "Processing…" : label}
       </button>
-      {message && (
+      {message && !onSuccess && (
         <p
           role="alert"
           className={`mt-3 text-sm ${

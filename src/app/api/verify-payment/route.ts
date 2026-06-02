@@ -1,12 +1,17 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { activatePlanForUser } from "@/lib/activate-plan";
+import { getSessionUser } from "@/lib/auth/session";
 import { isRazorpayEnabled } from "@/lib/razorpay";
 
 const schema = z.object({
   razorpay_order_id: z.string().min(1),
   razorpay_payment_id: z.string().min(1),
   razorpay_signature: z.string().min(1),
+  plan: z.enum(["basic", "pro"]),
+  interval: z.enum(["weekly", "quarterly", "yearly"]),
+  searchId: z.string().optional(),
 });
 
 function verifySignature(
@@ -37,6 +42,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const user = await getSessionUser();
+  if (!user) {
+    return NextResponse.json({ error: "Sign in required" }, { status: 401 });
+  }
+
   let body: z.infer<typeof schema>;
   try {
     body = schema.parse(await req.json());
@@ -44,7 +54,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "Missing or invalid fields: razorpay_order_id, razorpay_payment_id, razorpay_signature",
+          "Missing or invalid payment fields (order id, payment id, signature, plan, interval).",
       },
       { status: 400 },
     );
@@ -65,9 +75,24 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  await activatePlanForUser({
+    userId: user.id,
+    plan: body.plan,
+    interval: body.interval,
+    searchId: body.searchId,
+    paymentId: body.razorpay_payment_id,
+  });
+
+  const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const redirectUrl =
+    body.searchId
+      ? `${base}/search/${body.searchId}?checkout=success`
+      : `${base}/account?checkout=success`;
+
   return NextResponse.json({
     success: true,
     order_id: body.razorpay_order_id,
     payment_id: body.razorpay_payment_id,
+    redirectUrl,
   });
 }

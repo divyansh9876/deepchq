@@ -52,16 +52,8 @@ function SearchDetailContent() {
     setUnlockLoading(false);
 
     if (res.status === 402 || data.requiresCheckout) {
-      const checkout = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: "pro", interval: "weekly", searchId: id }),
-      });
-      const checkoutData = await checkout.json();
-      if (checkoutData.url) {
-        window.location.href = checkoutData.url;
-        return;
-      }
+      window.location.href = `/pricing?searchId=${encodeURIComponent(id)}`;
+      return;
     }
 
     if (res.status === 401) {

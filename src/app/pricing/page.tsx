@@ -1,9 +1,16 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { MarketingNav } from "@/components/MarketingNav";
 import { MarketingFooter } from "@/components/MarketingFooter";
+import { RazorpayCheckout } from "@/components/RazorpayCheckout";
+import {
+  formatInr,
+  PLAN_AMOUNT_PAISE,
+  type PlanInterval,
+  type PlanKey,
+} from "@/lib/razorpay-plans";
 
 const PLANS = [
   {
@@ -19,7 +26,6 @@ const PLANS = [
     key: "pro" as const,
     name: "Pro",
     badge: "Special Offer",
-    price: "$0.71 per day",
     features: [
       "Unlimited Advanced Search",
       "AI-Powered Deep Reports",
@@ -29,27 +35,37 @@ const PLANS = [
 ];
 
 function PricingContent() {
+  const router = useRouter();
   const params = useSearchParams();
   const searchId = params.get("searchId") ?? undefined;
-  const [interval, setInterval] = useState<"weekly" | "quarterly" | "yearly">(
-    "weekly",
-  );
-  const [loading, setLoading] = useState<string | null>(null);
+  const [interval, setInterval] = useState<PlanInterval>("weekly");
+  const [devLoading, setDevLoading] = useState<PlanKey | null>(null);
 
-  async function subscribe(plan: "basic" | "pro") {
-    setLoading(plan);
-    const res = await fetch("/api/stripe/checkout", {
+  const razorpayConfigured = Boolean(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID);
+
+  function goSignIn() {
+    const next = searchId ? `/pricing?searchId=${searchId}` : "/pricing";
+    router.push(`/landing/register?next=${encodeURIComponent(next)}`);
+  }
+
+  function onPaid(redirectUrl?: string) {
+    if (redirectUrl) window.location.href = redirectUrl;
+  }
+
+  async function devActivate(plan: PlanKey) {
+    setDevLoading(plan);
+    const res = await fetch("/api/razorpay/dev-activate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ plan, interval, searchId }),
     });
     const data = await res.json();
-    setLoading(null);
+    setDevLoading(null);
     if (res.status === 401) {
-      window.location.href = `/landing/register?next=/pricing`;
+      goSignIn();
       return;
     }
-    if (data.url) window.location.href = data.url;
+    if (data.redirectUrl) window.location.href = data.redirectUrl;
   }
 
   return (
@@ -78,42 +94,68 @@ function PricingContent() {
           ))}
         </div>
         <div className="mt-12 grid gap-8 md:grid-cols-2">
-          {PLANS.map((p) => (
-            <div
-              key={p.name}
-              className="rounded-2xl border border-slate-200 bg-white p-8 text-left shadow-sm"
-            >
-              <h3 className="text-xl font-bold text-slate-900">{p.name}</h3>
-              {p.badge && (
-                <span className="mt-2 inline-block text-sm font-medium text-blue-600">
-                  {p.badge}
-                </span>
-              )}
-              {p.price && (
-                <p className="mt-2 text-2xl font-bold text-slate-900">{p.price}</p>
-              )}
-              <ul className="mt-6 space-y-2 text-sm text-slate-600">
-                {p.features.map((f) => (
-                  <li key={f}>✓ {f}</li>
-                ))}
-              </ul>
-              <button
-                type="button"
-                disabled={loading === p.key}
-                onClick={() => subscribe(p.key)}
-                className="btn-primary mt-8 block w-full disabled:opacity-50"
+          {PLANS.map((p) => {
+            const amount = PLAN_AMOUNT_PAISE[p.key][interval];
+            return (
+              <div
+                key={p.name}
+                className="rounded-2xl border border-slate-200 bg-white p-8 text-left shadow-sm"
               >
-                {loading === p.key
-                  ? "Loading…"
-                  : p.name === "Basic"
-                    ? "Get Started"
-                    : "Subscribe"}
-              </button>
-            </div>
-          ))}
+                <h3 className="text-xl font-bold text-slate-900">{p.name}</h3>
+                {p.badge && (
+                  <span className="mt-2 inline-block text-sm font-medium text-blue-600">
+                    {p.badge}
+                  </span>
+                )}
+                <p className="mt-2 text-2xl font-bold text-slate-900">
+                  {formatInr(amount)}
+                  <span className="text-sm font-normal text-slate-500">
+                    {" "}
+                    / {interval}
+                  </span>
+                </p>
+                <ul className="mt-6 space-y-2 text-sm text-slate-600">
+                  {p.features.map((f) => (
+                    <li key={f}>✓ {f}</li>
+                  ))}
+                </ul>
+                {razorpayConfigured ? (
+                  <div className="mt-8">
+                    <RazorpayCheckout
+                      plan={p.key}
+                      interval={interval}
+                      searchId={searchId}
+                      label={
+                        p.name === "Basic" ? "Get Started" : "Subscribe"
+                      }
+                      description={`Deepchq ${p.name} — ${interval}`}
+                      className="btn-primary block w-full"
+                      onSuccess={onPaid}
+                      onAuthRequired={goSignIn}
+                    />
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={devLoading === p.key}
+                    onClick={() => devActivate(p.key)}
+                    className="btn-primary mt-8 block w-full disabled:opacity-50"
+                  >
+                    {devLoading === p.key
+                      ? "Loading…"
+                      : p.name === "Basic"
+                        ? "Get Started"
+                        : "Subscribe"}
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
         <p className="mt-8 text-xs text-slate-500">
-          Without Stripe keys, checkout activates your plan locally for development.
+          {razorpayConfigured
+            ? "Secure checkout powered by Razorpay."
+            : "Without Razorpay keys, checkout activates your plan locally when ALLOW_DEV_UNLOCK=true."}
         </p>
       </main>
       <MarketingFooter />

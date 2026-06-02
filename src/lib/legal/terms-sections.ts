@@ -219,7 +219,7 @@ export const TERMS_SECTIONS: TermsBlock[] = [
       },
       {
         id: "8.5",
-        text: `Refunds for app-store purchases follow Apple or Google policies. Web subscriptions via Stripe are subject to our Refund Policy. We do not store full payment card data.`,
+        text: `Refunds for app-store purchases follow Apple or Google policies. Web subscriptions via Razorpay are subject to our Refund Policy. We do not store full payment card data.`,
       },
     ],
   },

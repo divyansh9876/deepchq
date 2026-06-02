@@ -10,7 +10,7 @@ export default function RefundPage() {
       <main className="mx-auto max-w-3xl px-6 py-16 text-sm leading-relaxed text-slate-600">
         <h1 className="text-3xl font-bold text-slate-900">Refund Policy</h1>
         <p className="mt-6">
-          Subscriptions are processed through Stripe or your app store account. Refund
+          Subscriptions are processed through Razorpay or your app store account. Refund
           requests for in-app purchases follow Apple App Store or Google Play Store
           policies.
         </p>
