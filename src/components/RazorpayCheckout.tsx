@@ -121,7 +121,19 @@ export function RazorpayCheckout({
       return;
     }
 
-    if (!isSubscription && amountPaise < 100) {
+    let orderBody:
+      | { plan: PlanKey; interval: PlanInterval; currency: string; searchId?: string }
+      | { amount: number; currency: string; receipt: string };
+
+    if (isSubscription && plan && interval) {
+      orderBody = { plan, interval, currency, searchId };
+    } else if (amountPaise !== undefined && amountPaise >= 100) {
+      orderBody = {
+        amount: amountPaise,
+        currency,
+        receipt: `web_${Date.now()}`,
+      };
+    } else {
       setMessage({
         type: "error",
         text: "Minimum payment amount is ₹1 (100 paise).",
@@ -132,10 +144,6 @@ export function RazorpayCheckout({
     setLoading(true);
 
     try {
-      const orderBody =
-        isSubscription
-          ? { plan, interval, currency, searchId }
-          : { amount: amountPaise, currency, receipt: `web_${Date.now()}` };
 
       const orderRes = await fetch("/api/create-order", {
         method: "POST",
