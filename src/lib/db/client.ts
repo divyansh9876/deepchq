@@ -146,6 +146,10 @@ function reviveDates<T extends Record<string, unknown>>(row: T): T {
   return out;
 }
 
+export function readDbSnapshot(): DbShape {
+  return readDb();
+}
+
 function readDb(): DbShape {
   const file = dbPath();
   if (!fs.existsSync(file)) {
