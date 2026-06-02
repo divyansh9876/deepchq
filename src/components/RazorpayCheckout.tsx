@@ -45,6 +45,7 @@ type AmountProps = {
 };
 
 type Props = (SubscriptionProps | AmountProps) & {
+  razorpayKeyId?: string;
   currency?: string;
   label?: string;
   description?: string;
@@ -58,6 +59,7 @@ export function RazorpayCheckout({
   plan,
   interval,
   searchId,
+  razorpayKeyId,
   currency = "INR",
   label = "Pay now",
   description = "Complete your payment",
@@ -72,7 +74,7 @@ export function RazorpayCheckout({
     text: string;
   } | null>(null);
 
-  const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+  const keyId = razorpayKeyId ?? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
   const isSubscription = Boolean(plan && interval);
 
   const verifyPayment = useCallback(
@@ -246,6 +248,7 @@ export function RazorpayCheckout({
     onAuthRequired,
     onSuccess,
     plan,
+    razorpayKeyId,
     scriptReady,
     searchId,
     verifyPayment,

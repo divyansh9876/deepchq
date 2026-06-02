@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MarketingNav } from "@/components/MarketingNav";
 import { MarketingFooter } from "@/components/MarketingFooter";
@@ -40,8 +40,20 @@ function PricingContent() {
   const searchId = params.get("searchId") ?? undefined;
   const [interval, setInterval] = useState<PlanInterval>("weekly");
   const [devLoading, setDevLoading] = useState<PlanKey | null>(null);
+  const [razorpayKeyId, setRazorpayKeyId] = useState<string | null>(null);
+  const [configReady, setConfigReady] = useState(false);
 
-  const razorpayConfigured = Boolean(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID);
+  useEffect(() => {
+    fetch("/api/config/public")
+      .then((r) => r.json())
+      .then((d: { razorpayKeyId?: string | null; paymentsEnabled?: boolean }) => {
+        setRazorpayKeyId(d.razorpayKeyId ?? null);
+      })
+      .catch(() => setRazorpayKeyId(null))
+      .finally(() => setConfigReady(true));
+  }, []);
+
+  const razorpayConfigured = Boolean(razorpayKeyId);
 
   function goSignIn() {
     const next = searchId ? `/pricing?searchId=${searchId}` : "/pricing";
@@ -119,12 +131,21 @@ function PricingContent() {
                     <li key={f}>✓ {f}</li>
                   ))}
                 </ul>
-                {razorpayConfigured ? (
+                {!configReady ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="btn-primary mt-8 block w-full opacity-50"
+                  >
+                    Loading…
+                  </button>
+                ) : razorpayConfigured ? (
                   <div className="mt-8">
                     <RazorpayCheckout
                       plan={p.key}
                       interval={interval}
                       searchId={searchId}
+                      razorpayKeyId={razorpayKeyId!}
                       label={
                         p.name === "Basic" ? "Get Started" : "Subscribe"
                       }
@@ -153,9 +174,11 @@ function PricingContent() {
           })}
         </div>
         <p className="mt-8 text-xs text-slate-500">
-          {razorpayConfigured
-            ? "Secure checkout powered by Razorpay."
-            : "Without Razorpay keys, checkout activates your plan locally when ALLOW_DEV_UNLOCK=true."}
+          {!configReady
+            ? ""
+            : razorpayConfigured
+              ? "Secure checkout powered by Razorpay."
+              : "Payments are not configured on the server. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET, then redeploy."}
         </p>
       </main>
       <MarketingFooter />
