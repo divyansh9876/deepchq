@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbClient } from "@/lib/db";
 import { getReport, getSearch, listSources } from "@/lib/search/store";
+import { claimSearchesForUser } from "@/lib/search/claim-searches";
 import { getSessionUser, hasPaidAccess } from "@/lib/auth/session";
 import type { SocialProfile } from "@/lib/types";
 
@@ -16,6 +17,29 @@ export async function GET(
 
   const artifact = dbClient.artifacts.getFirst(id);
   const user = await getSessionUser();
+  const report = await getReport(id, false);
+  const reportReady =
+    search.status === "completed" || search.status === "failed" || Boolean(report);
+
+  if (reportReady && !user) {
+    return NextResponse.json(
+      {
+        error: "Sign in required",
+        requiresAuth: true,
+        search: { id: search.id, status: search.status, queryName: search.queryName },
+      },
+      { status: 401 },
+    );
+  }
+
+  if (user) {
+    claimSearchesForUser(
+      user.id,
+      user.email,
+      req.cookies.get("last_search")?.value,
+    );
+  }
+
   const forceUnlock =
     req.nextUrl.searchParams.get("unlocked") === "true" ||
     req.nextUrl.searchParams.get("checkout") === "success";
@@ -24,7 +48,6 @@ export async function GET(
     forceUnlock ||
     Boolean(user && hasPaidAccess(user.planTier));
 
-  const report = await getReport(id, false);
   const sourceRows = await listSources(id);
 
   const allSocial = report?.socialProfiles ?? [];

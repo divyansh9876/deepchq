@@ -38,7 +38,10 @@ function ScanStepContent() {
           : `Analyzing digital footprint for ${decodeURIComponent(name)}`}
       </p>
       {done && searchId && (
-        <ContinueButton href={`/search/${searchId}`} label="View report" />
+        <ContinueButton
+          href={`/landing/login?next=${encodeURIComponent(`/search/${searchId}`)}`}
+          label="Sign in to view report"
+        />
       )}
     </FunnelLayout>
   );

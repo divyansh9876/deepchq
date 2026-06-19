@@ -67,8 +67,8 @@ function UnlockBanner({
   return (
     <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4">
       <p className="text-sm text-amber-900">
-        Preview mode — unlock to see social accounts, full bio, and follow-up
-        questions.
+        Preview mode — sign in to view your free report, then unlock for full
+        social accounts, bio, and follow-up questions.
       </p>
       <button
         type="button"

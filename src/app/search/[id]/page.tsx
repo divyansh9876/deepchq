@@ -28,6 +28,12 @@ function SearchDetailContent() {
       `/api/search/${id}${checkout ? "?checkout=success" : ""}`,
     );
     const data = await res.json();
+
+    if (res.status === 401 && data.requiresAuth) {
+      window.location.href = `/landing/login?next=${encodeURIComponent(`/search/${id}`)}`;
+      return;
+    }
+
     setStatus(data.search?.status ?? "unknown");
     if (data.report) setReport(data.report);
     setLocked(data.locked ?? true);
