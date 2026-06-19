@@ -51,6 +51,10 @@ services:
         sync: false
       - key: ANALYTICS_SECRET
         sync: false
+      - key: DATABASE_BACKUP_URL
+        sync: false
+      - key: DATABASE_BACKUP_SECRET
+        sync: false
     disk:
       name: deepchq-data
       mountPath: /app/data

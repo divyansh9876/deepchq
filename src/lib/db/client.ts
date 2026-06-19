@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { scheduleDatabaseBackup } from "./backup";
 
 export type FunnelSession = {
   id: string;
@@ -171,7 +172,11 @@ function readDb(): DbShape {
 }
 
 function writeDb(data: DbShape) {
-  fs.writeFileSync(dbPath(), JSON.stringify(data, null, 2));
+  const file = dbPath();
+  const tmp = `${file}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
+  fs.renameSync(tmp, file);
+  scheduleDatabaseBackup();
 }
 
 function mutate(fn: (data: DbShape) => void) {
