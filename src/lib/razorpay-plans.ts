@@ -1,16 +1,16 @@
 export type PlanKey = "basic" | "pro";
-export type PlanInterval = "weekly" | "quarterly" | "yearly";
+export type PlanInterval = "weekly" | "monthly";
 
 export const PLAN_AMOUNT_PAISE: Record<
   PlanKey,
   Record<PlanInterval, number>
 > = {
-  basic: { weekly: 49900, quarterly: 129900, yearly: 399900 },
-  pro: { weekly: 99900, quarterly: 249900, yearly: 799900 },
+  basic: { weekly: 16900, monthly: 39900 },
+  pro: { weekly: 16900, monthly: 39900 },
 };
 
 const PLAN_KEYS: PlanKey[] = ["basic", "pro"];
-const INTERVALS: PlanInterval[] = ["weekly", "quarterly", "yearly"];
+const INTERVALS: PlanInterval[] = ["weekly", "monthly"];
 
 function envAmount(key: string, fallback: number): number {
   const raw = process.env[key];
@@ -58,10 +58,8 @@ export function getSubscriptionTotalCount(interval: PlanInterval): number {
   switch (interval) {
     case "weekly":
       return 520;
-    case "quarterly":
-      return 40;
-    case "yearly":
-      return 10;
+    case "monthly":
+      return 120;
   }
 }
 

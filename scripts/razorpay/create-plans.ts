@@ -18,8 +18,7 @@ const PERIOD: Record<
   { period: "weekly" | "monthly" | "yearly"; interval: number }
 > = {
   weekly: { period: "weekly", interval: 1 },
-  quarterly: { period: "monthly", interval: 3 },
-  yearly: { period: "yearly", interval: 1 },
+  monthly: { period: "monthly", interval: 1 },
 };
 
 async function main() {
@@ -32,7 +31,7 @@ async function main() {
 
   const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
   const plans: PlanKey[] = ["basic", "pro"];
-  const intervals: PlanInterval[] = ["weekly", "quarterly", "yearly"];
+  const intervals: PlanInterval[] = ["weekly", "monthly"];
 
   console.log("\n# Add these to Render / .env:\n");
 

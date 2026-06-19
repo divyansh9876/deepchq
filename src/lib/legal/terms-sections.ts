@@ -101,7 +101,7 @@ export const TERMS_SECTIONS: TermsBlock[] = [
       },
       {
         id: "5.5",
-        text: `${app} offers weekly, quarterly, and annual subscription packages. Cancellation may be done at any time via the app store, account settings, or by contacting support.`,
+        text: `${app} offers weekly and monthly subscription packages. Cancellation may be done at any time via the app store, account settings, or by contacting support.`,
       },
       {
         id: "5.6",
@@ -203,7 +203,7 @@ export const TERMS_SECTIONS: TermsBlock[] = [
       },
       {
         id: "8.2",
-        text: `Weekly, quarterly, and annual plans are indexed to pricing shown at signup. New plans offered later may not apply retroactively.`,
+        text: `Weekly and monthly plans are indexed to pricing shown at signup. New plans offered later may not apply retroactively.`,
       },
       {
         id: "8.2b",

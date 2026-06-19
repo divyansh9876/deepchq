@@ -2,7 +2,6 @@ import { getDbSnapshot } from "@/lib/db/snapshot";
 import {
   getPlanAmountPaise,
   PLAN_AMOUNT_PAISE,
-  type PlanInterval,
   type PlanKey,
 } from "@/lib/razorpay-plans";
 
@@ -44,16 +43,21 @@ function parseUtm(utmJson: string | null): Record<string, string> {
   }
 }
 
-function intervalToMonthlyPaise(plan: PlanKey, interval: PlanInterval): number {
-  const amount = getPlanAmountPaise(plan, interval);
-  switch (interval) {
-    case "weekly":
-      return Math.round(amount * 4.33);
-    case "quarterly":
-      return Math.round(amount / 3);
-    case "yearly":
-      return Math.round(amount / 12);
+function intervalToMonthlyPaise(plan: PlanKey, interval: string): number {
+  if (interval === "weekly") {
+    return Math.round(getPlanAmountPaise(plan, "weekly") * 4.33);
   }
+  if (interval === "monthly") {
+    return getPlanAmountPaise(plan, "monthly");
+  }
+  // Legacy intervals from older subscriptions
+  if (interval === "quarterly") {
+    return Math.round(getPlanAmountPaise(plan, "monthly"));
+  }
+  if (interval === "yearly") {
+    return Math.round(getPlanAmountPaise(plan, "monthly"));
+  }
+  return getPlanAmountPaise(plan, "monthly");
 }
 
 function dayKey(d: Date): string {
@@ -74,9 +78,8 @@ export function getAnalyticsOverview(): AnalyticsOverview {
 
   for (const sub of activeSubs) {
     const plan = sub.plan as PlanKey;
-    const interval = sub.interval as PlanInterval;
-    if (!PLAN_AMOUNT_PAISE[plan]?.[interval]) continue;
-    const monthly = intervalToMonthlyPaise(plan, interval);
+    if (!PLAN_AMOUNT_PAISE[plan]) continue;
+    const monthly = intervalToMonthlyPaise(plan, sub.interval);
     estimatedMrrPaise += monthly;
     planBreakdown.push({
       plan: sub.plan,

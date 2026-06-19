@@ -11,7 +11,7 @@ import {
 
 const planSchema = z.object({
   plan: z.enum(["basic", "pro"]),
-  interval: z.enum(["weekly", "quarterly", "yearly"]),
+  interval: z.enum(["weekly", "monthly"]),
   currency: z.string().default("INR"),
   searchId: z.string().optional(),
 });

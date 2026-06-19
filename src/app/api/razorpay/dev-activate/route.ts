@@ -6,7 +6,7 @@ import { isRazorpayEnabled } from "@/lib/razorpay";
 
 const schema = z.object({
   plan: z.enum(["basic", "pro"]),
-  interval: z.enum(["weekly", "quarterly", "yearly"]),
+  interval: z.enum(["weekly", "monthly"]),
   searchId: z.string().optional(),
 });
 
