@@ -73,18 +73,37 @@ Sheets refresh on each backup (full snapshot, not append-only).
 
 ## 5. Test
 
+**In Apps Script editor** (before connecting Render):
+
+1. Set `BACKUP_SECRET` in the script
+2. Run function **`testBackup`** (Run ▶)
+3. Check Drive → **Deepchq Backups** and spreadsheet **Deepchq Data**
+4. **Deploy → Manage deployments → Edit → New version** (required after code changes!)
+
+**From production:**
+
 ```bash
 curl -X POST -H "x-analytics-secret: YOUR_ANALYTICS_SECRET" \
   https://deepchq.app/api/admin/backup
 ```
 
-Or wait ~2 minutes after a signup/search — auto-backup runs after DB changes.
-
-Check Drive folder and **Deepchq Data** spreadsheet.
+Response includes `remote.spreadsheetUrl` on success.
 
 ---
 
-## 6. Troubleshooting
+## 6. JSON updates but Sheet does not?
+
+This usually means the script saved the JSON file then **crashed on the Sheet step**. Fix:
+
+1. Re-paste the latest `scripts/google-apps-script/deepchq-backup.gs` into Apps Script
+2. **Deploy → Manage deployments → Edit → New version → Deploy** (editing code alone is not enough)
+3. Run **`testBackup`** in the editor — check **Execution log** for errors
+4. Open spreadsheet inside folder **Deepchq Backups** (not an old copy in Drive root)
+5. Confirm `DATABASE_BACKUP_SECRET` on Render matches `BACKUP_SECRET` in the script
+
+---
+
+## 7. Troubleshooting
 
 | Issue | Fix |
 |-------|-----|

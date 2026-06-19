@@ -35,6 +35,7 @@ export type RemoteBackupResult = {
   status?: number;
   error?: string;
   exportedAt?: string;
+  remote?: Record<string, unknown>;
 };
 
 /** POST a JSON snapshot to DATABASE_BACKUP_URL (webhook, n8n, worker → S3/Drive). */
@@ -92,11 +93,39 @@ export async function pushRemoteBackup(): Promise<RemoteBackupResult> {
       return {
         ok: false,
         status: res.status,
-        error: text.slice(0, 200) || `HTTP ${res.status}`,
+        error: text.slice(0, 500) || `HTTP ${res.status}`,
       };
     }
 
-    return { ok: true, exportedAt };
+    const text = await res.text().catch(() => "");
+    let remote: Record<string, unknown> | undefined;
+    try {
+      remote = JSON.parse(text) as Record<string, unknown>;
+    } catch {
+      remote = { raw: text.slice(0, 200) };
+    }
+
+    const sheetErrors = remote?.sheetErrors as string[] | undefined;
+    if (sheetErrors?.length) {
+      console.error("[db-backup] Google Sheets sync errors:", sheetErrors);
+      return {
+        ok: false,
+        exportedAt,
+        error: `Sheets sync failed: ${sheetErrors.join("; ")}`,
+        remote,
+      };
+    }
+
+    if (remote?.ok === false) {
+      return {
+        ok: false,
+        exportedAt,
+        error: String(remote.error ?? "Remote backup failed"),
+        remote,
+      };
+    }
+
+    return { ok: true, exportedAt, remote };
   } catch (e) {
     return {
       ok: false,
