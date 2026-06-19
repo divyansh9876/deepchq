@@ -24,6 +24,7 @@ ANALYTICS_SECRET=another-long-secret
 
 | Option | How |
 |--------|-----|
+| **Google Drive + Sheets** | [GOOGLE-BACKUP.md](./GOOGLE-BACKUP.md) — free Apps Script (recommended) |
 | **n8n / Make / Zapier** | Webhook → Google Drive, Dropbox, or email |
 | **Cloudflare Worker** | Receive POST → store in **R2** |
 | **Your own server** | Simple script saves `database` field to dated files |

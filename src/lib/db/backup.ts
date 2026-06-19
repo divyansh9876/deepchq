@@ -68,11 +68,13 @@ export async function pushRemoteBackup(): Promise<RemoteBackupResult> {
     body = JSON.stringify({
       exportedAt,
       filename,
+      backupSecret: secret,
       source: process.env.NEXT_PUBLIC_APP_URL ?? "deepchq",
       stats: {
         users: snapshot.users.length,
         searches: snapshot.searches.length,
         funnelSessions: snapshot.funnelSessions.length,
+        subscriptions: snapshot.subscriptions.length,
       },
       database: snapshot,
     });
