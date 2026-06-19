@@ -1,0 +1,35 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: deepchq
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOSTNAME
+        value: 0.0.0.0
+      - key: PORT
+        value: "3000"
+      - key: DATABASE_URL
+        value: file:/app/data/deepchq.json
+      - key: ALLOW_DEV_UNLOCK
+        value: "false"
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      - key: SERPER_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+    disk:
+      name: deepchq-data
+      mountPath: /app/data
+      sizeGB: 1

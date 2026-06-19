@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+data
+*.md
+!README.md
+mobile/android
+mobile/node_modules
+.DS_Store
+coverage
+*.log
+terminals
