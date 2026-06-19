@@ -62,6 +62,8 @@ fbq('track', 'PageView');`,
           />
         </noscript>
         <noscript>
+          {/* Meta Pixel requires a plain img beacon in noscript fallback */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             height="1"
             width="1"

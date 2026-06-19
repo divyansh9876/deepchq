@@ -10,6 +10,7 @@ data
 !README.md
 mobile/android
 mobile/node_modules
+deepsearch
 .DS_Store
 coverage
 *.log
