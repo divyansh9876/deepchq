@@ -16,6 +16,8 @@ const PLANS = [
   {
     key: "basic" as const,
     name: "Basic",
+    tagline: "Low weekly entry for India",
+    highlightInterval: "weekly" as const,
     features: [
       "Unlimited Advanced Search",
       "AI-Powered Deep Reports",
@@ -25,7 +27,9 @@ const PLANS = [
   {
     key: "pro" as const,
     name: "Pro",
-    badge: "Special Offer",
+    badge: "Best value",
+    tagline: "Monthly plan for regular use",
+    highlightInterval: "monthly" as const,
     features: [
       "Unlimited Advanced Search",
       "AI-Powered Deep Reports",
@@ -92,6 +96,9 @@ function PricingContent() {
       <MarketingNav />
       <main className="mx-auto max-w-4xl px-6 py-16 text-center">
         <h1 className="text-3xl font-bold text-slate-900">Pricing</h1>
+        <p className="mt-3 text-sm text-slate-600">
+          India pricing in INR · Basic from ₹129/week · Pro from ₹399/month
+        </p>
         <div className="mt-8 flex flex-wrap justify-center gap-2">
           {(["weekly", "monthly"] as const).map((i) => (
             <button
@@ -104,7 +111,7 @@ function PricingContent() {
                   : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
             >
-              {i === "monthly" ? "Monthly" : "Weekly"}
+              {i === "monthly" ? "Monthly — save more" : "Weekly — start low"}
             </button>
           ))}
         </div>
@@ -117,7 +124,8 @@ function PricingContent() {
                 className="rounded-2xl border border-slate-200 bg-white p-8 text-left shadow-sm"
               >
                 <h3 className="text-xl font-bold text-slate-900">{p.name}</h3>
-                {p.badge && (
+                <p className="mt-1 text-xs text-slate-500">{p.tagline}</p>
+                {p.badge && interval === p.highlightInterval && (
                   <span className="mt-2 inline-block text-sm font-medium text-blue-600">
                     {p.badge}
                   </span>

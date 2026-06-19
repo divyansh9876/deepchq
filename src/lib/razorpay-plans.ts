@@ -5,8 +5,14 @@ export const PLAN_AMOUNT_PAISE: Record<
   PlanKey,
   Record<PlanInterval, number>
 > = {
-  basic: { weekly: 16900, monthly: 39900 },
-  pro: { weekly: 16900, monthly: 39900 },
+  basic: { weekly: 12900, monthly: 29900 },
+  pro: { weekly: 14900, monthly: 39900 },
+};
+
+/** India list prices (INR) for marketing copy */
+export const PLAN_PRICE_INR: Record<PlanKey, Record<PlanInterval, number>> = {
+  basic: { weekly: 129, monthly: 299 },
+  pro: { weekly: 149, monthly: 399 },
 };
 
 const PLAN_KEYS: PlanKey[] = ["basic", "pro"];
