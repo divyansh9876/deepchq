@@ -1,8 +1,0 @@
-{
-  "baseUrl": "https://deepchq.app",
-  "instagramHandle": "@deepchq",
-  "dailyBudgetUsd": 50,
-  "geoTargets": ["US"],
-  "languages": ["en"],
-  "publishMode": "draft_only"
-}
