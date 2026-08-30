@@ -1,0 +1,19 @@
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import { BRAND_NAME, BRAND_DESCRIPTION } from "@/lib/brand";
+import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+
+export const metadata: Metadata = {
+  title: `${BRAND_NAME} — AI Search Visibility & GEO`,
+  description: BRAND_DESCRIPTION,
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body className={`${inter.variable} font-sans antialiased`}>{children}</body>
+    </html>
+  );
+}

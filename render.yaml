@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: geopulse
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: file:/app/data/geopulse.json
+      - key: OPENAI_API_KEY
+        sync: false
+    disk:
+      name: geopulse-data
+      mountPath: /app/data
+      sizeGB: 1
