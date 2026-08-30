@@ -1,8 +1,6 @@
-# GeoPulse
+# Deepchq
 
 **AI Search Visibility & GEO Platform** — track brand mentions, citations, and competitor share of voice across ChatGPT, Perplexity, Google AI, Gemini, Claude, and Copilot.
-
-Similar to [Otterly AI](https://otterly.ai/) for Generative Engine Optimization.
 
 ## Features
 
@@ -25,7 +23,7 @@ Open http://localhost:3000
 ## Environment
 
 ```env
-DATABASE_URL=file:./data/geopulse.json
+DATABASE_URL=file:./data/deepchq.json
 OPENAI_API_KEY=          # optional — real ChatGPT scan answers
 OPENAI_MODEL=gpt-4o-mini
 ```
@@ -35,11 +33,7 @@ OPENAI_MODEL=gpt-4o-mini
 Works on Render, Vercel, or Docker (`output: standalone`).
 
 ```env
-DATABASE_URL=file:/app/data/geopulse.json
+DATABASE_URL=file:/app/data/deepchq.json
 ```
 
 Mount a persistent disk at `/app/data` for production data.
-
-## License
-
-Private — Deepchq / GeoPulse

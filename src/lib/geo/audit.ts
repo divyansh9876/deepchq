@@ -7,7 +7,7 @@ async function fetchText(url: string, timeout = 12000): Promise<string | null> {
     const t = setTimeout(() => ctrl.abort(), timeout);
     const res = await fetch(url, {
       signal: ctrl.signal,
-      headers: { "User-Agent": "GeoPulse-AuditBot/1.0 (+https://geopulse.app)" },
+      headers: { "User-Agent": "Deepchq-AuditBot/1.0 (+https://deepchq.app)" },
     });
     clearTimeout(t);
     if (!res.ok) return null;

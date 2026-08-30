@@ -78,7 +78,7 @@ export default function HomePage() {
         </div>
 
         <p className="mt-12 text-center text-xs text-slate-400">
-          {BRAND_NAME} — built for marketers investing in GEO. Similar to OtterlyAI, self-hosted.
+          {BRAND_NAME} — built for marketers investing in GEO.
         </p>
       </main>
     </div>

@@ -30,7 +30,7 @@ const defaultDb: DbShape = {
 function dbPath() {
   const raw =
     process.env.DATABASE_URL?.replace(/^file:/, "") ??
-    path.join(process.cwd(), "data", "geopulse.json");
+    path.join(process.cwd(), "data", "deepchq.json");
   const dir = path.dirname(raw);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   return raw;

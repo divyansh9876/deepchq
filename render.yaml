@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: geopulse
+    name: deepchq
     runtime: docker
     plan: free
     dockerfilePath: ./Dockerfile
@@ -9,10 +9,10 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        value: file:/app/data/geopulse.json
+        value: file:/app/data/deepchq.json
       - key: OPENAI_API_KEY
         sync: false
     disk:
-      name: geopulse-data
+      name: deepchq-data
       mountPath: /app/data
       sizeGB: 1

@@ -1,4 +1,4 @@
-export const BRAND_NAME = "GeoPulse";
+export const BRAND_NAME = "Deepchq";
 export const BRAND_TAGLINE = "AI Search Visibility & GEO Platform";
 export const BRAND_DESCRIPTION =
   "Track brand mentions, citations, and visibility across ChatGPT, Perplexity, Google AI, Gemini, and more.";
