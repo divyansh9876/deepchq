@@ -22,8 +22,8 @@ export default function FeaturesPage() {
 
       <div className="mt-14 grid gap-6 md:grid-cols-2">
         {FEATURES.map((f) => (
-          <div key={f.title} className="card-hover">
-            <h2 className="text-lg font-semibold text-slate-900">{f.title}</h2>
+          <div key={f.title} className={`rounded-2xl border p-6 shadow-sm transition hover:-translate-y-1 ${f.card}`}>
+            <h2 className={`text-lg font-semibold ${f.kicker}`}>{f.title}</h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-600">{f.desc}</p>
           </div>
         ))}
@@ -36,7 +36,11 @@ export default function FeaturesPage() {
         </p>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           {AI_ENGINES.map((e) => (
-            <div key={e.id} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-4 transition hover:-translate-y-0.5 hover:border-brand-100 hover:shadow-md">
+            <div
+              key={e.id}
+              className="flex items-center gap-3 rounded-2xl border bg-white px-4 py-4 transition hover:-translate-y-0.5 hover:shadow-md"
+              style={{ borderColor: `${e.color}55` }}
+            >
               <span className="h-3 w-3 rounded-full" style={{ background: e.color }} />
               <span className="font-medium text-slate-800">{e.name}</span>
             </div>
@@ -48,8 +52,8 @@ export default function FeaturesPage() {
         <h2 className="text-2xl font-bold text-slate-900">From first report to a weekly habit</h2>
         <div className="mt-8 grid gap-8 md:grid-cols-3">
           {STEPS.map((s) => (
-            <div key={s.n} className="card">
-              <p className="text-sm font-bold text-brand-600">{s.n}</p>
+            <div key={s.n} className={`rounded-2xl border p-6 ${s.wash}`}>
+              <p className={`text-sm font-bold ${s.tone}`}>{s.n}</p>
               <h3 className="mt-2 font-semibold text-slate-900">{s.title}</h3>
               <p className="mt-2 text-sm text-slate-600">{s.desc}</p>
             </div>

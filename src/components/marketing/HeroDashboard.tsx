@@ -33,8 +33,8 @@ export function HeroDashboard() {
 
   return (
     <div className="relative">
-      <p className="absolute -top-8 right-4 rotate-6 font-hand text-2xl text-brand-700">live scan</p>
-      <div className="relative overflow-hidden rounded-3xl border border-brand-100 bg-white shadow-xl shadow-brand-900/10">
+      <p className="absolute -top-8 right-4 rotate-6 font-hand text-2xl text-violet-600">live scan</p>
+      <div className="relative overflow-hidden rounded-3xl border border-violet-100 bg-white shadow-xl shadow-violet-900/10">
         <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-3">
           <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
           <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
@@ -42,7 +42,7 @@ export function HeroDashboard() {
           <span className="ml-3 text-xs font-medium text-slate-400">deepchq · brand report</span>
         </div>
         <div className="relative p-5">
-          <div className="scan-line pointer-events-none absolute left-4 right-4 h-px bg-gradient-to-r from-transparent via-brand-500 to-transparent" />
+          <div className="scan-line pointer-events-none absolute left-4 right-4 h-px bg-gradient-to-r from-transparent via-violet-500 to-transparent" />
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Prompt</p>
           <p className="mt-1 text-sm font-medium text-slate-800">{PROMPTS[promptI]}</p>
           <div className="mt-5 flex items-end justify-between gap-4">
@@ -62,16 +62,16 @@ export function HeroDashboard() {
           </div>
           <div className="mt-6 space-y-2">
             {[
-              { brand: "Deepchq", hit: true, n: "cited" },
-              { brand: "Competitor A", hit: score > 60, n: "mentioned" },
-              { brand: "Competitor B", hit: false, n: "absent" },
+              { brand: "Deepchq", hit: true, n: "cited", row: "bg-teal-50", tag: "text-teal-700" },
+              { brand: "Competitor A", hit: score > 60, n: "mentioned", row: "bg-amber-50", tag: "text-amber-700" },
+              { brand: "Competitor B", hit: false, n: "absent", row: "bg-slate-50", tag: "text-slate-400" },
             ].map((row) => (
               <div
                 key={row.brand}
-                className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2 text-sm"
+                className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm ${row.row}`}
               >
                 <span className="font-medium text-slate-700">{row.brand}</span>
-                <span className={row.hit ? "text-brand-700" : "text-slate-400"}>{row.n}</span>
+                <span className={row.hit ? row.tag : "text-slate-400"}>{row.n}</span>
               </div>
             ))}
           </div>

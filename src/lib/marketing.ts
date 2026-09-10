@@ -68,26 +68,56 @@ export const FEATURES = [
   {
     title: "Prompt tracking",
     desc: "Define the questions buyers ask AI engines. Track whether your brand is mentioned, cited, or ignored — daily.",
+    active: "bg-teal-600 text-white shadow-md shadow-teal-200",
+    idle: "hover:bg-teal-50",
+    kicker: "text-teal-700",
+    bar: "bg-teal-600",
+    card: "border-teal-100 bg-gradient-to-br from-teal-50 to-white",
   },
   {
     title: "Multi-engine scans",
     desc: "Monitor ChatGPT, Perplexity, Google AI Overviews, Gemini, Claude, and Copilot from one report.",
+    active: "bg-violet-600 text-white shadow-md shadow-violet-200",
+    idle: "hover:bg-violet-50",
+    kicker: "text-violet-700",
+    bar: "bg-violet-600",
+    card: "border-violet-100 bg-gradient-to-br from-violet-50 to-white",
   },
   {
     title: "Share of voice",
     desc: "See how often you appear versus named competitors, and which engines favor whom.",
+    active: "bg-amber-500 text-white shadow-md shadow-amber-200",
+    idle: "hover:bg-amber-50",
+    kicker: "text-amber-700",
+    bar: "bg-amber-500",
+    card: "border-amber-100 bg-gradient-to-br from-amber-50 to-white",
   },
   {
     title: "GEO audit",
     desc: "Check robots.txt, llms.txt, schema, crawlability, and content depth so models can actually cite you.",
+    active: "bg-sky-600 text-white shadow-md shadow-sky-200",
+    idle: "hover:bg-sky-50",
+    kicker: "text-sky-700",
+    bar: "bg-sky-600",
+    card: "border-sky-100 bg-gradient-to-br from-sky-50 to-white",
   },
   {
     title: "Recommendations",
     desc: "Get ranked on-page and off-page actions that close visibility gaps — not a generic SEO checklist.",
+    active: "bg-rose-500 text-white shadow-md shadow-rose-200",
+    idle: "hover:bg-rose-50",
+    kicker: "text-rose-700",
+    bar: "bg-rose-500",
+    card: "border-rose-100 bg-gradient-to-br from-rose-50 to-white",
   },
   {
     title: "Prompt research",
     desc: "Turn keywords into starter prompts across TOFU, MOFU, and BOFU so you are not guessing what to track.",
+    active: "bg-indigo-600 text-white shadow-md shadow-indigo-200",
+    idle: "hover:bg-indigo-50",
+    kicker: "text-indigo-700",
+    bar: "bg-indigo-600",
+    card: "border-indigo-100 bg-gradient-to-br from-indigo-50 to-white",
   },
 ] as const;
 
@@ -96,16 +126,22 @@ export const STEPS = [
     n: "01",
     title: "Create a brand report",
     desc: "Add your domain, competitors, and a few keywords. We generate starter prompts automatically.",
+    tone: "text-teal-600",
+    wash: "bg-teal-50 border-teal-100",
   },
   {
     n: "02",
     title: "Scan AI engines",
     desc: "Run visibility scans across the engines that matter. See mentions, citations, and competitor hits.",
+    tone: "text-violet-600",
+    wash: "bg-violet-50 border-violet-100",
   },
   {
     n: "03",
     title: "Audit & act",
     desc: "Fix crawl and content gaps, then re-scan. Watch share of voice move as recommendations ship.",
+    tone: "text-amber-600",
+    wash: "bg-amber-50 border-amber-100",
   },
 ] as const;
 
@@ -113,15 +149,28 @@ export const USE_CASES = [
   {
     title: "In-house marketers",
     desc: "Prove AI search is a channel, not a rumor. Report visibility to leadership with engine-level data.",
+    wash: "bg-sky-50 border-sky-100 hover:border-sky-300",
+    chip: "bg-sky-600",
   },
   {
     title: "Agencies",
     desc: "Productize GEO retainers. Track every client brand and send a report they can actually read.",
+    wash: "bg-violet-50 border-violet-100 hover:border-violet-300",
+    chip: "bg-violet-600",
   },
   {
     title: "Founders & SEO leads",
     desc: "Know if ChatGPT recommends you before a prospect even visits Google. Close the citation gap.",
+    wash: "bg-amber-50 border-amber-100 hover:border-amber-300",
+    chip: "bg-amber-500",
   },
+] as const;
+
+export const STAT_TONES = [
+  { wrap: "bg-teal-50 border-teal-100", num: "text-teal-700" },
+  { wrap: "bg-violet-50 border-violet-100", num: "text-violet-700" },
+  { wrap: "bg-amber-50 border-amber-100", num: "text-amber-700" },
+  { wrap: "bg-sky-50 border-sky-100", num: "text-sky-700" },
 ] as const;
 
 export const FAQS = [

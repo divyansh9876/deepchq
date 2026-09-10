@@ -8,9 +8,9 @@ export function Testimonials() {
   const t = TESTIMONIALS[i];
 
   return (
-    <div className="card mx-auto max-w-3xl text-center">
+    <div className="mx-auto max-w-3xl rounded-2xl border border-violet-100 bg-white p-6 text-center shadow-sm">
       <p className="font-display text-xl leading-relaxed text-slate-800 md:text-2xl">“{t.quote}”</p>
-      <p className="mt-6 text-sm font-semibold text-slate-900">{t.name}</p>
+      <p className="mt-6 text-sm font-semibold text-violet-800">{t.name}</p>
       <p className="text-sm text-slate-500">{t.role}</p>
       <div className="mt-6 flex justify-center gap-2">
         {TESTIMONIALS.map((_, idx) => (
@@ -19,7 +19,7 @@ export function Testimonials() {
             type="button"
             aria-label={`Show quote ${idx + 1}`}
             onClick={() => setI(idx)}
-            className={`h-2.5 rounded-full transition-all ${i === idx ? "w-8 bg-brand-600" : "w-2.5 bg-slate-200"}`}
+            className={`h-2.5 rounded-full transition-all ${i === idx ? "w-8 bg-violet-600" : "w-2.5 bg-amber-200"}`}
           />
         ))}
       </div>
