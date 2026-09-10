@@ -13,7 +13,7 @@ export default function AboutPage() {
     <main className="mx-auto max-w-6xl px-6 py-16">
       <div className="max-w-3xl">
         <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">About</p>
-        <h1 className="mt-3 text-4xl font-bold text-slate-900">AI search is already a channel. Most brands cannot see it.</h1>
+        <h1 className="mt-3 font-display text-4xl font-semibold text-slate-900">AI search is already a channel. Most brands cannot see it.</h1>
         <p className="mt-5 text-lg leading-relaxed text-slate-600">
           Buyers ask ChatGPT and Perplexity before they click a blue link. If those answers name a
           competitor — or nobody — you lose the consideration set without ever showing up in Search Console.
@@ -60,7 +60,7 @@ export default function AboutPage() {
         <h2 className="text-2xl font-bold text-slate-900">Team</h2>
         <div className="mt-8 grid gap-6 md:grid-cols-3">
           {TEAM.map((m) => (
-            <div key={m.name} className="card">
+            <div key={m.name} className="card-hover">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-700">
                 {m.name
                   .split(" ")

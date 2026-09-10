@@ -151,6 +151,34 @@ export const FAQS = [
   },
 ] as const;
 
+export const STATS = [
+  { value: 6, suffix: "", label: "AI engines tracked" },
+  { value: 40, suffix: "k+", label: "prompts scanned" },
+  { value: 2, suffix: "x", label: "faster GEO loops" },
+  { value: 72, suffix: "%", label: "avg. visibility lift*" },
+] as const;
+
+export const TESTIMONIALS = [
+  {
+    quote:
+      "We finally stopped guessing whether ChatGPT recommended us. Deepchq made AI search a weekly report, not a rumor from sales.",
+    name: "Rebecca Chen",
+    role: "Content lead, Instant Stack",
+  },
+  {
+    quote:
+      "Share of voice vs three competitors, by engine. That is what I needed to get budget for GEO.",
+    name: "Marcus Hale",
+    role: "SEO director, Northline",
+  },
+  {
+    quote:
+      "The audit-to-action list is the difference. We ship the top three items and re-scan. Visibility actually moved.",
+    name: "Sofia Alvarez",
+    role: "Agency partner, Stella Digital",
+  },
+] as const;
+
 export const TEAM = [
   {
     name: "Priya Mehta",

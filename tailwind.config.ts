@@ -6,16 +6,19 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          50: "#eef4ff",
-          100: "#d9e6ff",
-          500: "#3b6cf4",
-          600: "#2553eb",
-          700: "#1d42d8",
-          900: "#172554",
+          50: "#eef8f6",
+          100: "#d4efe9",
+          200: "#a8ddd9",
+          500: "#129184",
+          600: "#0d7367",
+          700: "#0a5c53",
+          900: "#12332e",
         },
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        display: ["var(--font-syne)", "var(--font-inter)", "system-ui", "sans-serif"],
+        hand: ["var(--font-caveat)", "cursive"],
       },
     },
   },

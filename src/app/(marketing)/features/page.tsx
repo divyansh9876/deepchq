@@ -13,7 +13,7 @@ export default function FeaturesPage() {
     <main className="mx-auto max-w-6xl px-6 py-16">
       <div className="max-w-3xl">
         <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">Product</p>
-        <h1 className="mt-3 text-4xl font-bold text-slate-900">A GEO stack, not another keyword ranker</h1>
+        <h1 className="mt-3 font-display text-4xl font-semibold text-slate-900">A GEO stack, not another keyword ranker</h1>
         <p className="mt-4 text-lg text-slate-600">
           Track the prompts that matter, scan the engines your buyers use, audit whether models can cite you, and get a
           ranked list of what to do next.
@@ -22,7 +22,7 @@ export default function FeaturesPage() {
 
       <div className="mt-14 grid gap-6 md:grid-cols-2">
         {FEATURES.map((f) => (
-          <div key={f.title} className="card">
+          <div key={f.title} className="card-hover">
             <h2 className="text-lg font-semibold text-slate-900">{f.title}</h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-600">{f.desc}</p>
           </div>
@@ -36,7 +36,7 @@ export default function FeaturesPage() {
         </p>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           {AI_ENGINES.map((e) => (
-            <div key={e.id} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-4">
+            <div key={e.id} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-4 transition hover:-translate-y-0.5 hover:border-brand-100 hover:shadow-md">
               <span className="h-3 w-3 rounded-full" style={{ background: e.color }} />
               <span className="font-medium text-slate-800">{e.name}</span>
             </div>
