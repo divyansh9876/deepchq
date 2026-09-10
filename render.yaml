@@ -1,17 +1,28 @@
+# Render Blueprint — https://dashboard.render.com/blueprints
+# New → Blueprint → select this GitHub repo. Disks require a paid instance.
+# On free plan, delete the `disk` block (data resets when the service sleeps).
+
 services:
   - type: web
     name: deepchq
     runtime: docker
-    plan: free
+    plan: starter
+    region: oregon
     dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeployTrigger: commit
     healthCheckPath: /
     envVars:
       - key: NODE_ENV
         value: production
+      - key: HOSTNAME
+        value: "0.0.0.0"
       - key: DATABASE_URL
         value: file:/app/data/deepchq.json
       - key: OPENAI_API_KEY
         sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
     disk:
       name: deepchq-data
       mountPath: /app/data
