@@ -48,7 +48,7 @@ body {
 }
 
 .float-slow {
-  animation: float 6s ease-in-out infinite;
+  animation: float 7s ease-in-out infinite;
 }
 
 .marquee-track {
@@ -57,6 +57,63 @@ body {
 
 .scan-line {
   animation: scan 2.4s ease-in-out infinite;
+}
+
+.hero-in {
+  animation: fade-up 0.8s ease both;
+}
+
+.hero-in-2 {
+  animation: fade-up 0.8s ease 0.12s both;
+}
+
+.hero-in-3 {
+  animation: fade-up 0.8s ease 0.24s both;
+}
+
+.hero-in-4 {
+  animation: fade-up 0.8s ease 0.36s both;
+}
+
+.shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.45) 50%, transparent 60%);
+  transform: translateX(-120%);
+  animation: shine 4.5s ease-in-out infinite;
+}
+
+.bar-fill {
+  transform-origin: left;
+  animation: bar-fill 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.gradient-shift {
+  background-size: 180% 180%;
+  animation: gradient-shift 10s ease infinite;
+}
+
+.fade-swap {
+  animation: fade-swap 0.4s ease;
+}
+
+.step-line {
+  animation: grow-x 1.2s ease 0.3s both;
+}
+
+.engine-chip {
+  animation: chip-in 0.5s ease both;
+}
+
+.cta-orb {
+  animation: orb 8s ease-in-out infinite;
 }
 
 .reveal {
@@ -137,6 +194,90 @@ body {
   }
 }
 
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes shine {
+  0%,
+  55% {
+    transform: translateX(-120%);
+  }
+  75%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes bar-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes fade-swap {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes orb {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(18px, -12px);
+  }
+}
+
 .pulse-ring {
   animation: pulse-ring 2s ease-out infinite;
 }
@@ -146,7 +287,18 @@ body {
   .float-slow,
   .marquee-track,
   .scan-line,
-  .pulse-ring {
+  .pulse-ring,
+  .hero-in,
+  .hero-in-2,
+  .hero-in-3,
+  .hero-in-4,
+  .shine::after,
+  .bar-fill,
+  .gradient-shift,
+  .fade-swap,
+  .step-line,
+  .engine-chip,
+  .cta-orb {
     animation: none;
   }
   .reveal {

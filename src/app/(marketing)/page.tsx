@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FAQS, PLANS, STATS, STAT_TONES, STEPS, USE_CASES } from "@/lib/marketing";
 import { FaqList } from "@/components/marketing/FaqList";
 import { EngineMarquee } from "@/components/marketing/EngineMarquee";
-import { EngineCycle } from "@/components/marketing/EngineCycle";
+import { EnginePills } from "@/components/marketing/EnginePills";
 import { FeatureTabs } from "@/components/marketing/FeatureTabs";
 import { HeroDashboard } from "@/components/marketing/HeroDashboard";
 import { Testimonials } from "@/components/marketing/Testimonials";
@@ -21,28 +21,28 @@ export default function HomePage() {
         <div className="pointer-events-none absolute bottom-0 left-1/3 h-56 w-56 rounded-full bg-amber-200/40 blur-3xl blob" style={{ animationDelay: "8s" }} />
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-16 pt-14 md:grid-cols-2 md:pt-20">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-violet-600">
-              Track · optimize · execute
+            <p className="hero-in text-sm font-semibold uppercase tracking-[0.16em] text-teal-700">
+              AI search visibility
             </p>
-            <h1 className="display mt-4 text-4xl font-semibold text-slate-900 md:text-5xl lg:text-[3.4rem] lg:leading-[1.1]">
-              The AI visibility platform for the era of{" "}
-              <EngineCycle />
+            <h1 className="hero-in-2 display mt-4 text-4xl font-semibold text-slate-900 md:text-5xl lg:text-[3.25rem] lg:leading-[1.12]">
+              Measure brand mentions across generative search — then close the gap
             </h1>
-            <p className="mt-5 max-w-lg text-lg text-slate-600">
-              Track mentions, citations, and competitor share of voice. Audit why models skip you. Ship the next GEO
-              action — not another SEO checklist.
+            <p className="hero-in-3 mt-5 max-w-lg text-lg text-slate-600">
+              Track citations and competitor share of voice across ChatGPT, Perplexity, Google AI Overviews, Gemini,
+              Claude, and Copilot. Audit why models skip you, and ship a ranked GEO action list.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="hero-in-4 mt-8 flex flex-wrap gap-3">
               <Link href="/register" className="btn-primary px-8 py-3 text-base">
-                Get my visibility score
+                Create a free brand report
               </Link>
               <Link href="/features" className="btn-secondary px-8 py-3 text-base">
-                See how it works
+                View the platform
               </Link>
             </div>
-            <p className="mt-4 text-sm text-slate-400">Free Starter · no credit card</p>
+            <p className="hero-in-4 mt-4 text-sm text-slate-400">No credit card required</p>
+            <EnginePills />
           </div>
-          <div className="float-slow">
+          <div className="hero-in-3 float-slow">
             <HeroDashboard />
           </div>
         </div>
@@ -68,8 +68,7 @@ export default function HomePage() {
         <Reveal>
           <h2 className="display text-3xl font-semibold text-slate-900">One platform to see if AI recommends you</h2>
           <p className="mt-3 max-w-2xl text-slate-600">
-            Click a capability. This is the same loop marketers use on Otterly-style GEO stacks — research, monitor,
-            audit, act.
+            Click a capability. Research prompts, monitor engines, audit pages, and act — in one report.
           </p>
         </Reveal>
         <div className="mt-10">
@@ -87,10 +86,11 @@ export default function HomePage() {
           <Reveal>
             <h2 className="display text-3xl font-semibold text-slate-900">Three steps. Then a weekly habit.</h2>
           </Reveal>
-          <div className="mt-10 grid gap-8 md:grid-cols-3">
+          <div className="relative mt-10 grid gap-8 md:grid-cols-3">
+            <div className="step-line pointer-events-none absolute left-[16%] right-[16%] top-8 hidden h-px origin-left bg-gradient-to-r from-teal-300 via-violet-300 to-amber-300 md:block" />
             {STEPS.map((s, idx) => (
-              <Reveal key={s.n} delay={idx * 100} className={`rounded-2xl border p-6 ${s.wash}`}>
-                <p className={`font-hand text-3xl ${s.tone}`}>{s.n}</p>
+              <Reveal key={s.n} delay={idx * 100} className={`relative rounded-2xl border p-6 ${s.wash}`}>
+                <p className={`font-display text-2xl font-semibold ${s.tone}`}>{s.n}</p>
                 <h3 className="mt-2 text-lg font-semibold text-slate-900">{s.title}</h3>
                 <p className="mt-2 text-sm text-slate-600">{s.desc}</p>
               </Reveal>
@@ -181,9 +181,9 @@ export default function HomePage() {
       </section>
 
       <section className="px-6 pb-20">
-        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-3xl bg-gradient-to-br from-teal-800 via-violet-800 to-slate-900 px-8 py-14 text-center text-white">
-          <div className="pointer-events-none absolute -left-10 top-0 h-40 w-40 rounded-full bg-amber-400/30 blur-3xl" />
-          <div className="pointer-events-none absolute -right-8 bottom-0 h-40 w-40 rounded-full bg-sky-400/30 blur-3xl" />
+        <div className="gradient-shift relative mx-auto max-w-6xl overflow-hidden rounded-3xl bg-gradient-to-br from-teal-800 via-violet-800 to-slate-900 px-8 py-14 text-center text-white">
+          <div className="cta-orb pointer-events-none absolute -left-10 top-0 h-40 w-40 rounded-full bg-amber-400/30 blur-3xl" />
+          <div className="cta-orb pointer-events-none absolute -right-8 bottom-0 h-40 w-40 rounded-full bg-sky-400/30 blur-3xl" style={{ animationDelay: "2s" }} />
           <h2 className="relative font-display text-3xl font-semibold">See if AI search already cites you</h2>
           <p className="relative mx-auto mt-3 max-w-xl text-teal-100">
             Create a brand, generate prompts, and watch a live-style scan like the demo above.

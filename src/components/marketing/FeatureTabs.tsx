@@ -15,7 +15,7 @@ export function FeatureTabs() {
             key={f.title}
             type="button"
             onClick={() => setI(idx)}
-            className={`rounded-2xl px-4 py-3 text-left transition ${
+            className={`rounded-2xl px-4 py-3 text-left transition duration-300 ${
               i === idx ? f.active : `bg-white text-slate-700 ring-1 ring-slate-200 ${f.idle}`
             }`}
           >
@@ -23,7 +23,7 @@ export function FeatureTabs() {
           </button>
         ))}
       </div>
-      <div className={`min-h-56 rounded-2xl border p-6 shadow-sm ${active.card}`}>
+      <div key={active.title} className={`fade-swap min-h-56 rounded-2xl border p-6 shadow-sm ${active.card}`}>
         <p className={`text-xs font-semibold uppercase tracking-wide ${active.kicker}`}>How it helps</p>
         <h3 className="mt-2 font-display text-2xl font-semibold text-slate-900">{active.title}</h3>
         <p className="mt-3 leading-relaxed text-slate-600">{active.desc}</p>

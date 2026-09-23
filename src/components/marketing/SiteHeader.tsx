@@ -21,8 +21,8 @@ export function SiteHeader() {
               href={l.href}
               className={
                 pathname === l.href
-                  ? "text-brand-600"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "relative text-brand-600 after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:rounded-full after:bg-brand-600"
+                  : "relative text-slate-600 transition hover:text-slate-900 after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:rounded-full after:bg-brand-400 after:transition-all hover:after:w-full"
               }
             >
               {l.label}
