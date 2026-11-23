@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { BRAND_NAME } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: `Privacy — ${BRAND_NAME}`,
-  description: "How Deepchq collects and uses account and scan data.",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Privacy Policy",
+  description: "How Deepchq collects, uses and protects account, scan and audit data.",
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

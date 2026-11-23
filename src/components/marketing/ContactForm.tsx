@@ -7,6 +7,9 @@ export function ContactForm() {
   const params = useSearchParams();
   const defaultPlan = useMemo(() => params.get("plan") ?? "", [params]);
   const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [website, setWebsite] = useState("");
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -15,8 +18,21 @@ export function ContactForm() {
     message: defaultPlan === "agency" ? "Interested in the Agency plan for our clients." : "",
   });
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
+    setBusy(true);
+    setError("");
+    const res = await fetch("/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...form, source: "contact", website }),
+    });
+    setBusy(false);
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      setError(d.error ?? "Could not send your message. Please try again.");
+      return;
+    }
     setSent(true);
   }
 
@@ -32,7 +48,7 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={submit} className="card space-y-4">
+    <form onSubmit={submit} className="card relative space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
         <input
           className="input"
@@ -76,8 +92,18 @@ export function ContactForm() {
         onChange={(e) => setForm({ ...form, message: e.target.value })}
         required
       />
-      <button type="submit" className="btn-primary">
-        Send message
+      <input
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="absolute left-[-9999px] h-0 w-0 opacity-0"
+        name="website"
+        value={website}
+        onChange={(e) => setWebsite(e.target.value)}
+      />
+      {error && <p className="text-sm text-rose-600">{error}</p>}
+      <button type="submit" className="btn-primary" disabled={busy}>
+        {busy ? "Sending…" : "Send message"}
       </button>
     </form>
   );

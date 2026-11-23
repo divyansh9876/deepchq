@@ -1,6 +1,7 @@
 import { AI_ENGINES, type EngineId } from "@/lib/brand";
 import { newId } from "@/lib/id";
 import type { Brand, Prompt, ScanResult } from "@/lib/types";
+import { analyzeAnswer, askEngine, bareDomain } from "@/lib/geo/engines";
 
 function hash(s: string): number {
   let h = 0;
@@ -16,137 +17,84 @@ function seeded(seed: string) {
   };
 }
 
-async function queryOpenAI(
-  prompt: string,
-  brand: Brand,
-): Promise<{ answer: string; mentioned: boolean; cited: boolean; competitors: string[] } | null> {
-  const key = process.env.OPENAI_API_KEY?.trim();
-  if (!key) return null;
-
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
-      temperature: 0.3,
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are simulating an AI search engine answer. Be concise (3-5 sentences). Mention real brands when relevant. If you cite a website, include the domain.",
-        },
-        { role: "user", content: prompt },
-      ],
-    }),
-  });
-
-  if (!res.ok) return null;
-  const data = (await res.json()) as {
-    choices?: { message?: { content?: string } }[];
-  };
-  const answer = data.choices?.[0]?.message?.content ?? "";
-  const lower = answer.toLowerCase();
-  const brandLower = brand.name.toLowerCase();
-  const domainLower = brand.domain.replace(/^https?:\/\//, "").toLowerCase();
-
-  const mentioned =
-    lower.includes(brandLower) ||
-    (domainLower.length > 3 && lower.includes(domainLower.split("/")[0]));
-
-  const cited =
-    mentioned &&
-    (lower.includes(domainLower) || lower.includes(domainLower.split("/")[0]));
-
-  const competitors = brand.competitors.filter((c) =>
-    lower.includes(c.toLowerCase()),
-  );
-
-  return { answer, mentioned, cited, competitors };
-}
-
-function simulateEngine(
-  brand: Brand,
-  prompt: Prompt,
-  engine: EngineId,
-  openAiAnswer?: string,
-): Omit<ScanResult, "id" | "createdAt"> {
-  const rand = seeded(`${brand.id}:${prompt.id}:${engine}:${prompt.text}`);
-  const baseMention = rand() > 0.55 ? 1 : 0;
-  const domainBoost = brand.domain ? 0.15 : 0;
-  const brandedPrompt = prompt.text.toLowerCase().includes(brand.name.toLowerCase());
-  const mentionChance = brandedPrompt ? 0.85 : baseMention + domainBoost;
-  const mentioned = openAiAnswer
-    ? openAiAnswer.toLowerCase().includes(brand.name.toLowerCase())
-    : rand() < mentionChance;
-
-  const cited = mentioned && (rand() < 0.6 || brandedPrompt);
-  const competitorsMentioned = brand.competitors.filter(() => rand() > 0.6);
-
-  const sentiments: ScanResult["sentiment"][] = ["positive", "neutral", "negative"];
-  const sentiment = mentioned ? sentiments[Math.floor(rand() * 2)] : null;
-
-  const snippet = openAiAnswer
-    ? openAiAnswer.slice(0, 280)
-    : mentioned
-      ? `${brand.name} is often recommended for this query on ${engine}. Users cite ${brand.domain} as a trusted source.`
-      : `Top results highlight ${competitorsMentioned[0] ?? "industry leaders"}. ${brand.name} was not prominently featured in this ${engine} answer.`;
-
-  const sources = cited
-    ? [brand.domain, ...competitorsMentioned.map((c) => `${c.toLowerCase()}.com`)].slice(0, 3)
-    : competitorsMentioned.map((c) => `${c.toLowerCase()}.com`).slice(0, 2);
+/**
+ * Deterministic estimate used when an engine has no live connector or API key.
+ * Rows produced here are flagged live=false and labelled "Estimated" in the UI.
+ */
+function estimate(brand: Brand, prompt: Prompt, engine: EngineId, liveSignal: number | null) {
+  const week = Math.floor(Date.now() / (7 * 86400_000));
+  const rand = seeded(`${brand.id}:${prompt.id}:${engine}:${week}`);
+  const branded = prompt.text.toLowerCase().includes(brand.name.toLowerCase());
+  // Lean on what the live engines saw for this prompt, when we have it.
+  const base = liveSignal ?? 0.35;
+  const chance = branded ? 0.85 : Math.min(0.9, base * 0.7 + rand() * 0.3);
+  const mentioned = rand() < chance;
+  const cited = mentioned && (branded || rand() < 0.5);
+  const competitorsMentioned = brand.competitors.filter(() => rand() > 0.55);
+  const domain = bareDomain(brand.domain);
+  const engineName = AI_ENGINES.find((e) => e.id === engine)?.name ?? engine;
 
   return {
-    brandId: brand.id,
-    promptId: prompt.id,
-    engine,
     mentioned,
     cited,
-    position: mentioned ? Math.max(1, Math.ceil(rand() * 5)) : null,
-    sentiment,
+    position: mentioned ? 1 + Math.floor(rand() * Math.min(3, competitorsMentioned.length + 1)) : null,
+    sentiment: mentioned ? (rand() > 0.35 ? "positive" : "neutral") : null,
     competitorsMentioned,
-    sources,
-    answerSnippet: snippet,
-  };
+    sources: cited ? [domain] : [],
+    answerSnippet: mentioned
+      ? `Estimated: ${brand.name} is likely to appear in ${engineName} answers for this prompt. Connect a live API key for the exact answer.`
+      : `Estimated: ${engineName} likely favors ${competitorsMentioned[0] ?? "other brands"} here. Connect a live API key for the exact answer.`,
+    live: false,
+  } satisfies Partial<ScanResult>;
 }
 
-export async function runVisibilityScan(
-  brand: Brand,
-  prompts: Prompt[],
-): Promise<ScanResult[]> {
-  const results: ScanResult[] = [];
+async function mapLimit<T, R>(items: T[], limit: number, fn: (t: T) => Promise<R>): Promise<R[]> {
+  const out: R[] = new Array(items.length);
+  let i = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, async () => {
+      while (i < items.length) {
+        const idx = i++;
+        out[idx] = await fn(items[idx]);
+      }
+    }),
+  );
+  return out;
+}
+
+export async function runVisibilityScan(brand: Brand, prompts: Prompt[], engines: EngineId[]): Promise<ScanResult[]> {
+  const runId = newId("run");
   const now = new Date();
 
-  for (const prompt of prompts) {
-    let openAi: Awaited<ReturnType<typeof queryOpenAI>> = null;
-    if (process.env.OPENAI_API_KEY) {
-      openAi = await queryOpenAI(prompt.text, brand);
-    }
+  const perPrompt = await mapLimit(prompts, 3, async (prompt) => {
+    const live = await Promise.all(
+      engines.map(async (engine) => ({ engine, answer: await askEngine(engine, prompt.text) })),
+    );
+    const liveRows = live
+      .filter((l) => l.answer)
+      .map((l) => ({ engine: l.engine, ...analyzeAnswer(l.answer!, brand), answerSnippet: l.answer!.text.slice(0, 600), live: true }));
+    const liveSignal = liveRows.length ? liveRows.filter((r) => r.mentioned).length / liveRows.length : null;
 
-    for (const engine of AI_ENGINES) {
-      const row = simulateEngine(
-        brand,
-        prompt,
-        engine.id,
-        engine.id === "chatgpt" ? openAi?.answer : undefined,
-      );
-
-      if (engine.id === "chatgpt" && openAi) {
-        row.mentioned = openAi.mentioned;
-        row.cited = openAi.cited;
-        row.competitorsMentioned = openAi.competitors;
-        row.answerSnippet = openAi.answer.slice(0, 280);
-      }
-
-      results.push({
-        ...row,
+    return engines.map((engine): ScanResult => {
+      const row = liveRows.find((r) => r.engine === engine) ?? { engine, ...estimate(brand, prompt, engine, liveSignal) };
+      return {
         id: newId("scan"),
+        runId,
+        brandId: brand.id,
+        promptId: prompt.id,
+        engine,
+        mentioned: row.mentioned,
+        cited: row.cited,
+        position: row.position,
+        sentiment: row.sentiment as ScanResult["sentiment"],
+        competitorsMentioned: row.competitorsMentioned,
+        sources: row.sources,
+        answerSnippet: row.answerSnippet,
+        live: row.live,
         createdAt: now,
-      });
-    }
-  }
+      };
+    });
+  });
 
-  return results;
+  return perPrompt.flat();
 }

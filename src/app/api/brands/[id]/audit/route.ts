@@ -1,30 +1,21 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth/session";
-import { db } from "@/lib/db/client";
-import { runGeoAudit } from "@/lib/geo/audit";
-import { computeBrandMetrics } from "@/lib/geo/metrics";
-import { generateRecommendations } from "@/lib/geo/recommendations";
+import { NextResponse } from "next/server";
+import { requireBrand } from "@/lib/auth/guard";
+import { HttpError, rateLimit, route } from "@/lib/http";
+import { limitsFor } from "@/lib/plans";
+import { auditBrand } from "@/lib/automation/cycle";
 
-type Params = { params: Promise<{ id: string }> };
+type Ctx = { params: Promise<{ id: string }> };
 
-export async function POST(_req: NextRequest, { params }: Params) {
-  const user = await getSessionUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const { id } = await params;
-  const brand = db.brands.get(id);
-  if (!brand || brand.userId !== user.id) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+export const POST = route<Ctx>(async (_req, { params }) => {
+  const { user, brand } = await requireBrand((await params).id);
+  rateLimit(`audit:${brand.id}`, 1, 15_000);
+  const every = limitsFor(user).auditsEveryDays;
+  if (every && brand.lastAuditAt && Date.now() - brand.lastAuditAt.getTime() < every * 86400_000) {
+    const next = new Date(brand.lastAuditAt.getTime() + every * 86400_000).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    throw new HttpError(402, `Free plan includes one audit per ${every} days (next on ${next}). Upgrade for unlimited audits.`, {
+      upgrade: true,
+    });
   }
-
-  const audit = await runGeoAudit(id, brand.domain);
-  db.audits.create(audit);
-
-  const prompts = db.prompts.list(id);
-  const scans = db.scanResults.latestPerPromptEngine(id);
-  const metrics = computeBrandMetrics(brand, scans, prompts.length);
-  const recs = generateRecommendations(brand, metrics, prompts, scans, audit);
-  db.recommendations.replaceForBrand(id, recs);
-
-  return NextResponse.json({ audit, recommendations: recs.length });
-}
+  const audit = await auditBrand(brand);
+  return NextResponse.json({ audit });
+});

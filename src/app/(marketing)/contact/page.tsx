@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { Suspense } from "react";
 import { BRAND_NAME } from "@/lib/brand";
 import { ContactForm } from "@/components/marketing/ContactForm";
 
-export const metadata: Metadata = {
-  title: `Contact — ${BRAND_NAME}`,
-  description: "Talk to Deepchq about demos, Agency plans, and partnerships.",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Contact",
+  description: "Talk to Deepchq about demos, Agency plans and partnerships. We reply within one business day.",
+  path: "/contact",
+});
 
 export default function ContactPage() {
   return (

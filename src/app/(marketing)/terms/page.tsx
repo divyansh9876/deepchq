@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { BRAND_NAME } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: `Terms — ${BRAND_NAME}`,
+export const metadata: Metadata = pageMetadata({
+  title: "Terms of Service",
   description: "Terms of use for the Deepchq product and website.",
-};
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (
