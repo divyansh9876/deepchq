@@ -3,6 +3,7 @@ import { Caveat, Inter, Syne } from "next/font/google";
 import { BRAND_DESCRIPTION, BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
 import { SITE_URL } from "@/lib/env";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { PointerFx } from "@/components/ui/fx";
 import { organizationLd, websiteLd } from "@/lib/seo";
 import "./globals.css";
 
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${inter.variable} ${syne.variable} ${caveat.variable} font-sans antialiased`}>
         <JsonLd data={[organizationLd, websiteLd]} />
+        <PointerFx />
         {children}
       </body>
     </html>

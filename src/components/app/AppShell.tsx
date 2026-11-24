@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import { AppNav, ToastProvider } from "@/components/app/ui";
+import { CommandPalette } from "@/components/app/CommandPalette";
 import type { PlanLimits } from "@/lib/plans";
 
 export type Me = {
@@ -56,6 +57,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {me && <TrialBanner me={me} />}
           <AppNav plan={me?.user.plan} />
           {children}
+          <CommandPalette />
         </div>
       </MeCtx.Provider>
     </ToastProvider>

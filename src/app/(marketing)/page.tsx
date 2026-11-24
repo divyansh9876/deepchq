@@ -4,7 +4,8 @@ import { FaqList } from "@/components/marketing/FaqList";
 import { EngineMarquee } from "@/components/marketing/EngineMarquee";
 import { EnginePills } from "@/components/marketing/EnginePills";
 import { FeatureTabs } from "@/components/marketing/FeatureTabs";
-import { HeroDashboard } from "@/components/marketing/HeroDashboard";
+import { AnswerSimulator } from "@/components/marketing/AnswerSimulator";
+import { AutomationSteps } from "@/components/marketing/AutomationSteps";
 import { CountUp, Reveal } from "@/components/marketing/motion";
 import { DomainAuditForm } from "@/components/tools/DomainAuditForm";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -22,11 +23,36 @@ export const metadata = pageMetadata({
 });
 
 const AUTOMATION = [
-  { t: "Prompts generated", d: "Starter prompts from your keywords across TOFU, MOFU and BOFU.", c: "bg-teal-600" },
-  { t: "Site audited", d: "20 GEO checks run the moment you add a brand.", c: "bg-violet-600" },
-  { t: "Engines scanned", d: "Live answers from ChatGPT, Perplexity, Gemini and Claude.", c: "bg-amber-500" },
-  { t: "Actions ranked", d: "A prioritised fix list, refreshed after every scan.", c: "bg-sky-600" },
-  { t: "Digest emailed", d: "Visibility changes land in your inbox on schedule.", c: "bg-rose-500" },
+  {
+    t: "Prompts generated",
+    d: "Starter prompts from your keywords across TOFU, MOFU and BOFU.",
+    c: "bg-teal-600",
+    detail: "Your category keywords become the questions buyers actually type into AI assistants, grouped by funnel stage.",
+  },
+  {
+    t: "Site audited",
+    d: "20 GEO checks run the moment you add a brand.",
+    c: "bg-violet-600",
+    detail: "robots.txt, llms.txt, schema, answer-ready content and AI crawler access are checked and scored by impact.",
+  },
+  {
+    t: "Engines scanned",
+    d: "Live answers from ChatGPT, Perplexity, Gemini and Claude.",
+    c: "bg-amber-500",
+    detail: "Every prompt is asked on every engine; we record mentions, rank, sentiment, citations and which competitors won.",
+  },
+  {
+    t: "Actions ranked",
+    d: "A prioritised fix list, refreshed after every scan.",
+    c: "bg-sky-600",
+    detail: "Lost prompts and failed audit checks turn into specific tasks, ordered by how much visibility they can move.",
+  },
+  {
+    t: "Digest emailed",
+    d: "Visibility changes land in your inbox on schedule.",
+    c: "bg-rose-500",
+    detail: "After each scheduled scan you get what moved, what was lost to competitors and the next action to take.",
+  },
 ];
 
 export default function HomePage() {
@@ -70,7 +96,7 @@ export default function HomePage() {
         <div className="pointer-events-none absolute -right-16 top-32 h-80 w-80 rounded-full bg-violet-200/40 blur-3xl blob" style={{ animationDelay: "4s" }} />
         <div className="pointer-events-none absolute bottom-0 left-1/3 h-56 w-56 rounded-full bg-amber-200/40 blur-3xl blob" style={{ animationDelay: "8s" }} />
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-16 pt-14 md:grid-cols-2 md:pt-20">
-          <div>
+          <div className="min-w-0">
             <p className="hero-in text-sm font-semibold uppercase tracking-[0.16em] text-teal-700">Generative engine optimization</p>
             <h1 className="hero-in-2 display mt-4 text-4xl font-semibold text-slate-900 md:text-5xl lg:text-[3.25rem] lg:leading-[1.12]">
               Find out if AI recommends your brand — then make it happen
@@ -92,8 +118,8 @@ export default function HomePage() {
             </p>
             <EnginePills />
           </div>
-          <div className="hero-in-3 float-slow">
-            <HeroDashboard />
+          <div className="hero-in-3 min-w-0">
+            <AnswerSimulator />
           </div>
         </div>
       </section>
@@ -103,7 +129,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {STATS.map((s, idx) => (
-            <Reveal key={s.label} delay={idx * 80} className={`card text-center ${STAT_TONES[idx].wrap}`}>
+            <Reveal key={s.label} delay={idx * 80} className={`card spotlight text-center ${STAT_TONES[idx].wrap}`}>
               <p className={`font-display text-4xl font-semibold ${STAT_TONES[idx].num}`}>
                 <CountUp value={s.value} suffix={s.suffix} />
               </p>
@@ -129,18 +155,7 @@ export default function HomePage() {
             <p className="text-sm font-semibold uppercase tracking-wide text-teal-700">Runs on autopilot</p>
             <h2 className="display mt-2 text-3xl font-semibold text-slate-900">Add a brand once. Everything else happens on its own.</h2>
           </Reveal>
-          <ol className="relative mt-10 grid gap-4 md:grid-cols-5">
-            <div className="step-line pointer-events-none absolute left-[10%] right-[10%] top-5 hidden h-px origin-left bg-gradient-to-r from-teal-300 via-violet-300 to-rose-300 md:block" />
-            {AUTOMATION.map((a, i) => (
-              <Reveal key={a.t} delay={i * 90} className="relative">
-                <li className="list-none">
-                  <span className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white shadow-md ${a.c}`}>{i + 1}</span>
-                  <h3 className="mt-4 font-semibold text-slate-900">{a.t}</h3>
-                  <p className="mt-1 text-sm text-slate-600">{a.d}</p>
-                </li>
-              </Reveal>
-            ))}
-          </ol>
+          <AutomationSteps steps={AUTOMATION} />
         </div>
       </section>
 
@@ -171,11 +186,11 @@ export default function HomePage() {
             const color = AI_ENGINES.find((x) => x.id === e.engine)?.color ?? "#0d7367";
             return (
               <Reveal key={e.slug} delay={i * 60}>
-                <Link href={`/ai-visibility/${e.slug}`} className="group flex items-center gap-4 rounded-2xl border bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md" style={{ borderColor: `${color}44` }}>
+                <Link href={`/ai-visibility/${e.slug}`} className="spotlight group flex items-center gap-4 rounded-2xl border bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md" style={{ borderColor: `${color}44` }}>
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl font-bold text-white" style={{ background: color }}>{e.name[0]}</span>
                   <span>
                     <span className="block font-semibold text-slate-900">{e.name}</span>
-                    <span className="text-sm text-slate-500 group-hover:text-slate-700">{e.title.replace(e.name, "").trim()} →</span>
+                    <span className="text-sm text-slate-500 group-hover:text-slate-700">{e.title.replace(e.name, "").trim()} <span className="inline-block transition-transform group-hover:translate-x-1">→</span></span>
                   </span>
                 </Link>
               </Reveal>
@@ -190,7 +205,7 @@ export default function HomePage() {
         </Reveal>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {USE_CASES.map((u, idx) => (
-            <Reveal key={u.title} delay={idx * 80} className={`rounded-2xl border p-6 shadow-sm transition duration-300 hover:-translate-y-1 ${u.wash}`}>
+            <Reveal key={u.title} delay={idx * 80} className={`spotlight rounded-2xl border p-6 shadow-sm transition duration-300 hover:-translate-y-1 ${u.wash}`}>
               <span className={`mb-4 inline-block h-2 w-10 rounded-full ${u.chip}`} />
               <h3 className="font-semibold text-slate-900">{u.title}</h3>
               <p className="mt-2 text-sm text-slate-600">{u.desc}</p>
@@ -211,7 +226,7 @@ export default function HomePage() {
           <div className="mt-8 grid gap-5 md:grid-cols-3">
             {topGuides.map((g, i) => (
               <Reveal key={g.slug} delay={i * 60}>
-                <Link href={`/learn/${g.slug}`} className="group block h-full rounded-2xl border border-amber-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                <Link href={`/learn/${g.slug}`} className="spotlight group block h-full rounded-2xl border border-amber-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
                   <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">{g.category}</p>
                   <h3 className="mt-2 font-semibold text-slate-900 group-hover:text-teal-700">{g.title}</h3>
                   <p className="mt-2 line-clamp-2 text-sm text-slate-600">{g.description}</p>
@@ -236,7 +251,7 @@ export default function HomePage() {
           {PLANS.map((p) => (
             <div
               key={p.id}
-              className={`card-hover flex flex-col ${p.id === "growth" ? "border-teal-400 ring-2 ring-teal-100" : p.id === "agency" ? "border-violet-200" : "border-sky-100"}`}
+              className={`card-hover spotlight flex flex-col ${p.id === "growth" ? "border-teal-400 ring-2 ring-teal-100" : p.id === "agency" ? "border-violet-200" : "border-sky-100"}`}
             >
               {p.featured && <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-teal-700">Most popular</p>}
               <h3 className="text-lg font-semibold text-slate-900">{p.name}</h3>
