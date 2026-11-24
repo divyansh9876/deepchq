@@ -190,9 +190,9 @@ export function CommandPalette() {
                   type="button"
                   onMouseMove={() => sel !== i && setSel(i)}
                   onClick={() => run(c)}
-                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${i === sel ? "bg-teal-50 text-teal-900" : "text-slate-700"}`}
+                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${i === sel ? "bg-brand-50 text-brand-900" : "text-slate-700"}`}
                 >
-                  <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${i === sel ? "bg-teal-500" : "bg-slate-300"}`} />
+                  <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${i === sel ? "bg-brand-500" : "bg-slate-300"}`} />
                   <span className="flex-1 truncate font-medium">{c.label}</span>
                   {c.hint && <span className="truncate text-xs text-slate-400">{c.hint}</span>}
                   {c.keys && <kbd className="kbd">{c.keys}</kbd>}

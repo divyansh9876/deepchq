@@ -32,13 +32,13 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               t.tone === "error" ? "bg-white text-rose-700 ring-rose-200" : "bg-slate-900 text-white ring-slate-800"
             }`}
           >
-            <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${t.tone === "error" ? "bg-rose-100 text-rose-600" : "bg-teal-500 text-white"}`}>
+            <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${t.tone === "error" ? "bg-rose-100 text-rose-600" : "bg-emerald-500 text-white"}`}>
               {t.tone === "error" ? "!" : "✓"}
             </span>
             <span className="flex-1">
               {t.msg}
               {t.upgrade && (
-                <Link href="/settings" className="ml-2 font-semibold text-teal-700 underline">
+                <Link href="/settings" className="ml-2 font-semibold text-brand-700 underline">
                   Upgrade
                 </Link>
               )}
@@ -47,7 +47,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               ✕
             </button>
             <span
-              className={`toast-timer absolute inset-x-0 bottom-0 h-0.5 ${t.tone === "error" ? "bg-rose-300" : "bg-teal-400"}`}
+              className={`toast-timer absolute inset-x-0 bottom-0 h-0.5 ${t.tone === "error" ? "bg-rose-300" : "bg-brand-400"}`}
               style={{ animationDuration: `${t.upgrade ? 9000 : 4500}ms` }}
             />
           </div>
@@ -86,7 +86,7 @@ export function useApi() {
 }
 
 // ---------- Charts ----------
-export function Sparkline({ values, width = 120, height = 32, color = "#0d9488" }: { values: number[]; width?: number; height?: number; color?: string }) {
+export function Sparkline({ values, width = 120, height = 32, color = "#6e4dff" }: { values: number[]; width?: number; height?: number; color?: string }) {
   if (values.length < 2) return <div style={{ width, height }} className="flex items-center text-xs text-slate-300">—</div>;
   const max = Math.max(100, ...values);
   const pts = values.map((v, i) => [(i / (values.length - 1)) * width, height - 2 - (v / max) * (height - 4)]);
@@ -132,16 +132,16 @@ export function TrendChart({ points }: { points: { at: string | Date; visibility
             <text x={pad.l - 6} y={y(v) + 4} textAnchor="end" fontSize={10} fill="#94a3b8">{v}</text>
           </g>
         ))}
-        <path d={`${line("visibilityRate")} L${x(points.length - 1)},${y(0)} L${x(0)},${y(0)} Z`} fill="#0d9488" opacity={0.08} />
-        <path d={line("visibilityRate")} pathLength={1} className="draw-line" fill="none" stroke="#0d9488" strokeWidth={2.5} strokeLinejoin="round" />
-        <path d={line("citationRate")} fill="none" stroke="#7c3aed" strokeWidth={2} strokeDasharray="5 4" strokeLinejoin="round" className="fade-swap" />
+        <path d={`${line("visibilityRate")} L${x(points.length - 1)},${y(0)} L${x(0)},${y(0)} Z`} fill="#6e4dff" opacity={0.08} />
+        <path d={line("visibilityRate")} pathLength={1} className="draw-line" fill="none" stroke="#6e4dff" strokeWidth={2.5} strokeLinejoin="round" />
+        <path d={line("citationRate")} fill="none" stroke="#d946ef" strokeWidth={2} strokeDasharray="5 4" strokeLinejoin="round" className="fade-swap" />
         <text x={pad.l} y={H - 6} fontSize={10} fill="#94a3b8">{fmt(points[0].at)}</text>
         <text x={W - pad.r} y={H - 6} fontSize={10} fill="#94a3b8" textAnchor="end">{fmt(points.at(-1)!.at)}</text>
         {h && hover != null && (
           <g>
             <line x1={x(hover)} x2={x(hover)} y1={pad.t} y2={H - pad.b} stroke="#cbd5e1" />
-            <circle cx={x(hover)} cy={y(h.visibilityRate)} r={4.5} fill="#0d9488" stroke="#fff" strokeWidth={2} />
-            <circle cx={x(hover)} cy={y(h.citationRate)} r={4} fill="#7c3aed" stroke="#fff" strokeWidth={2} />
+            <circle cx={x(hover)} cy={y(h.visibilityRate)} r={4.5} fill="#6e4dff" stroke="#fff" strokeWidth={2} />
+            <circle cx={x(hover)} cy={y(h.citationRate)} r={4} fill="#d946ef" stroke="#fff" strokeWidth={2} />
           </g>
         )}
       </svg>
@@ -151,13 +151,13 @@ export function TrendChart({ points }: { points: { at: string | Date; visibility
           style={{ left: `clamp(0px, calc(${(x(hover) / W) * 100}% - 60px), calc(100% - 130px))` }}
         >
           <p className="font-semibold">{fmt(h.at)}</p>
-          <p><span className="text-teal-300">●</span> Visibility {h.visibilityRate}%</p>
-          <p><span className="text-violet-300">●</span> Citations {h.citationRate}%</p>
+          <p><span className="text-brand-300">●</span> Visibility {h.visibilityRate}%</p>
+          <p><span className="text-fuchsia-300">●</span> Citations {h.citationRate}%</p>
         </div>
       )}
       <div className="mt-2 flex gap-4 text-xs text-slate-500">
-        <span className="flex items-center gap-1.5"><span className="h-0.5 w-4 bg-teal-600" />Visibility</span>
-        <span className="flex items-center gap-1.5"><span className="h-0.5 w-4 border-t-2 border-dashed border-violet-600" />Citation rate</span>
+        <span className="flex items-center gap-1.5"><span className="h-0.5 w-4 bg-brand-600" />Visibility</span>
+        <span className="flex items-center gap-1.5"><span className="h-0.5 w-4 border-t-2 border-dashed border-fuchsia-600" />Citation rate</span>
       </div>
     </div>
   );
@@ -182,7 +182,7 @@ export function AppNav({ plan }: { plan?: string }) {
     router.refresh();
   }
   const link = (href: string, label: string) => (
-    <Link href={href} className={`rounded-lg px-3 py-1.5 ${(path.startsWith(href) || (href === "/dashboard" && path.startsWith("/brands"))) ? "bg-teal-50 font-medium text-teal-700" : "text-slate-600 hover:text-slate-900"}`}>
+    <Link href={href} className={`rounded-lg px-3 py-1.5 ${(path.startsWith(href) || (href === "/dashboard" && path.startsWith("/brands"))) ? "bg-brand-50 font-medium text-brand-700" : "text-slate-600 hover:text-slate-900"}`}>
       {label}
     </Link>
   );
@@ -203,7 +203,7 @@ export function AppNav({ plan }: { plan?: string }) {
           {link("/dashboard", "Brands")}
           {link("/settings", "Settings")}
           {plan && (
-            <Link href="/settings" className="ml-1 hidden rounded-full bg-violet-50 px-2.5 py-1 text-xs font-semibold capitalize text-violet-700 ring-1 ring-violet-100 sm:inline">
+            <Link href="/settings" className="ml-1 hidden rounded-full bg-fuchsia-50 px-2.5 py-1 text-xs font-semibold capitalize text-fuchsia-700 ring-1 ring-fuchsia-100 sm:inline">
               {plan}
             </Link>
           )}
@@ -227,9 +227,9 @@ export function ChipInput({ values, onChange, placeholder }: { values: string[];
   return (
     <div className="input flex min-h-[46px] flex-wrap items-center gap-1.5 py-1.5">
       {values.map((v) => (
-        <span key={v} className="flex items-center gap-1 rounded-full bg-violet-50 px-2.5 py-0.5 text-sm text-violet-700 ring-1 ring-violet-100">
+        <span key={v} className="flex items-center gap-1 rounded-full bg-fuchsia-50 px-2.5 py-0.5 text-sm text-fuchsia-700 ring-1 ring-fuchsia-100">
           {v}
-          <button type="button" aria-label={`Remove ${v}`} className="text-violet-400 hover:text-violet-700" onClick={() => onChange(values.filter((x) => x !== v))}>×</button>
+          <button type="button" aria-label={`Remove ${v}`} className="text-fuchsia-400 hover:text-fuchsia-700" onClick={() => onChange(values.filter((x) => x !== v))}>×</button>
         </span>
       ))}
       <input

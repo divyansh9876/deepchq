@@ -49,7 +49,7 @@ export function SiteHeader() {
             <Link
               key={l.href}
               href={l.href}
-              className={`rounded-full px-3.5 py-1.5 transition ${isActive(l.href) ? "bg-teal-50 text-teal-800" : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900"}`}
+              className={`rounded-full px-3.5 py-1.5 transition ${isActive(l.href) ? "bg-brand-50 text-brand-800" : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900"}`}
             >
               {l.label}
             </Link>
@@ -80,7 +80,7 @@ export function SiteHeader() {
         <div className="overflow-hidden">
           <nav className="flex flex-col gap-1 border-t border-slate-100 bg-white px-6 py-4 text-sm font-medium">
             {NAV_LINKS.map((l) => (
-              <Link key={l.href} href={l.href} className={`rounded-lg px-3 py-2 ${isActive(l.href) ? "bg-teal-50 text-teal-800" : "text-slate-700"}`}>
+              <Link key={l.href} href={l.href} className={`rounded-lg px-3 py-2 ${isActive(l.href) ? "bg-brand-50 text-brand-800" : "text-slate-700"}`}>
                 {l.label}
               </Link>
             ))}
@@ -95,7 +95,7 @@ export function SiteHeader() {
           </nav>
         </div>
       </div>
-      <div className="absolute inset-x-0 bottom-0 h-0.5 origin-left bg-gradient-to-r from-teal-500 via-violet-500 to-amber-400" style={{ transform: `scaleX(${progress})` }} aria-hidden />
+      <div className="absolute inset-x-0 bottom-0 h-0.5 origin-left bg-gradient-to-r from-brand-500 via-fuchsia-500 to-amber-400" style={{ transform: `scaleX(${progress})` }} aria-hidden />
     </header>
   );
 }

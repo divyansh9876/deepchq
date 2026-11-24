@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props) {
 const STATUS: Record<AuditCheck["status"], { dot: string; chip: string; label: string }> = {
   fail: { dot: "bg-rose-500", chip: "bg-rose-50 text-rose-700 ring-rose-100", label: "Fix" },
   warn: { dot: "bg-amber-400", chip: "bg-amber-50 text-amber-700 ring-amber-100", label: "Improve" },
-  pass: { dot: "bg-teal-500", chip: "bg-teal-50 text-teal-700 ring-teal-100", label: "Pass" },
+  pass: { dot: "bg-emerald-500", chip: "bg-emerald-50 text-emerald-700 ring-emerald-100", label: "Pass" },
 };
 
 export default async function ReportPage({ params }: Props) {
@@ -53,7 +53,7 @@ export default async function ReportPage({ params }: Props) {
             <div><p className="text-2xl font-semibold text-slate-900">{a.contentScore}</p><p className="text-slate-500">Content &amp; entity</p></div>
             <div><p className="text-2xl font-semibold text-rose-600">{counts.fail}</p><p className="text-slate-500">Critical</p></div>
             <div><p className="text-2xl font-semibold text-amber-500">{counts.warn}</p><p className="text-slate-500">To improve</p></div>
-            <div><p className="text-2xl font-semibold text-teal-600">{counts.pass}</p><p className="text-slate-500">Passed</p></div>
+            <div><p className="text-2xl font-semibold text-brand-600">{counts.pass}</p><p className="text-slate-500">Passed</p></div>
           </div>
           <p className="mt-4 text-xs text-slate-400">Checked {a.createdAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })} · {a.url}</p>
         </div>
@@ -80,19 +80,19 @@ export default async function ReportPage({ params }: Props) {
                 </div>
                 <p className="mt-2 text-sm text-slate-600">{c.detail}</p>
                 {c.status !== "pass" && c.fix && <p className="mt-2 text-sm text-slate-800"><span className="font-semibold">How to fix:</span> {c.fix}</p>}
-                {c.status !== "pass" && guide && <Link href={`/learn/${guide.slug}`} className="mt-2 inline-block text-sm font-medium text-teal-700 hover:underline">Guide: {guide.title} →</Link>}
+                {c.status !== "pass" && guide && <Link href={`/learn/${guide.slug}`} className="mt-2 inline-block text-sm font-medium text-brand-700 hover:underline">Guide: {guide.title} →</Link>}
               </li>
             </Reveal>
           );
         })}
       </ul>
 
-      <section className="gradient-shift mt-14 rounded-3xl bg-gradient-to-br from-teal-800 via-violet-800 to-slate-900 p-10 text-white">
+      <section className="gradient-shift mt-14 rounded-3xl bg-gradient-to-br from-brand-800 via-fuchsia-800 to-slate-900 p-10 text-white">
         <h2 className="font-display text-3xl font-semibold">Readiness is step one. Are you actually being recommended?</h2>
-        <p className="mt-3 max-w-2xl text-teal-100">
+        <p className="mt-3 max-w-2xl text-brand-100">
           Track whether ChatGPT, Perplexity, Gemini, Claude, Google AI Overviews and Copilot mention {a.domain} for the questions your buyers ask — with weekly automatic scans.
         </p>
-        <Link href="/register" className="btn-primary mt-6 bg-white text-teal-800 hover:bg-amber-50">Track {a.domain} free</Link>
+        <Link href="/register" className="btn-primary mt-6 bg-white text-brand-800 hover:bg-amber-50">Track {a.domain} free</Link>
       </section>
 
       <section className="mt-14">

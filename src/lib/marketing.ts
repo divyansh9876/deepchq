@@ -69,20 +69,20 @@ export const FEATURES = [
   {
     title: "Prompt tracking",
     desc: "Define the questions buyers ask AI engines. Track whether your brand is mentioned, cited, or ignored — daily.",
-    active: "bg-teal-600 text-white shadow-md shadow-teal-200",
-    idle: "hover:bg-teal-50",
-    kicker: "text-teal-700",
-    bar: "bg-teal-600",
-    card: "border-teal-100 bg-gradient-to-br from-teal-50 to-white",
+    active: "bg-brand-600 text-white shadow-md shadow-brand-200",
+    idle: "hover:bg-brand-50",
+    kicker: "text-brand-700",
+    bar: "bg-brand-600",
+    card: "border-brand-100 bg-gradient-to-br from-brand-50 to-white",
   },
   {
     title: "Multi-engine scans",
     desc: "Monitor ChatGPT, Perplexity, Google AI Overviews, Gemini, Claude, and Copilot from one report.",
-    active: "bg-violet-600 text-white shadow-md shadow-violet-200",
-    idle: "hover:bg-violet-50",
-    kicker: "text-violet-700",
-    bar: "bg-violet-600",
-    card: "border-violet-100 bg-gradient-to-br from-violet-50 to-white",
+    active: "bg-fuchsia-600 text-white shadow-md shadow-fuchsia-200",
+    idle: "hover:bg-fuchsia-50",
+    kicker: "text-fuchsia-700",
+    bar: "bg-fuchsia-600",
+    card: "border-fuchsia-100 bg-gradient-to-br from-fuchsia-50 to-white",
   },
   {
     title: "Share of voice",
@@ -127,15 +127,15 @@ export const STEPS = [
     n: "01",
     title: "Create a brand report",
     desc: "Add your domain, competitors, and a few keywords. We generate starter prompts automatically.",
-    tone: "text-teal-600",
-    wash: "bg-teal-50 border-teal-100",
+    tone: "text-brand-600",
+    wash: "bg-brand-50 border-brand-100",
   },
   {
     n: "02",
     title: "Scan AI engines",
     desc: "Run visibility scans across the engines that matter. See mentions, citations, and competitor hits.",
-    tone: "text-violet-600",
-    wash: "bg-violet-50 border-violet-100",
+    tone: "text-fuchsia-600",
+    wash: "bg-fuchsia-50 border-fuchsia-100",
   },
   {
     n: "03",
@@ -156,8 +156,8 @@ export const USE_CASES = [
   {
     title: "Agencies",
     desc: "Productize GEO retainers. Track every client brand and send a report they can actually read.",
-    wash: "bg-violet-50 border-violet-100 hover:border-violet-300",
-    chip: "bg-violet-600",
+    wash: "bg-fuchsia-50 border-fuchsia-100 hover:border-fuchsia-300",
+    chip: "bg-fuchsia-600",
   },
   {
     title: "Founders & SEO leads",
@@ -168,8 +168,8 @@ export const USE_CASES = [
 ] as const;
 
 export const STAT_TONES = [
-  { wrap: "bg-teal-50 border-teal-100", num: "text-teal-700" },
-  { wrap: "bg-violet-50 border-violet-100", num: "text-violet-700" },
+  { wrap: "bg-brand-50 border-brand-100", num: "text-brand-700" },
+  { wrap: "bg-fuchsia-50 border-fuchsia-100", num: "text-fuchsia-700" },
   { wrap: "bg-amber-50 border-amber-100", num: "text-amber-700" },
   { wrap: "bg-sky-50 border-sky-100", num: "text-sky-700" },
 ] as const;

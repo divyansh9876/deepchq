@@ -37,7 +37,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
 
   const reg = mode === "register";
   return (
-    <div className="card shadow-lg shadow-teal-100/50">
+    <div className="card shadow-lg shadow-brand-100/50">
       <h1 className="text-2xl font-bold text-slate-900">{reg ? "Create your free account" : "Welcome back"}</h1>
       <p className="mt-1 text-sm text-slate-500">
         {reg
@@ -82,9 +82,9 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       </form>
       <p className="mt-5 text-center text-sm text-slate-500">
         {reg ? (
-          <>Already have an account? <Link href="/login" className="font-semibold text-teal-700 hover:underline">Log in</Link></>
+          <>Already have an account? <Link href="/login" className="font-semibold text-brand-700 hover:underline">Log in</Link></>
         ) : (
-          <>No account? <Link href="/register" className="font-semibold text-teal-700 hover:underline">Start free</Link></>
+          <>No account? <Link href="/register" className="font-semibold text-brand-700 hover:underline">Start free</Link></>
         )}
       </p>
       {reg && (

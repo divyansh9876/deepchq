@@ -95,7 +95,7 @@ export default function DashboardPage() {
       </div>
 
       {showForm && !atLimit && (
-        <form onSubmit={createBrand} className="pop-in card mt-6 border-teal-100 shadow-md">
+        <form onSubmit={createBrand} className="pop-in card mt-6 border-brand-100 shadow-md">
           <h2 className="font-semibold text-slate-900">Add a brand</h2>
           <p className="mt-1 text-sm text-slate-500">We&apos;ll generate prompts, audit the site and run the first scan automatically — about a minute.</p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -138,11 +138,11 @@ export default function DashboardPage() {
           <div className="card spotlight py-4">
             <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Since last scan</p>
             <p className="mt-1 text-2xl font-bold">
-              <span className="text-teal-600">▲ {summary.up}</span> <span className="ml-2 text-rose-600">▼ {summary.down}</span>
+              <span className="text-emerald-600">▲ {summary.up}</span> <span className="ml-2 text-rose-600">▼ {summary.down}</span>
             </p>
             <p className="text-xs text-slate-500">brands moved up / down</p>
           </div>
-          <Link href={`/brands/${summary.best.id}`} className="card spotlight py-4 transition hover:border-teal-300">
+          <Link href={`/brands/${summary.best.id}`} className="card spotlight py-4 transition hover:border-brand-300">
             <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Most visible</p>
             <p className="mt-1 truncate text-2xl font-bold text-slate-900">{summary.best.name}</p>
             <p className="text-xs text-slate-500">{summary.best.visibility}% of answers name it →</p>
@@ -178,10 +178,10 @@ export default function DashboardPage() {
           const prev = b.history.length > 1 ? b.history.at(-2)!.visibilityRate : null;
           const delta = vis != null && prev != null ? vis - prev : null;
           return (
-            <Link key={b.id} href={`/brands/${b.id}`} className="engine-chip group card spotlight flex flex-col transition hover:-translate-y-0.5 hover:border-teal-300 hover:shadow-md" style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}>
+            <Link key={b.id} href={`/brands/${b.id}`} className="engine-chip group card spotlight flex flex-col transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md" style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}>
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <h3 className="truncate font-semibold text-slate-900 group-hover:text-teal-700">{b.name}</h3>
+                  <h3 className="truncate font-semibold text-slate-900 group-hover:text-brand-700">{b.name}</h3>
                   <p className="truncate text-sm text-slate-500">{b.domain}</p>
                 </div>
                 <div className="text-right">
@@ -189,7 +189,7 @@ export default function DashboardPage() {
                   <p className="text-xs text-slate-400">
                     visibility
                     {delta != null && delta !== 0 && (
-                      <span className={`ml-1 font-semibold ${delta > 0 ? "text-teal-600" : "text-rose-600"}`}>{delta > 0 ? "▲" : "▼"}{Math.abs(delta)}</span>
+                      <span className={`ml-1 font-semibold ${delta > 0 ? "text-emerald-600" : "text-rose-600"}`}>{delta > 0 ? "▲" : "▼"}{Math.abs(delta)}</span>
                     )}
                   </p>
                 </div>
@@ -198,7 +198,7 @@ export default function DashboardPage() {
                 <Sparkline values={b.history.map((h) => h.visibilityRate)} width={160} />
                 <p className="flex items-center gap-1 text-xs text-slate-400">
                   Last scan {timeAgo(b.lastScanAt)}
-                  <span className="text-teal-600 opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100">→</span>
+                  <span className="text-brand-600 opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100">→</span>
                 </p>
               </div>
               {b.competitors.length > 0 && <p className="mt-3 truncate text-xs text-slate-400">vs {b.competitors.join(", ")}</p>}

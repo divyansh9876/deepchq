@@ -16,7 +16,7 @@ export function ReadingProgress() {
   }, []);
   return (
     <div className="fixed inset-x-0 top-0 z-50 h-1 bg-transparent" aria-hidden>
-      <div className="h-full bg-gradient-to-r from-teal-500 via-violet-500 to-amber-400 transition-[width] duration-150" style={{ width: `${p}%` }} />
+      <div className="h-full bg-gradient-to-r from-brand-500 via-fuchsia-500 to-amber-400 transition-[width] duration-150" style={{ width: `${p}%` }} />
     </div>
   );
 }
@@ -44,7 +44,7 @@ export function Toc({ items }: { items: { id: string; label: string }[] }) {
             <a
               href={`#${i.id}`}
               className={`-ml-px block border-l-2 py-1 pl-3 transition ${
-                active === i.id ? "border-teal-600 font-medium text-teal-700" : "border-transparent text-slate-500 hover:text-slate-800"
+                active === i.id ? "border-brand-600 font-medium text-brand-700" : "border-transparent text-slate-500 hover:text-slate-800"
               }`}
             >
               {i.label}

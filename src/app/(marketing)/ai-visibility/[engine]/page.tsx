@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props) {
 export default async function EnginePage({ params }: Props) {
   const e = getEnginePage((await params).engine);
   if (!e) notFound();
-  const color = AI_ENGINES.find((x) => x.id === e.engine)?.color ?? "#0d7367";
+  const color = AI_ENGINES.find((x) => x.id === e.engine)?.color ?? "#5a36f0";
   const guide = getGuide(e.guide);
   const others = ENGINE_PAGES.filter((x) => x.slug !== e.slug);
 
@@ -65,7 +65,7 @@ export default async function EnginePage({ params }: Props) {
             ))}
           </ul>
           {guide && (
-            <Link href={`/learn/${guide.slug}`} className="mt-6 inline-block text-sm font-semibold text-teal-700 hover:underline">Read the guide: {guide.title} →</Link>
+            <Link href={`/learn/${guide.slug}`} className="mt-6 inline-block text-sm font-semibold text-brand-700 hover:underline">Read the guide: {guide.title} →</Link>
           )}
         </div>
         <div className="card">
@@ -89,7 +89,7 @@ export default async function EnginePage({ params }: Props) {
         <AuditCta tone="dark" />
         <p className="mt-10 text-sm text-slate-500">Other engines:{" "}
           {others.map((o, i) => (
-            <span key={o.slug}>{i > 0 && " · "}<Link href={`/ai-visibility/${o.slug}`} className="font-medium text-slate-700 hover:text-teal-700">{o.name}</Link></span>
+            <span key={o.slug}>{i > 0 && " · "}<Link href={`/ai-visibility/${o.slug}`} className="font-medium text-slate-700 hover:text-brand-700">{o.name}</Link></span>
           ))}
         </p>
       </section>

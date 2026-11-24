@@ -40,11 +40,11 @@ export default async function GeoAuditTool({ searchParams }: { searchParams: Pro
         ]}
       />
       <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute -left-24 top-0 h-72 w-72 rounded-full bg-teal-200/50 blur-3xl blob" />
-        <div className="pointer-events-none absolute -right-16 top-20 h-80 w-80 rounded-full bg-violet-200/40 blur-3xl blob" style={{ animationDelay: "4s" }} />
+        <div className="pointer-events-none absolute -left-24 top-0 h-72 w-72 rounded-full bg-brand-200/50 blur-3xl blob" />
+        <div className="pointer-events-none absolute -right-16 top-20 h-80 w-80 rounded-full bg-fuchsia-200/40 blur-3xl blob" style={{ animationDelay: "4s" }} />
         <div className="relative mx-auto max-w-3xl px-6 pb-16 pt-12 text-center">
           <div className="text-left"><Breadcrumbs items={[{ name: "Free tools", path: "/tools" }, { name: "GEO audit", path: "/tools/geo-audit" }]} /></div>
-          <p className="mt-10 text-sm font-semibold uppercase tracking-[0.16em] text-teal-700">Free tool · no signup</p>
+          <p className="mt-10 text-sm font-semibold uppercase tracking-[0.16em] text-brand-700">Free tool · no signup</p>
           <h1 className="mt-4 font-display text-4xl font-semibold text-slate-900 md:text-5xl">Can AI engines find and cite your site?</h1>
           <p className="mx-auto mt-5 max-w-xl text-lg text-slate-600">
             Instant audit of AI crawler access, llms.txt, schema, content structure and 15+ other signals — with a fix for every issue.
@@ -56,8 +56,8 @@ export default async function GeoAuditTool({ searchParams }: { searchParams: Pro
 
       <section className="mx-auto grid max-w-6xl gap-6 px-6 pb-16 md:grid-cols-3">
         {[
-          { t: "AI crawler access", d: `Per-bot robots.txt check for ${AI_SEARCH_BOTS.slice(0, 4).join(", ")} and more — plus training bots like ${AI_TRAINING_BOTS.slice(0, 2).join(" and ")}.`, w: "border-teal-100 bg-teal-50" },
-          { t: "Entity & structure", d: "Organization schema, JSON-LD validity, single H1, question-led sections, FAQ content and canonical tags.", w: "border-violet-100 bg-violet-50" },
+          { t: "AI crawler access", d: `Per-bot robots.txt check for ${AI_SEARCH_BOTS.slice(0, 4).join(", ")} and more — plus training bots like ${AI_TRAINING_BOTS.slice(0, 2).join(" and ")}.`, w: "border-brand-100 bg-brand-50" },
+          { t: "Entity & structure", d: "Organization schema, JSON-LD validity, single H1, question-led sections, FAQ content and canonical tags.", w: "border-fuchsia-100 bg-fuchsia-50" },
           { t: "Citation readiness", d: "Server-rendered text depth, freshness dates, sitemap, HTTPS and llms.txt — what retrieval engines need to quote you.", w: "border-amber-100 bg-amber-50" },
         ].map((x) => (
           <div key={x.t} className={`rounded-2xl border p-6 ${x.w}`}>
@@ -71,8 +71,8 @@ export default async function GeoAuditTool({ searchParams }: { searchParams: Pro
         <h2 className="mb-5 font-display text-2xl font-semibold text-slate-900">About the audit</h2>
         <FaqList items={FAQ} />
         <p className="mt-6 text-sm text-slate-500">
-          Want the background? Read <Link href="/learn/ai-crawlers-robots-txt" className="font-medium text-teal-700 hover:underline">AI crawlers and robots.txt</Link> and{" "}
-          <Link href="/learn/content-structure-for-ai-citations" className="font-medium text-teal-700 hover:underline">how to write content AI engines cite</Link>.
+          Want the background? Read <Link href="/learn/ai-crawlers-robots-txt" className="font-medium text-brand-700 hover:underline">AI crawlers and robots.txt</Link> and{" "}
+          <Link href="/learn/content-structure-for-ai-citations" className="font-medium text-brand-700 hover:underline">how to write content AI engines cite</Link>.
         </p>
       </section>
     </main>
