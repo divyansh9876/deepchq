@@ -150,7 +150,7 @@ export function AnswerSimulator() {
     const t = s.text.slice(0, take);
     if (s.kind === "plain") return <span key={i}>{t}</span>;
     return (
-      <mark key={i} className={`rounded px-0.5 font-semibold ${s.kind === "you" ? "bg-teal-100 text-teal-900" : "bg-amber-100 text-amber-900"}`}>
+      <mark key={i} className={`rounded px-0.5 font-semibold ${s.kind === "you" ? "bg-brand-100 text-brand-900" : "bg-amber-100 text-amber-900"}`}>
         {t}
       </mark>
     );
@@ -164,7 +164,7 @@ export function AnswerSimulator() {
   return (
     <Tilt max={4}>
       <div
-        className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl shadow-teal-900/10"
+        className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl shadow-brand-900/10"
         onPointerEnter={() => setPaused(true)}
         onPointerLeave={() => setPaused(false)}
       >
@@ -173,10 +173,10 @@ export function AnswerSimulator() {
           <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
           <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
           <span className="ml-2 text-xs font-medium text-slate-400">Example scan · illustrative answers</span>
-          <span className="ml-auto flex items-center gap-1.5 text-[11px] font-semibold text-teal-700">
+          <span className="ml-auto flex items-center gap-1.5 text-[11px] font-semibold text-brand-700">
             <span className="relative flex h-2 w-2">
-              <span className="pulse-ring absolute inset-0 rounded-full bg-teal-400" />
-              <span className="relative h-2 w-2 rounded-full bg-teal-500" />
+              <span className="pulse-ring absolute inset-0 rounded-full bg-brand-400" />
+              <span className="relative h-2 w-2 rounded-full bg-brand-500" />
             </span>
             {auto ? "Auto-playing" : "Interactive"}
           </span>
@@ -198,7 +198,7 @@ export function AnswerSimulator() {
               >
                 <span className="h-2 w-2 rounded-full" style={{ background: meta.color }} />
                 {meta.name}
-                <span className={`text-[10px] ${hit ? "text-teal-600" : "text-rose-400"}`} aria-label={hit ? "mentions you" : "misses you"}>
+                <span className={`text-[10px] ${hit ? "text-emerald-500" : "text-rose-400"}`} aria-label={hit ? "mentions you" : "misses you"}>
                   {hit ? "●" : "○"}
                 </span>
                 {active && <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full" style={{ background: meta.color }} />}
@@ -229,7 +229,7 @@ export function AnswerSimulator() {
               value={brand}
               maxLength={24}
               onChange={(e) => pick(() => setBrand(e.target.value))}
-              className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-sm font-semibold text-teal-800 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+              className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-sm font-semibold text-brand-800 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
               aria-label="Your brand name"
             />
           </label>
@@ -244,7 +244,7 @@ export function AnswerSimulator() {
                   type="button"
                   tabIndex={-1}
                   onClick={() => pick(() => { setScenI(i); setEngI(0); })}
-                  className={`h-1.5 rounded-full transition-all ${i === scenI ? "w-5 bg-teal-600" : "w-1.5 bg-slate-300 hover:bg-slate-400"}`}
+                  className={`h-1.5 rounded-full transition-all ${i === scenI ? "w-5 bg-brand-600" : "w-1.5 bg-slate-300 hover:bg-slate-400"}`}
                 />
               ))}
             </div>
@@ -256,7 +256,7 @@ export function AnswerSimulator() {
 }
 
 function Verdict({ label, value, ok, warn }: { label: string; value: string; ok: boolean; warn?: boolean }) {
-  const tone = ok ? "bg-teal-50 text-teal-800 ring-teal-100" : warn ? "bg-amber-50 text-amber-800 ring-amber-100" : "bg-rose-50 text-rose-700 ring-rose-100";
+  const tone = ok ? "bg-emerald-50 text-emerald-800 ring-emerald-100" : warn ? "bg-amber-50 text-amber-800 ring-amber-100" : "bg-rose-50 text-rose-700 ring-rose-100";
   return (
     <div className={`rounded-xl px-3 py-2 ring-1 ${tone}`}>
       <p className="text-[10px] font-semibold uppercase tracking-wide opacity-70">{label}</p>

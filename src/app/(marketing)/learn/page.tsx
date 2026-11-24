@@ -13,8 +13,8 @@ export const metadata = pageMetadata({
 });
 
 const TONE: Record<string, string> = {
-  Fundamentals: "bg-teal-50 text-teal-700 ring-teal-100",
-  Engines: "bg-violet-50 text-violet-700 ring-violet-100",
+  Fundamentals: "bg-brand-50 text-brand-700 ring-brand-100",
+  Engines: "bg-fuchsia-50 text-fuchsia-700 ring-fuchsia-100",
   Technical: "bg-sky-50 text-sky-700 ring-sky-100",
   Measurement: "bg-amber-50 text-amber-700 ring-amber-100",
 };
@@ -44,10 +44,10 @@ export default function LearnIndex() {
               <Link
                 key={g.slug}
                 href={`/learn/${g.slug}`}
-                className="spotlight group flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-teal-300 hover:shadow-md"
+                className="spotlight group flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-brand-300 hover:shadow-md"
               >
                 <span className={`w-fit rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ${TONE[g.category]}`}>{g.category}</span>
-                <h3 className="mt-3 font-semibold text-slate-900 group-hover:text-teal-700">{g.title}</h3>
+                <h3 className="mt-3 font-semibold text-slate-900 group-hover:text-brand-700">{g.title}</h3>
                 <p className="mt-2 line-clamp-3 flex-1 text-sm text-slate-600">{g.description}</p>
                 <p className="mt-4 text-xs text-slate-400">{readMinutes(g)} min read</p>
               </Link>

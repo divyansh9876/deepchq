@@ -28,7 +28,7 @@ export default function GlossaryIndex() {
       <dl className="mt-10 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
         {terms.map((t) => (
           <div key={t.slug} className="p-5 transition hover:bg-slate-50">
-            <dt><Link href={`/glossary/${t.slug}`} className="font-semibold text-slate-900 hover:text-teal-700">{t.term}</Link></dt>
+            <dt><Link href={`/glossary/${t.slug}`} className="font-semibold text-slate-900 hover:text-brand-700">{t.term}</Link></dt>
             <dd className="mt-1 text-sm text-slate-600">{t.short}</dd>
           </div>
         ))}

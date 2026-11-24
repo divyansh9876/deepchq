@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --bg: #f4faf8;
-  --fg: #10231f;
+  --bg: #f8f7ff;
+  --fg: #15122e;
 }
 
 body {
@@ -14,10 +14,10 @@ body {
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-lg disabled:opacity-50;
+    @apply inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-brand-600 via-brand-500 to-fuchsia-500 bg-[length:160%_100%] bg-left px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-500/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-right hover:shadow-lg hover:shadow-fuchsia-500/30 disabled:opacity-50;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition duration-200 hover:-translate-y-0.5 hover:border-brand-100 hover:bg-brand-50;
+    @apply inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 hover:text-brand-800;
   }
   .card {
     @apply rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-300;
@@ -30,6 +30,25 @@ body {
   }
 }
 
+.text-prism {
+  background-image: linear-gradient(100deg, #5a36f0 0%, #a23cf0 35%, #e5409b 68%, #f59e0b 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: prism-flow 9s ease-in-out infinite;
+}
+
+@keyframes prism-flow {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
 .display {
   font-family: var(--font-syne), var(--font-inter), system-ui, sans-serif;
   letter-spacing: -0.025em;
@@ -37,8 +56,8 @@ body {
 
 .mesh {
   background:
-    radial-gradient(900px 420px at 8% -8%, rgba(13, 115, 103, 0.18), transparent 55%),
-    radial-gradient(640px 360px at 92% 0%, rgba(124, 58, 237, 0.14), transparent 52%),
+    radial-gradient(900px 420px at 8% -8%, rgba(90, 54, 240, 0.16), transparent 55%),
+    radial-gradient(640px 360px at 92% 0%, rgba(217, 70, 239, 0.14), transparent 52%),
     radial-gradient(520px 280px at 70% 100%, rgba(245, 158, 11, 0.12), transparent 50%),
     radial-gradient(480px 260px at 18% 88%, rgba(14, 165, 233, 0.12), transparent 48%);
 }
@@ -298,7 +317,8 @@ body {
   .fade-swap,
   .step-line,
   .engine-chip,
-  .cta-orb {
+  .cta-orb,
+  .text-prism {
     animation: none;
   }
   .reveal {
@@ -326,11 +346,11 @@ body {
 }
 .spotlight::before {
   z-index: -1;
-  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(13, 148, 136, 0.09), transparent 45%);
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(110, 77, 255, 0.09), transparent 45%);
 }
 .spotlight::after {
   padding: 1px;
-  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(13, 148, 136, 0.55), rgba(124, 58, 237, 0.25) 40%, transparent 70%);
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(110, 77, 255, 0.55), rgba(217, 70, 239, 0.25) 40%, transparent 70%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;

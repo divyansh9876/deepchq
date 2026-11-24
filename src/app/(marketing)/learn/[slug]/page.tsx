@@ -63,19 +63,19 @@ export default async function GuidePage({ params }: Props) {
         <Breadcrumbs items={[{ name: "Guides", path: "/learn" }, { name: g.title, path: `/learn/${g.slug}` }]} />
         <div className="mt-8 grid gap-12 lg:grid-cols-[1fr_240px]">
           <article className="min-w-0 max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-wide text-teal-700">{g.category}</p>
+            <p className="text-sm font-semibold uppercase tracking-wide text-brand-700">{g.category}</p>
             <h1 className="mt-3 font-display text-4xl font-semibold leading-tight text-slate-900 md:text-[2.75rem]">{g.title}</h1>
             <p className="mt-4 text-sm text-slate-500">
               By {BRAND_NAME} Research · Updated <time dateTime={g.updated}>{fmt(g.updated)}</time> · {readMinutes(g)} min read
             </p>
 
-            <section id="answer" className="mt-8 scroll-mt-24 rounded-2xl border border-teal-200 bg-gradient-to-br from-teal-50 to-white p-6">
-              <p className="text-xs font-semibold uppercase tracking-wide text-teal-700">Short answer</p>
+            <section id="answer" className="mt-8 scroll-mt-24 rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50 to-white p-6">
+              <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">Short answer</p>
               <p className="mt-2 text-lg leading-relaxed text-slate-800">{g.answer}</p>
               <ul className="mt-5 grid gap-2 sm:grid-cols-2">
                 {g.keyTakeaways.map((k) => (
                   <li key={k} className="flex gap-2 text-sm text-slate-700">
-                    <span className="mt-0.5 text-teal-600">✓</span>
+                    <span className="mt-0.5 text-brand-600">✓</span>
                     {k}
                   </li>
                 ))}
@@ -94,7 +94,7 @@ export default async function GuidePage({ params }: Props) {
                       const [head, ...rest] = li.split(" — ");
                       return (
                         <li key={li.slice(0, 40)} className="flex gap-3 leading-relaxed text-slate-700">
-                          <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-violet-500" />
+                          <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-fuchsia-500" />
                           <span>{rest.length ? (<><strong className="font-semibold text-slate-900">{head}</strong> — {rest.join(" — ")}</>) : li}</span>
                         </li>
                       );
@@ -119,7 +119,7 @@ export default async function GuidePage({ params }: Props) {
                 <h2 className="text-lg font-semibold text-slate-900">Related guides</h2>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   {related.map((r) => (
-                    <Link key={r.slug} href={`/learn/${r.slug}`} className="rounded-xl border border-slate-200 bg-white p-4 transition hover:border-teal-300 hover:shadow-sm">
+                    <Link key={r.slug} href={`/learn/${r.slug}`} className="rounded-xl border border-slate-200 bg-white p-4 transition hover:border-brand-300 hover:shadow-sm">
                       <p className="font-medium text-slate-900">{r.title}</p>
                       <p className="mt-1 line-clamp-2 text-sm text-slate-500">{r.description}</p>
                     </Link>
@@ -131,7 +131,7 @@ export default async function GuidePage({ params }: Props) {
           <aside className="hidden lg:block">
             <div className="sticky top-24 space-y-8">
               <Toc items={toc} />
-              <div className="rounded-2xl border border-violet-100 bg-violet-50 p-5">
+              <div className="rounded-2xl border border-fuchsia-100 bg-fuchsia-50 p-5">
                 <p className="font-semibold text-slate-900">Track this automatically</p>
                 <p className="mt-1 text-sm text-slate-600">Weekly scans across 6 AI engines with an emailed report.</p>
                 <Link href="/register" className="btn-primary mt-4 w-full">Start free</Link>

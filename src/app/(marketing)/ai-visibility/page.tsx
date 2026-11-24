@@ -19,7 +19,7 @@ export default function EnginesIndex() {
       <p className="mt-4 max-w-2xl text-lg text-slate-600">Each engine finds and trusts sources differently. Pick one to see how it works and what Deepchq measures.</p>
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {ENGINE_PAGES.map((e) => {
-          const color = AI_ENGINES.find((x) => x.id === e.engine)?.color ?? "#0d7367";
+          const color = AI_ENGINES.find((x) => x.id === e.engine)?.color ?? "#5a36f0";
           return (
             <Link key={e.slug} href={`/ai-visibility/${e.slug}`} className="spotlight group rounded-2xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md" style={{ borderColor: `${color}55` }}>
               <span className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold text-white" style={{ background: color }}>{e.name[0]}</span>

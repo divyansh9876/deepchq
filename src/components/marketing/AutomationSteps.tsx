@@ -35,7 +35,7 @@ export function AutomationSteps({ steps }: { steps: AutomationStep[] }) {
     <div ref={ref} onPointerLeave={() => setManual(false)} className="mt-10">
       <div className="relative">
         <div className="pointer-events-none absolute left-[10%] right-[10%] top-5 hidden h-1 rounded-full bg-slate-200/70 md:block">
-          <div className="h-full rounded-full bg-gradient-to-r from-teal-500 via-violet-500 to-rose-400 transition-[width] duration-700 ease-out" style={{ width: `${pct}%` }} />
+          <div className="h-full rounded-full bg-gradient-to-r from-brand-500 via-fuchsia-500 to-rose-400 transition-[width] duration-700 ease-out" style={{ width: `${pct}%` }} />
         </div>
         <ol className="relative grid gap-4 md:grid-cols-5">
           {steps.map((a, i) => {
@@ -49,7 +49,7 @@ export function AutomationSteps({ steps }: { steps: AutomationStep[] }) {
                   onFocus={() => take(i)}
                   onClick={() => take(i)}
                   aria-pressed={on}
-                  className={`group w-full rounded-2xl p-3 text-left transition duration-300 ${on ? "bg-white shadow-lg shadow-teal-900/5 ring-1 ring-slate-200" : "hover:bg-white/60"}`}
+                  className={`group w-full rounded-2xl p-3 text-left transition duration-300 ${on ? "bg-white shadow-lg shadow-brand-900/5 ring-1 ring-slate-200" : "hover:bg-white/60"}`}
                 >
                   <span
                     className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white shadow-md transition duration-300 ${a.c} ${on ? "scale-110" : past ? "opacity-90" : "opacity-60"}`}

@@ -37,15 +37,15 @@ const TABS: { id: Tab; label: string }[] = [
 const STAGE_LABEL: Record<PromptStage, string> = { tofu: "Awareness", mofu: "Consideration", bofu: "Decision" };
 const STAGE_TONE: Record<PromptStage, string> = {
   tofu: "bg-sky-50 text-sky-700 ring-sky-100",
-  mofu: "bg-violet-50 text-violet-700 ring-violet-100",
+  mofu: "bg-fuchsia-50 text-fuchsia-700 ring-fuchsia-100",
   bofu: "bg-amber-50 text-amber-700 ring-amber-100",
 };
 const engineMeta = (id: EngineId) => AI_ENGINES.find((e) => e.id === id)!;
 
 function LiveBadge({ live }: { live?: boolean }) {
   return live ? (
-    <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2 py-0.5 text-[11px] font-semibold text-teal-700 ring-1 ring-teal-100">
-      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-500" />Live
+    <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-700 ring-1 ring-brand-100">
+      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-500" />Live
     </span>
   ) : (
     <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500" title="No public API or key — modelled estimate">Estimated</span>
@@ -60,7 +60,7 @@ function Kpi({ label, value, unit = "", prefix = "", sub, delta, suffix = "", ac
       <p className="mt-1 flex items-baseline gap-2 text-3xl font-bold text-slate-900">
         {value == null ? "—" : <AnimatedNumber value={value} prefix={prefix} suffix={unit} />}
         {delta != null && delta !== 0 && (
-          <span className={`text-sm font-semibold ${delta > 0 ? "text-teal-600" : "text-rose-600"}`}>
+          <span className={`text-sm font-semibold ${delta > 0 ? "text-emerald-600" : "text-rose-600"}`}>
             {delta > 0 ? "▲" : "▼"} {Math.abs(delta)}{suffix}
           </span>
         )}
@@ -79,16 +79,16 @@ function Onboarding({ data }: { data: Data }) {
   ];
   const current = steps.findIndex((s) => !s.done);
   return (
-    <div className="card mt-6 border-teal-100 bg-gradient-to-br from-teal-50 to-white">
+    <div className="card mt-6 border-brand-100 bg-gradient-to-br from-brand-50 to-white">
       <p className="font-semibold text-slate-900">Setting up {data.brand.name}…</p>
       <p className="text-sm text-slate-500">This runs automatically and takes about a minute. You can leave this page.</p>
       <ol className="mt-5 grid gap-3 sm:grid-cols-4">
         {steps.map((s, i) => (
           <li key={s.t} className="flex items-center gap-2 text-sm">
             {s.done ? (
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-teal-600 text-xs text-white">✓</span>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-600 text-xs text-white">✓</span>
             ) : i === current ? (
-              <span className="h-6 w-6 animate-spin rounded-full border-2 border-teal-600 border-t-transparent" />
+              <span className="h-6 w-6 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
             ) : (
               <span className="h-6 w-6 rounded-full border-2 border-slate-200" />
             )}
@@ -119,7 +119,7 @@ function Highlighted({ text, brand, competitors }: { text: string; brand: Brand;
         p.k == null ? (
           <Fragment key={i}>{p.t}</Fragment>
         ) : (
-          <mark key={i} className={`rounded px-0.5 font-semibold ${p.k ? "bg-teal-100 text-teal-900" : "bg-amber-100 text-amber-900"}`}>{p.t}</mark>
+          <mark key={i} className={`rounded px-0.5 font-semibold ${p.k ? "bg-brand-100 text-brand-900" : "bg-amber-100 text-amber-900"}`}>{p.t}</mark>
         ),
       )}
     </>
@@ -166,9 +166,9 @@ function AnswerDrawer({ scans, index, onIndex, promptById, brand, onClose }: { s
               ["Position", scan.position ? `#${scan.position}` : "—", scan.position === 1],
               ["Sentiment", scan.sentiment ?? "—", scan.sentiment === "positive"],
             ].map(([k, v, good]) => (
-              <div key={k as string} className={`rounded-xl p-3 ${good ? "bg-teal-50" : "bg-slate-50"}`}>
+              <div key={k as string} className={`rounded-xl p-3 ${good ? "bg-emerald-50" : "bg-slate-50"}`}>
                 <p className="text-[11px] text-slate-400">{k}</p>
-                <p className={`font-semibold capitalize ${good ? "text-teal-800" : "text-slate-900"}`}>{v}</p>
+                <p className={`font-semibold capitalize ${good ? "text-emerald-800" : "text-slate-900"}`}>{v}</p>
               </div>
             ))}
           </div>
@@ -177,7 +177,7 @@ function AnswerDrawer({ scans, index, onIndex, promptById, brand, onClose }: { s
             <Highlighted text={scan.answerSnippet} brand={brand} competitors={brand.competitors} />
           </p>
           <p className="mt-2 flex gap-3 text-[11px] text-slate-400">
-            <span><mark className="rounded bg-teal-100 px-1 text-teal-900">You</mark></span>
+            <span><mark className="rounded bg-brand-100 px-1 text-brand-900">You</mark></span>
             <span><mark className="rounded bg-amber-100 px-1 text-amber-900">Competitor</mark></span>
           </p>
           {scan.competitorsMentioned.length > 0 && (
@@ -194,7 +194,7 @@ function AnswerDrawer({ scans, index, onIndex, promptById, brand, onClose }: { s
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {scan.sources.map((src) => {
                   const own = src === brand.domain.replace(/^www\./, "") || src.endsWith(`.${brand.domain.replace(/^www\./, "")}`);
-                  return <span key={src} className={`rounded-lg px-2 py-1 text-xs ring-1 ${own ? "bg-teal-50 font-semibold text-teal-800 ring-teal-200" : "bg-white text-slate-600 ring-slate-200"}`}>{src}</span>;
+                  return <span key={src} className={`rounded-lg px-2 py-1 text-xs ring-1 ${own ? "bg-brand-50 font-semibold text-brand-800 ring-brand-200" : "bg-white text-slate-600 ring-slate-200"}`}>{src}</span>;
                 })}
               </div>
             </>
@@ -216,9 +216,9 @@ function ScanProgress({ engines }: { engines: { id: EngineId; live: boolean }[] 
     return () => clearInterval(t);
   }, []);
   return (
-    <div className="pop-in card mt-6 overflow-hidden border-teal-100 p-0">
-      <div className="relative h-1 overflow-hidden bg-teal-50">
-        <span className="progress-indeterminate absolute inset-y-0 w-1/2 rounded-full bg-gradient-to-r from-teal-400 to-violet-500" />
+    <div className="pop-in card mt-6 overflow-hidden border-brand-100 p-0">
+      <div className="relative h-1 overflow-hidden bg-brand-50">
+        <span className="progress-indeterminate absolute inset-y-0 w-1/2 rounded-full bg-gradient-to-r from-brand-400 to-fuchsia-500" />
       </div>
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-6 py-4">
         <div>
@@ -419,7 +419,7 @@ function BrandReport() {
     <main className="mx-auto max-w-6xl px-6 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <Link href="/dashboard" className="text-sm text-teal-700 hover:underline">← All brands</Link>
+          <Link href="/dashboard" className="text-sm text-brand-700 hover:underline">← All brands</Link>
           <h1 className="mt-2 text-2xl font-bold text-slate-900">{brand.name}</h1>
           <p className="text-sm text-slate-500">
             {brand.domain} · last scan {timeAgo(brand.lastScanAt)} · {brand.autoScan === false ? "auto-scan off" : `auto-scans every ${limits.scanEveryDays === 1 ? "day" : `${limits.scanEveryDays} days`}`}
@@ -439,8 +439,8 @@ function BrandReport() {
       {busy !== "scan" && (onboarding || params.get("onboarding")) && !data.scans.length && <Onboarding data={data} />}
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Kpi accent="#0d9488" label="Visibility" value={metrics.visibilityRate} unit="%" sub={`${visibilityLabel(metrics.visibilityRate)} · answers naming you`} delta={cur && prev ? cur.visibilityRate - prev.visibilityRate : null} suffix=" pts" />
-        <Kpi accent="#7c3aed" label="Citation rate" value={metrics.citationRate} unit="%" sub="Answers citing your domain" delta={cur && prev ? cur.citationRate - prev.citationRate : null} suffix=" pts" />
+        <Kpi accent="#6e4dff" label="Visibility" value={metrics.visibilityRate} unit="%" sub={`${visibilityLabel(metrics.visibilityRate)} · answers naming you`} delta={cur && prev ? cur.visibilityRate - prev.visibilityRate : null} suffix=" pts" />
+        <Kpi accent="#d946ef" label="Citation rate" value={metrics.citationRate} unit="%" sub="Answers citing your domain" delta={cur && prev ? cur.citationRate - prev.citationRate : null} suffix=" pts" />
         <Kpi accent="#f59e0b" label="Avg. position" value={metrics.avgPosition || null} prefix="#" sub="Rank among brands named" />
         <Kpi accent="#0ea5e9" label="Share of voice" value={ownShare} unit="%" sub={`vs ${brand.competitors.length} competitor${brand.competitors.length === 1 ? "" : "s"}`} />
       </div>
@@ -453,7 +453,7 @@ function BrandReport() {
 
       <div className="sticky top-[57px] z-20 -mx-6 mt-6 overflow-x-auto bg-slate-50/95 px-6 backdrop-blur">
         <div role="tablist" className="relative flex gap-1 border-b border-slate-200">
-          <span className="absolute -bottom-px h-0.5 rounded-full bg-teal-600 transition-all duration-300 ease-out" style={{ left: indicator.left, width: indicator.width }} />
+          <span className="absolute -bottom-px h-0.5 rounded-full bg-brand-600 transition-all duration-300 ease-out" style={{ left: indicator.left, width: indicator.width }} />
           {TABS.map((t, i) => (
             <button
               key={t.id}
@@ -465,7 +465,7 @@ function BrandReport() {
               type="button"
               onClick={() => setTab(t.id)}
               title={`Shortcut: ${i + 1}`}
-              className={`whitespace-nowrap px-4 py-2.5 text-sm font-medium transition ${tab === t.id ? "text-teal-700" : "text-slate-500 hover:text-slate-800"}`}
+              className={`whitespace-nowrap px-4 py-2.5 text-sm font-medium transition ${tab === t.id ? "text-brand-700" : "text-slate-500 hover:text-slate-800"}`}
             >
               {t.label}
               {t.id === "actions" && recommendations.length > 0 && <span className="ml-1.5 rounded-full bg-slate-200 px-1.5 text-xs text-slate-600">{recommendations.length - doneCount}</span>}
@@ -490,11 +490,11 @@ function BrandReport() {
                 return (
                   <li key={c.name}>
                     <div className="flex justify-between text-sm">
-                      <span className={own ? "font-semibold text-teal-700" : "text-slate-700"}>{c.name}{own && " (you)"}</span>
+                      <span className={own ? "font-semibold text-brand-700" : "text-slate-700"}>{c.name}{own && " (you)"}</span>
                       <span className="text-slate-500">{c.mentions}</span>
                     </div>
                     <div className="mt-1 h-2 rounded-full bg-slate-100">
-                      <div className={`bar-fill h-2 rounded-full ${own ? "bg-teal-600" : "bg-amber-400"}`} style={{ width: `${(c.mentions / max) * 100}%` }} />
+                      <div className={`bar-fill h-2 rounded-full ${own ? "bg-brand-600" : "bg-amber-400"}`} style={{ width: `${(c.mentions / max) * 100}%` }} />
                     </div>
                   </li>
                 );
@@ -505,7 +505,7 @@ function BrandReport() {
           <div className="card lg:col-span-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h3 className="font-semibold text-slate-900">By engine</h3>
-              {engineFilter && <button type="button" className="text-sm text-teal-700 hover:underline" onClick={() => setEngineFilter(null)}>Show all engines</button>}
+              {engineFilter && <button type="button" className="text-sm text-brand-700 hover:underline" onClick={() => setEngineFilter(null)}>Show all engines</button>}
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {AI_ENGINES.map((e) => {
@@ -518,11 +518,11 @@ function BrandReport() {
                     type="button"
                     disabled={!enabled}
                     onClick={() => setEngineFilter(engineFilter === e.id ? null : e.id)}
-                    className={`rounded-xl border p-4 text-left transition ${engineFilter === e.id ? "border-teal-400 ring-2 ring-teal-100" : "border-slate-200 hover:border-slate-300"} ${!enabled ? "cursor-not-allowed opacity-50" : ""}`}
+                    className={`rounded-xl border p-4 text-left transition ${engineFilter === e.id ? "border-brand-400 ring-2 ring-brand-100" : "border-slate-200 hover:border-slate-300"} ${!enabled ? "cursor-not-allowed opacity-50" : ""}`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="flex items-center gap-2 text-sm font-medium text-slate-800"><span className="h-2.5 w-2.5 rounded-full" style={{ background: e.color }} />{e.name}</span>
-                      {enabled ? <LiveBadge live={enabled.live} /> : <Link href="/settings" className="text-xs font-semibold text-violet-700" onClick={(ev) => ev.stopPropagation()}>Upgrade</Link>}
+                      {enabled ? <LiveBadge live={enabled.live} /> : <Link href="/settings" className="text-xs font-semibold text-fuchsia-700" onClick={(ev) => ev.stopPropagation()}>Upgrade</Link>}
                     </div>
                     <p className="mt-2 text-2xl font-bold text-slate-900">{enabled ? `${rate}%` : "—"}</p>
                     <div className="mt-2 h-1.5 rounded-full bg-slate-100"><div className="bar-fill h-1.5 rounded-full" style={{ width: `${rate}%`, background: e.color }} /></div>
@@ -555,7 +555,7 @@ function BrandReport() {
                         </td>
                         {shownEngines.map((e) => {
                           const s = cell.get(`${p.id}:${e.id}`);
-                          const cls = !s ? "bg-slate-50 text-slate-300" : s.cited ? "bg-teal-600 text-white" : s.mentioned ? "bg-teal-100 text-teal-800" : s.competitorsMentioned.length ? "bg-rose-50 text-rose-600" : "bg-slate-100 text-slate-400";
+                          const cls = !s ? "bg-slate-50 text-slate-300" : s.cited ? "bg-brand-600 text-white" : s.mentioned ? "bg-brand-100 text-brand-800" : s.competitorsMentioned.length ? "bg-rose-50 text-rose-600" : "bg-slate-100 text-slate-400";
                           const label = !s ? "·" : s.cited ? "Cited" : s.mentioned ? `#${s.position ?? "–"}` : s.competitorsMentioned.length ? "Lost" : "—";
                           return (
                             <td key={e.id} className={`px-1 py-1.5 text-center transition-colors ${hover?.e === e.id ? "bg-slate-50" : ""}`}>
@@ -566,7 +566,7 @@ function BrandReport() {
                                 onMouseEnter={() => setHover({ p: p.id, e: e.id })}
                                 onFocus={() => setHover({ p: p.id, e: e.id })}
                                 title={s ? `${engineMeta(e.id).name}: ${s.cited ? "cited" : s.mentioned ? `mentioned at #${s.position ?? "?"}` : s.competitorsMentioned.length ? `lost to ${s.competitorsMentioned.join(", ")}` : "not mentioned"}${s.live ? "" : " (estimated)"}` : undefined}
-                                className={`w-full rounded-lg px-2 py-1.5 text-xs font-semibold transition hover:scale-105 hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${cls} ${s && !s.live ? "opacity-80" : ""}`}
+                                className={`w-full rounded-lg px-2 py-1.5 text-xs font-semibold transition hover:scale-105 hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 ${cls} ${s && !s.live ? "opacity-80" : ""}`}
                               >
                                 {label}
                               </button>
@@ -578,8 +578,8 @@ function BrandReport() {
                   </tbody>
                 </table>
                 <div className="mt-3 flex flex-wrap gap-4 text-xs text-slate-500">
-                  <span><span className="mr-1 inline-block h-3 w-3 rounded bg-teal-600 align-middle" />Cited</span>
-                  <span><span className="mr-1 inline-block h-3 w-3 rounded bg-teal-100 align-middle" />Mentioned (#position)</span>
+                  <span><span className="mr-1 inline-block h-3 w-3 rounded bg-brand-600 align-middle" />Cited</span>
+                  <span><span className="mr-1 inline-block h-3 w-3 rounded bg-brand-100 align-middle" />Mentioned (#position)</span>
                   <span><span className="mr-1 inline-block h-3 w-3 rounded bg-rose-50 ring-1 ring-rose-100 align-middle" />Competitor won</span>
                   <span><span className="mr-1 inline-block h-3 w-3 rounded bg-slate-100 align-middle" />Not mentioned</span>
                 </div>
@@ -601,7 +601,7 @@ function BrandReport() {
           </form>
           <div className="flex items-center justify-between text-sm text-slate-500">
             <span>{prompts.length} of {limits.prompts} prompts</span>
-            <div className="h-1.5 w-40 rounded-full bg-slate-200"><div className="h-1.5 rounded-full bg-teal-600" style={{ width: `${Math.min(100, (prompts.length / limits.prompts) * 100)}%` }} /></div>
+            <div className="h-1.5 w-40 rounded-full bg-slate-200"><div className="h-1.5 rounded-full bg-brand-600" style={{ width: `${Math.min(100, (prompts.length / limits.prompts) * 100)}%` }} /></div>
           </div>
           <ul className="space-y-2">
             {prompts.map((p) => {
@@ -659,7 +659,7 @@ function BrandReport() {
                 {(["all", "fail", "warn", "pass"] as const).map((f) => {
                   const n = f === "all" ? audit.checks.length : audit.checks.filter((c) => c.status === f).length;
                   const label = { all: "All checks", fail: "Failing", warn: "Warnings", pass: "Passing" }[f];
-                  const dot = { all: "bg-slate-400", fail: "bg-rose-500", warn: "bg-amber-400", pass: "bg-teal-500" }[f];
+                  const dot = { all: "bg-slate-400", fail: "bg-rose-500", warn: "bg-amber-400", pass: "bg-emerald-500" }[f];
                   return (
                     <button key={f} type="button" onClick={() => setAuditFilter(f)} className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition ${auditFilter === f ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300"}`}>
                       <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
@@ -672,12 +672,12 @@ function BrandReport() {
               <ul className="space-y-2">
                 {[...audit.checks].filter((c) => auditFilter === "all" || c.status === auditFilter).sort((a, b) => ({ fail: 0, warn: 1, pass: 2 })[a.status] - ({ fail: 0, warn: 1, pass: 2 })[b.status]).map((c) => (
                   <li key={c.id} className="card fade-swap flex gap-4 py-3">
-                    <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${c.status === "pass" ? "bg-teal-500" : c.status === "warn" ? "bg-amber-400" : "bg-rose-500"}`} />
+                    <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${c.status === "pass" ? "bg-emerald-500" : c.status === "warn" ? "bg-amber-400" : "bg-rose-500"}`} />
                     <div>
                       <p className="text-sm font-medium text-slate-900">{c.label} <span className="ml-1 text-xs font-normal uppercase text-slate-400">{c.impact}</span></p>
                       <p className="text-sm text-slate-500">{c.detail}</p>
                       {c.status !== "pass" && c.fix && <p className="mt-1 text-sm text-slate-700"><b>Fix:</b> {c.fix}</p>}
-                      {c.status !== "pass" && c.guide && <Link href={`/learn/${c.guide}`} target="_blank" className="mt-1 inline-block text-sm text-teal-700 hover:underline">Read the guide →</Link>}
+                      {c.status !== "pass" && c.guide && <Link href={`/learn/${c.guide}`} target="_blank" className="mt-1 inline-block text-sm text-brand-700 hover:underline">Read the guide →</Link>}
                     </div>
                   </li>
                 ))}
@@ -698,7 +698,7 @@ function BrandReport() {
                 </span>
                 <span className="text-slate-500">{Math.round((doneCount / recommendations.length) * 100)}%</span>
               </div>
-              <div className="mt-2 h-2 rounded-full bg-slate-100"><div className="h-2 rounded-full bg-gradient-to-r from-teal-500 to-violet-500 transition-all duration-500 ease-out" style={{ width: `${(doneCount / recommendations.length) * 100}%` }} /></div>
+              <div className="mt-2 h-2 rounded-full bg-slate-100"><div className="h-2 rounded-full bg-gradient-to-r from-brand-500 to-fuchsia-500 transition-all duration-500 ease-out" style={{ width: `${(doneCount / recommendations.length) * 100}%` }} /></div>
               <div className="mt-4 flex flex-wrap gap-2">
                 {(["all", "todo", "in_progress", "done"] as const).map((f) => (
                   <button key={f} type="button" onClick={() => setRecFilter(f)} className={`rounded-full px-3 py-1 text-xs font-medium ${recFilter === f ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
@@ -722,7 +722,7 @@ function BrandReport() {
                 </div>
                 <div className="flex shrink-0 rounded-lg bg-slate-100 p-0.5 text-xs font-medium">
                   {(["todo", "in_progress", "done"] as const).map((s) => (
-                    <button key={s} type="button" onClick={() => setRec(r.id, s)} className={`rounded-md px-2.5 py-1 transition ${r.status === s ? (s === "done" ? "bg-teal-600 text-white shadow-sm" : "bg-white text-slate-900 shadow-sm") : "text-slate-500 hover:text-slate-800"}`}>
+                    <button key={s} type="button" onClick={() => setRec(r.id, s)} className={`rounded-md px-2.5 py-1 transition ${r.status === s ? (s === "done" ? "bg-brand-600 text-white shadow-sm" : "bg-white text-slate-900 shadow-sm") : "text-slate-500 hover:text-slate-800"}`}>
                       {s === "todo" ? "To do" : s === "in_progress" ? "Doing" : "Done"}
                     </button>
                   ))}
@@ -747,14 +747,14 @@ function BrandReport() {
                 <span className="block font-semibold text-slate-900">Automatic scans</span>
                 <span className="text-sm text-slate-500">Every {limits.scanEveryDays === 1 ? "day" : `${limits.scanEveryDays} days`} on your plan, with an email digest.</span>
               </span>
-              <input type="checkbox" className="h-5 w-5 accent-teal-600" checked={brand.autoScan !== false} onChange={(e) => patchBrand({ autoScan: e.target.checked }, e.target.checked ? "Auto-scan on" : "Auto-scan off")} />
+              <input type="checkbox" className="h-5 w-5 accent-brand-600" checked={brand.autoScan !== false} onChange={(e) => patchBrand({ autoScan: e.target.checked }, e.target.checked ? "Auto-scan on" : "Auto-scan off")} />
             </label>
             <div>
               <p className="font-semibold text-slate-900">Export</p>
               {limits.csvExport ? (
                 <a href={`/api/brands/${id}/export`} className="btn-secondary mt-2">Download CSV of all results</a>
               ) : (
-                <p className="mt-1 text-sm text-slate-500">CSV export is on Growth and Agency. <Link href="/settings" className="font-medium text-teal-700 underline">Upgrade</Link></p>
+                <p className="mt-1 text-sm text-slate-500">CSV export is on Growth and Agency. <Link href="/settings" className="font-medium text-brand-700 underline">Upgrade</Link></p>
               )}
             </div>
             <div className="border-t border-slate-100 pt-4">

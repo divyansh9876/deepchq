@@ -19,7 +19,7 @@ export default function Page() {
       <h1 className="mt-6 font-display text-4xl font-semibold text-slate-900">llms.txt generator</h1>
       <p className="mt-3 max-w-2xl text-lg text-slate-600">
         llms.txt is a short markdown file that tells language models what your site is and which pages matter. Fill in the form — the preview updates as you type.{" "}
-        <Link href="/learn/llms-txt-guide" className="font-medium text-teal-700 hover:underline">What is llms.txt?</Link>
+        <Link href="/learn/llms-txt-guide" className="font-medium text-brand-700 hover:underline">What is llms.txt?</Link>
       </p>
       <div className="mt-10"><LlmsTxtGenerator /></div>
     </main>

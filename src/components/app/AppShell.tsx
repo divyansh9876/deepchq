@@ -30,7 +30,7 @@ function TrialBanner({ me }: { me: Me }) {
   if (!me.user.trialEndsAt || me.user.subscriptionStatus) return null;
   const days = Math.max(0, Math.ceil((new Date(me.user.trialEndsAt).getTime() - Date.now()) / 86400_000));
   return (
-    <div className="bg-gradient-to-r from-violet-600 to-teal-600 px-6 py-2 text-center text-sm text-white">
+    <div className="bg-gradient-to-r from-fuchsia-600 to-brand-600 px-6 py-2 text-center text-sm text-white">
       {days} day{days === 1 ? "" : "s"} left in your Growth trial.{" "}
       <Link href="/settings" className="font-semibold underline">Choose a plan</Link> to keep all six engines and weekly scans.
     </div>

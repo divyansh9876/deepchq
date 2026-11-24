@@ -87,7 +87,7 @@ export function FeatureTabs() {
 }
 
 function Pill({ tone, children }: { tone: "ok" | "mid" | "bad"; children: React.ReactNode }) {
-  const c = tone === "ok" ? "bg-teal-50 text-teal-700 ring-teal-100" : tone === "mid" ? "bg-amber-50 text-amber-700 ring-amber-100" : "bg-rose-50 text-rose-700 ring-rose-100";
+  const c = tone === "ok" ? "bg-emerald-50 text-emerald-700 ring-emerald-100" : tone === "mid" ? "bg-amber-50 text-amber-700 ring-amber-100" : "bg-rose-50 text-rose-700 ring-rose-100";
   return <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${c}`}>{children}</span>;
 }
 
@@ -128,12 +128,12 @@ function Visual({ idx, bar }: { idx: number; bar: string }) {
       return (
         <div>
           <div className="flex h-4 overflow-hidden rounded-full">
-            <span className="bar-fill bg-teal-600" style={{ width: "46%" }} />
+            <span className="bar-fill bg-brand-600" style={{ width: "46%" }} />
             <span className="bar-fill bg-amber-400" style={{ width: "34%", animationDelay: "120ms" }} />
             <span className="bar-fill bg-slate-300" style={{ width: "20%", animationDelay: "240ms" }} />
           </div>
           <div className="mt-3 flex flex-wrap gap-4 text-xs text-slate-600">
-            <span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-teal-600" />You 46%</span>
+            <span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-brand-600" />You 46%</span>
             <span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-amber-400" />Competitor A 34%</span>
             <span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-slate-300" />Competitor B 20%</span>
           </div>

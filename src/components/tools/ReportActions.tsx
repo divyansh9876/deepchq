@@ -27,7 +27,7 @@ export function ShareReport({ url, domain, score }: { url: string; domain: strin
 export function EmailReport({ id }: { id: string }) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "busy" | "done" | "error">("idle");
-  if (state === "done") return <p className="text-sm font-medium text-teal-700">Saved ✓ We&apos;ll email you when there&apos;s something worth fixing.</p>;
+  if (state === "done") return <p className="text-sm font-medium text-brand-700">Saved ✓ We&apos;ll email you when there&apos;s something worth fixing.</p>;
   return (
     <form
       className="flex flex-col gap-2 sm:flex-row"

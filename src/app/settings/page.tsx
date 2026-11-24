@@ -59,7 +59,7 @@ function Settings() {
       name: "Deepchq",
       description: `${plan === "agency" ? "Agency" : "Growth"} plan · ${annual ? "annual" : "monthly"}`,
       prefill: { email: d.email, name: d.name },
-      theme: { color: "#0d7367" },
+      theme: { color: "#5a36f0" },
       handler: async (r) => {
         const ok = await api("/api/billing/verify", { method: "POST", json: r });
         if (ok) {
@@ -129,7 +129,7 @@ function Settings() {
               <span className="block font-medium text-slate-900">Email digests</span>
               <span className="text-sm text-slate-500">A summary after each automatic scan, plus trial and billing notices.</span>
             </span>
-            <input type="checkbox" className="h-5 w-5 accent-teal-600" checked={user.digestEnabled} onChange={(e) => toggleDigest(e.target.checked)} />
+            <input type="checkbox" className="h-5 w-5 accent-brand-600" checked={user.digestEnabled} onChange={(e) => toggleDigest(e.target.checked)} />
           </label>
           <p className="mt-6 text-xs text-slate-400">
             Live engines on this workspace: {me.liveEngines.length ? me.liveEngines.join(", ") : "none configured — results are estimated"}.
@@ -141,8 +141,8 @@ function Settings() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-xl font-bold text-slate-900">Plans</h2>
           <div className="inline-flex rounded-full bg-white p-1 ring-1 ring-slate-200">
-            <button type="button" onClick={() => setAnnual(false)} className={`rounded-full px-4 py-1.5 text-sm font-semibold ${!annual ? "bg-teal-600 text-white" : "text-slate-600"}`}>Monthly</button>
-            <button type="button" onClick={() => setAnnual(true)} className={`rounded-full px-4 py-1.5 text-sm font-semibold ${annual ? "bg-violet-600 text-white" : "text-slate-600"}`}>Annual · save ~18%</button>
+            <button type="button" onClick={() => setAnnual(false)} className={`rounded-full px-4 py-1.5 text-sm font-semibold ${!annual ? "bg-brand-600 text-white" : "text-slate-600"}`}>Monthly</button>
+            <button type="button" onClick={() => setAnnual(true)} className={`rounded-full px-4 py-1.5 text-sm font-semibold ${annual ? "bg-fuchsia-600 text-white" : "text-slate-600"}`}>Annual · save ~18%</button>
           </div>
         </div>
         <div className="mt-6 grid gap-5 md:grid-cols-3">
@@ -151,7 +151,7 @@ function Settings() {
             const price = paid ? formatUsd(annual ? PLAN_PRICES[p.id].annualPerMonth : PLAN_PRICES[p.id].monthly) : "$0";
             const current = user.plan === p.id && (p.id === "free" || user.subscriptionStatus === "active");
             return (
-              <div key={p.id} className={`card spotlight flex flex-col ${highlight === p.id ? "ring-2 ring-violet-300" : ""} ${p.featured ? "border-teal-300" : ""}`}>
+              <div key={p.id} className={`card spotlight flex flex-col ${highlight === p.id ? "ring-2 ring-fuchsia-300" : ""} ${p.featured ? "border-brand-300" : ""}`}>
                 <h3 className="font-semibold text-slate-900">{p.name}</h3>
                 <p className="mt-2 text-3xl font-bold text-slate-900">{price}<span className="text-sm font-normal text-slate-500">{paid ? (annual ? "/mo, billed yearly" : "/mo") : ""}</span></p>
                 <ul className="mt-4 flex-1 space-y-1.5 text-sm text-slate-600">{p.features.map((f) => <li key={f}>✓ {f}</li>)}</ul>

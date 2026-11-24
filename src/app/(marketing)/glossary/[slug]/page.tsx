@@ -36,10 +36,10 @@ export default async function TermPage({ params }: Props) {
       />
       <Breadcrumbs items={[{ name: "Glossary", path: "/glossary" }, { name: t.term, path: `/glossary/${t.slug}` }]} />
       <h1 className="mt-6 font-display text-4xl font-semibold text-slate-900">What is {t.term}?</h1>
-      <p className="mt-6 rounded-2xl border border-teal-200 bg-teal-50 p-5 text-lg leading-relaxed text-slate-800">{t.short}</p>
+      <p className="mt-6 rounded-2xl border border-brand-200 bg-brand-50 p-5 text-lg leading-relaxed text-slate-800">{t.short}</p>
       {t.body.map((b) => <p key={b.slice(0, 30)} className="mt-5 leading-relaxed text-slate-700">{b}</p>)}
       {guide && (
-        <Link href={`/learn/${guide.slug}`} className="mt-8 block rounded-xl border border-slate-200 bg-white p-5 transition hover:border-teal-300">
+        <Link href={`/learn/${guide.slug}`} className="mt-8 block rounded-xl border border-slate-200 bg-white p-5 transition hover:border-brand-300">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Full guide</p>
           <p className="mt-1 font-semibold text-slate-900">{guide.title} →</p>
         </Link>
@@ -49,7 +49,7 @@ export default async function TermPage({ params }: Props) {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Related terms</h2>
           <div className="mt-3 flex flex-wrap gap-2">
             {related.map((r) => (
-              <Link key={r.slug} href={`/glossary/${r.slug}`} className="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 hover:border-teal-300 hover:text-teal-700">{r.term}</Link>
+              <Link key={r.slug} href={`/glossary/${r.slug}`} className="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 hover:border-brand-300 hover:text-brand-700">{r.term}</Link>
             ))}
           </div>
         </div>

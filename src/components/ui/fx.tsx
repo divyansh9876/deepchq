@@ -101,7 +101,7 @@ export function Tilt({ children, className = "", max = 5 }: { children: React.Re
 
 /** A one-shot confetti burst; remount (change `key`) to fire again. */
 export function Confetti({ count = 18 }: { count?: number }) {
-  const colors = ["#0d9488", "#7c3aed", "#f59e0b", "#0ea5e9", "#f43f5e"];
+  const colors = ["#6e4dff", "#d946ef", "#f59e0b", "#0ea5e9", "#f43f5e"];
   return (
     <span className="confetti pointer-events-none absolute inset-0" aria-hidden>
       {Array.from({ length: count }, (_, i) => {
