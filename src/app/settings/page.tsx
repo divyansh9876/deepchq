@@ -151,7 +151,7 @@ function Settings() {
             const price = paid ? formatUsd(annual ? PLAN_PRICES[p.id].annualPerMonth : PLAN_PRICES[p.id].monthly) : "$0";
             const current = user.plan === p.id && (p.id === "free" || user.subscriptionStatus === "active");
             return (
-              <div key={p.id} className={`card flex flex-col ${highlight === p.id ? "ring-2 ring-violet-300" : ""} ${p.featured ? "border-teal-300" : ""}`}>
+              <div key={p.id} className={`card spotlight flex flex-col ${highlight === p.id ? "ring-2 ring-violet-300" : ""} ${p.featured ? "border-teal-300" : ""}`}>
                 <h3 className="font-semibold text-slate-900">{p.name}</h3>
                 <p className="mt-2 text-3xl font-bold text-slate-900">{price}<span className="text-sm font-normal text-slate-500">{paid ? (annual ? "/mo, billed yearly" : "/mo") : ""}</span></p>
                 <ul className="mt-4 flex-1 space-y-1.5 text-sm text-slate-600">{p.features.map((f) => <li key={f}>✓ {f}</li>)}</ul>

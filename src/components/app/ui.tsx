@@ -11,11 +11,15 @@ const ToastCtx = createContext<(msg: string, tone?: Toast["tone"], upgrade?: boo
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const push = useCallback((msg: string, tone: Toast["tone"] = "ok", upgrade = false) => {
-    const id = Date.now() + Math.random();
-    setToasts((t) => [...t, { id, msg, tone, upgrade }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), upgrade ? 9000 : 4500);
-  }, []);
+  const dismiss = useCallback((id: number) => setToasts((t) => t.filter((x) => x.id !== id)), []);
+  const push = useCallback(
+    (msg: string, tone: Toast["tone"] = "ok", upgrade = false) => {
+      const id = Date.now() + Math.random();
+      setToasts((t) => [...t.slice(-3), { id, msg, tone, upgrade }]);
+      setTimeout(() => dismiss(id), upgrade ? 9000 : 4500);
+    },
+    [dismiss],
+  );
   return (
     <ToastCtx.Provider value={push}>
       {children}
@@ -23,16 +27,29 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`fade-swap pointer-events-auto rounded-xl px-4 py-3 text-sm shadow-lg ring-1 ${
+            role={t.tone === "error" ? "alert" : "status"}
+            className={`toast-in pointer-events-auto relative flex items-start gap-3 overflow-hidden rounded-xl py-3 pl-4 pr-3 text-sm shadow-xl ring-1 ${
               t.tone === "error" ? "bg-white text-rose-700 ring-rose-200" : "bg-slate-900 text-white ring-slate-800"
             }`}
           >
-            {t.msg}
-            {t.upgrade && (
-              <Link href="/settings" className="ml-2 font-semibold text-teal-700 underline">
-                Upgrade
-              </Link>
-            )}
+            <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${t.tone === "error" ? "bg-rose-100 text-rose-600" : "bg-teal-500 text-white"}`}>
+              {t.tone === "error" ? "!" : "✓"}
+            </span>
+            <span className="flex-1">
+              {t.msg}
+              {t.upgrade && (
+                <Link href="/settings" className="ml-2 font-semibold text-teal-700 underline">
+                  Upgrade
+                </Link>
+              )}
+            </span>
+            <button type="button" onClick={() => dismiss(t.id)} className="-mr-1 rounded px-1 opacity-50 transition hover:opacity-100" aria-label="Dismiss">
+              ✕
+            </button>
+            <span
+              className={`toast-timer absolute inset-x-0 bottom-0 h-0.5 ${t.tone === "error" ? "bg-rose-300" : "bg-teal-400"}`}
+              style={{ animationDuration: `${t.upgrade ? 9000 : 4500}ms` }}
+            />
           </div>
         ))}
       </div>
@@ -77,7 +94,7 @@ export function Sparkline({ values, width = 120, height = 32, color = "#0d9488" 
   return (
     <svg width={width} height={height} aria-hidden>
       <path d={`${d} L${width},${height} L0,${height} Z`} fill={color} opacity={0.1} />
-      <path d={d} fill="none" stroke={color} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+      <path d={d} pathLength={1} className="draw-line" fill="none" stroke={color} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
       <circle cx={pts.at(-1)![0]} cy={pts.at(-1)![1]} r={3} fill={color} />
     </svg>
   );
@@ -116,8 +133,8 @@ export function TrendChart({ points }: { points: { at: string | Date; visibility
           </g>
         ))}
         <path d={`${line("visibilityRate")} L${x(points.length - 1)},${y(0)} L${x(0)},${y(0)} Z`} fill="#0d9488" opacity={0.08} />
-        <path d={line("visibilityRate")} fill="none" stroke="#0d9488" strokeWidth={2.5} strokeLinejoin="round" />
-        <path d={line("citationRate")} fill="none" stroke="#7c3aed" strokeWidth={2} strokeDasharray="5 4" strokeLinejoin="round" />
+        <path d={line("visibilityRate")} pathLength={1} className="draw-line" fill="none" stroke="#0d9488" strokeWidth={2.5} strokeLinejoin="round" />
+        <path d={line("citationRate")} fill="none" stroke="#7c3aed" strokeWidth={2} strokeDasharray="5 4" strokeLinejoin="round" className="fade-swap" />
         <text x={pad.l} y={H - 6} fontSize={10} fill="#94a3b8">{fmt(points[0].at)}</text>
         <text x={W - pad.r} y={H - 6} fontSize={10} fill="#94a3b8" textAnchor="end">{fmt(points.at(-1)!.at)}</text>
         {h && hover != null && (
@@ -174,6 +191,15 @@ export function AppNav({ plan }: { plan?: string }) {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
         <Logo />
         <nav className="flex items-center gap-1 text-sm">
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event("dq:palette"))}
+            className="mr-2 hidden items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-3 pr-1.5 text-slate-400 transition hover:border-slate-300 hover:text-slate-600 sm:flex"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+            <span className="pr-6">Jump to…</span>
+            <kbd className="kbd">⌘K</kbd>
+          </button>
           {link("/dashboard", "Brands")}
           {link("/settings", "Settings")}
           {plan && (

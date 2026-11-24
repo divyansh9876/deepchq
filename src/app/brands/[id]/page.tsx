@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { AI_ENGINES, type EngineId } from "@/lib/brand";
@@ -8,6 +8,8 @@ import { visibilityLabel } from "@/lib/geo/metrics";
 import { ChipInput, TrendChart, timeAgo, useApi, useToast } from "@/components/app/ui";
 import { useMe } from "@/components/app/AppShell";
 import { ScoreRing } from "@/components/tools/ScoreRing";
+import { AnimatedNumber, Confetti, isTyping } from "@/components/ui/fx";
+import { BRAND_COMMAND_EVENT, type BrandCommand } from "@/components/app/CommandPalette";
 import type { PlanLimits } from "@/lib/plans";
 import type { Brand, BrandMetrics, GeoAudit, Prompt, PromptStage, Recommendation, ScanResult, VisibilityPoint } from "@/lib/types";
 
@@ -50,12 +52,13 @@ function LiveBadge({ live }: { live?: boolean }) {
   );
 }
 
-function Kpi({ label, value, sub, delta, suffix = "" }: { label: string; value: string; sub: string; delta?: number | null; suffix?: string }) {
+function Kpi({ label, value, unit = "", prefix = "", sub, delta, suffix = "", accent }: { label: string; value: number | null; unit?: string; prefix?: string; sub: string; delta?: number | null; suffix?: string; accent: string }) {
   return (
-    <div className="card">
+    <div className="card spotlight overflow-hidden">
+      <span className="absolute inset-x-0 top-0 h-1" style={{ background: accent }} />
       <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</p>
       <p className="mt-1 flex items-baseline gap-2 text-3xl font-bold text-slate-900">
-        {value}
+        {value == null ? "—" : <AnimatedNumber value={value} prefix={prefix} suffix={unit} />}
         {delta != null && delta !== 0 && (
           <span className={`text-sm font-semibold ${delta > 0 ? "text-teal-600" : "text-rose-600"}`}>
             {delta > 0 ? "▲" : "▼"} {Math.abs(delta)}{suffix}
@@ -97,57 +100,143 @@ function Onboarding({ data }: { data: Data }) {
   );
 }
 
-function AnswerDrawer({ scan, prompt, onClose }: { scan: ScanResult; prompt?: Prompt; onClose: () => void }) {
+function Highlighted({ text, brand, competitors }: { text: string; brand: Brand; competitors: string[] }) {
+  const parts = useMemo(() => {
+    const names = [
+      ...[brand.name, brand.domain.replace(/^www\./, "")].filter((n) => n.length > 1).map((n) => ({ n, you: true })),
+      ...competitors.filter((n) => n.length > 1).map((n) => ({ n, you: false })),
+    ];
+    if (!names.length) return [{ t: text, k: null as null | boolean }];
+    const re = new RegExp(`(${names.map((x) => x.n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "gi");
+    return text.split(re).map((t) => {
+      const hit = names.find((x) => x.n.toLowerCase() === t.toLowerCase());
+      return { t, k: hit ? hit.you : null };
+    });
+  }, [text, brand, competitors]);
+  return (
+    <>
+      {parts.map((p, i) =>
+        p.k == null ? (
+          <Fragment key={i}>{p.t}</Fragment>
+        ) : (
+          <mark key={i} className={`rounded px-0.5 font-semibold ${p.k ? "bg-teal-100 text-teal-900" : "bg-amber-100 text-amber-900"}`}>{p.t}</mark>
+        ),
+      )}
+    </>
+  );
+}
+
+function AnswerDrawer({ scans, index, onIndex, promptById, brand, onClose }: { scans: ScanResult[]; index: number; onIndex: (i: number) => void; promptById: Map<string, Prompt>; brand: Brand; onClose: () => void }) {
+  const scan = scans[index];
   useEffect(() => {
-    const k = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const k = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      else if ((e.key === "ArrowRight" || e.key === "j") && index < scans.length - 1) onIndex(index + 1);
+      else if ((e.key === "ArrowLeft" || e.key === "k") && index > 0) onIndex(index - 1);
+    };
     window.addEventListener("keydown", k);
     return () => window.removeEventListener("keydown", k);
-  }, [onClose]);
+  }, [onClose, onIndex, index, scans.length]);
+  if (!scan) return null;
   const e = engineMeta(scan.engine);
+  const prompt = promptById.get(scan.promptId);
   return (
-    <div className="fixed inset-0 z-40 flex justify-end bg-slate-900/30 backdrop-blur-[1px]" onClick={onClose}>
-      <aside role="dialog" aria-modal className="fade-swap h-full w-full max-w-lg overflow-y-auto bg-white p-6 shadow-2xl" onClick={(ev) => ev.stopPropagation()}>
-        <div className="flex items-center justify-between">
+    <div className="overlay-in fixed inset-0 z-40 flex justify-end bg-slate-900/30 backdrop-blur-[2px]" onClick={onClose}>
+      <aside role="dialog" aria-modal aria-label="AI answer" className="drawer-in flex h-full w-full max-w-lg flex-col bg-white shadow-2xl" onClick={(ev) => ev.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
           <div className="flex items-center gap-2">
             <span className="h-3 w-3 rounded-full" style={{ background: e.color }} />
             <span className="font-semibold text-slate-900">{e.name}</span>
             <LiveBadge live={scan.live} />
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg px-2 py-1 text-slate-400 hover:bg-slate-100" aria-label="Close">✕</button>
+          <div className="flex items-center gap-1">
+            <span className="mr-2 text-xs tabular-nums text-slate-400">{index + 1} / {scans.length}</span>
+            <button type="button" disabled={index === 0} onClick={() => onIndex(index - 1)} className="rounded-lg px-2 py-1 text-slate-500 hover:bg-slate-100 disabled:opacity-30" aria-label="Previous answer">←</button>
+            <button type="button" disabled={index === scans.length - 1} onClick={() => onIndex(index + 1)} className="rounded-lg px-2 py-1 text-slate-500 hover:bg-slate-100 disabled:opacity-30" aria-label="Next answer">→</button>
+            <button type="button" onClick={onClose} className="ml-1 rounded-lg px-2 py-1 text-slate-400 hover:bg-slate-100" aria-label="Close">✕</button>
+          </div>
         </div>
-        <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-400">Prompt</p>
-        <p className="mt-1 text-slate-900">“{prompt?.text}”</p>
-        <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
-          {[
-            ["Mentioned", scan.mentioned ? "Yes" : "No"],
-            ["Cited", scan.cited ? "Yes" : "No"],
-            ["Position", scan.position ? `#${scan.position}` : "—"],
-            ["Sentiment", scan.sentiment ?? "—"],
-          ].map(([k, v]) => (
-            <div key={k} className="rounded-xl bg-slate-50 p-3">
-              <p className="text-xs text-slate-400">{k}</p>
-              <p className="font-semibold capitalize text-slate-900">{v}</p>
-            </div>
-          ))}
+        <div key={scan.id} className="fade-swap flex-1 overflow-y-auto p-6">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Prompt</p>
+          <p className="mt-1 text-slate-900">“{prompt?.text}”</p>
+          <div className="mt-5 grid grid-cols-4 gap-2 text-sm">
+            {[
+              ["Mentioned", scan.mentioned ? "Yes" : "No", scan.mentioned],
+              ["Cited", scan.cited ? "Yes" : "No", scan.cited],
+              ["Position", scan.position ? `#${scan.position}` : "—", scan.position === 1],
+              ["Sentiment", scan.sentiment ?? "—", scan.sentiment === "positive"],
+            ].map(([k, v, good]) => (
+              <div key={k as string} className={`rounded-xl p-3 ${good ? "bg-teal-50" : "bg-slate-50"}`}>
+                <p className="text-[11px] text-slate-400">{k}</p>
+                <p className={`font-semibold capitalize ${good ? "text-teal-800" : "text-slate-900"}`}>{v}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-slate-400">Answer</p>
+          <p className="mt-1 whitespace-pre-wrap rounded-xl border border-slate-200 p-4 text-sm leading-relaxed text-slate-700">
+            <Highlighted text={scan.answerSnippet} brand={brand} competitors={brand.competitors} />
+          </p>
+          <p className="mt-2 flex gap-3 text-[11px] text-slate-400">
+            <span><mark className="rounded bg-teal-100 px-1 text-teal-900">You</mark></span>
+            <span><mark className="rounded bg-amber-100 px-1 text-amber-900">Competitor</mark></span>
+          </p>
+          {scan.competitorsMentioned.length > 0 && (
+            <>
+              <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-slate-400">Competitors named</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {scan.competitorsMentioned.map((c) => <span key={c} className="rounded-full bg-amber-50 px-2.5 py-0.5 text-sm text-amber-700 ring-1 ring-amber-100">{c}</span>)}
+              </div>
+            </>
+          )}
+          {scan.sources.length > 0 && (
+            <>
+              <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-slate-400">Sources</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {scan.sources.map((src) => {
+                  const own = src === brand.domain.replace(/^www\./, "") || src.endsWith(`.${brand.domain.replace(/^www\./, "")}`);
+                  return <span key={src} className={`rounded-lg px-2 py-1 text-xs ring-1 ${own ? "bg-teal-50 font-semibold text-teal-800 ring-teal-200" : "bg-white text-slate-600 ring-slate-200"}`}>{src}</span>;
+                })}
+              </div>
+            </>
+          )}
+          <p className="mt-6 text-xs text-slate-400">Scanned {new Date(scan.createdAt).toLocaleString()}</p>
         </div>
-        <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-slate-400">Answer</p>
-        <p className="mt-1 whitespace-pre-wrap rounded-xl border border-slate-200 p-4 text-sm leading-relaxed text-slate-700">{scan.answerSnippet}</p>
-        {scan.competitorsMentioned.length > 0 && (
-          <>
-            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-slate-400">Competitors named</p>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {scan.competitorsMentioned.map((c) => <span key={c} className="rounded-full bg-amber-50 px-2.5 py-0.5 text-sm text-amber-700 ring-1 ring-amber-100">{c}</span>)}
-            </div>
-          </>
-        )}
-        {scan.sources.length > 0 && (
-          <>
-            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-slate-400">Sources</p>
-            <ul className="mt-2 space-y-1 text-sm text-slate-600">{scan.sources.map((s) => <li key={s}>· {s}</li>)}</ul>
-          </>
-        )}
-        <p className="mt-6 text-xs text-slate-400">Scanned {new Date(scan.createdAt).toLocaleString()}</p>
+        <p className="border-t border-slate-100 px-6 py-2.5 text-[11px] text-slate-400">
+          <kbd className="kbd">←</kbd> <kbd className="kbd">→</kbd> browse answers · <kbd className="kbd">Esc</kbd> close
+        </p>
       </aside>
+    </div>
+  );
+}
+
+function ScanProgress({ engines }: { engines: { id: EngineId; live: boolean }[] }) {
+  const [secs, setSecs] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setSecs((s) => s + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <div className="pop-in card mt-6 overflow-hidden border-teal-100 p-0">
+      <div className="relative h-1 overflow-hidden bg-teal-50">
+        <span className="progress-indeterminate absolute inset-y-0 w-1/2 rounded-full bg-gradient-to-r from-teal-400 to-violet-500" />
+      </div>
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-6 py-4">
+        <div>
+          <p className="font-semibold text-slate-900">Asking {engines.length} AI engine{engines.length === 1 ? "" : "s"}…</p>
+          <p className="text-xs text-slate-500">{secs}s elapsed · usually under a minute</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {engines.map((e, i) => {
+            const m = engineMeta(e.id);
+            return (
+              <span key={e.id} className="engine-wait inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200" style={{ animationDelay: `${i * 0.18}s` }}>
+                <span className="h-2 w-2 rounded-full" style={{ background: m.color }} />
+                {m.name}
+              </span>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
@@ -164,7 +253,13 @@ function BrandReport() {
   const [busy, setBusy] = useState("");
   const [newPrompt, setNewPrompt] = useState({ text: "", stage: "mofu" as PromptStage });
   const [engineFilter, setEngineFilter] = useState<EngineId | null>(null);
-  const [open, setOpen] = useState<ScanResult | null>(null);
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [hover, setHover] = useState<{ p: string; e: EngineId } | null>(null);
+  const [auditFilter, setAuditFilter] = useState<"all" | "fail" | "warn" | "pass">("all");
+  const [celebrate, setCelebrate] = useState(0);
+  const commandRef = useRef<(c: BrandCommand) => void>(() => {});
+  const tabRefs = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
+  const [indicator, setIndicator] = useState({ left: 0, width: 0 });
   const [recFilter, setRecFilter] = useState<"all" | Recommendation["status"]>("all");
   const [competitors, setCompetitors] = useState<string[] | null>(null);
 
@@ -184,6 +279,49 @@ function BrandReport() {
     const t = setInterval(() => void load(), 4000);
     return () => clearInterval(t);
   }, [onboarding, load]);
+
+  useEffect(() => {
+    const onCmd = (e: Event) => commandRef.current((e as CustomEvent<BrandCommand>).detail);
+    const onKey = (e: KeyboardEvent) => {
+      if (isTyping(e) || e.metaKey || e.ctrlKey || e.altKey || document.querySelector('[role="dialog"]')) return;
+      const map: Record<string, BrandCommand> = { "1": "tab:overview", "2": "tab:prompts", "3": "tab:audit", "4": "tab:actions", "5": "tab:settings", s: "scan", a: "audit" };
+      const c = map[e.key.toLowerCase()];
+      if (c) {
+        e.preventDefault();
+        commandRef.current(c);
+      }
+    };
+    window.addEventListener(BRAND_COMMAND_EVENT, onCmd);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener(BRAND_COMMAND_EVENT, onCmd);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    const el = tabRefs.current[tab];
+    if (el) setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
+  }, [tab, data]);
+
+  const doneTotal = data ? data.recommendations.filter((r) => r.status === "done").length : 0;
+  const prevDone = useRef<number | null>(null);
+  useEffect(() => {
+    if (!data) return;
+    const all = data.recommendations.length;
+    if (prevDone.current != null && all > 0 && doneTotal === all && prevDone.current < all) setCelebrate((c) => c + 1);
+    prevDone.current = doneTotal;
+  }, [doneTotal, data]);
+
+  const gridScans = useMemo(() => {
+    if (!data) return [] as ScanResult[];
+    const m = new Map(data.scans.map((s) => [`${s.promptId}:${s.engine}`, s]));
+    return data.prompts.flatMap((p) => data.engines.map((e) => m.get(`${p.id}:${e.id}`)).filter((x): x is ScanResult => !!x));
+  }, [data]);
+  const openScan = useCallback((s: ScanResult) => {
+    const i = gridScans.findIndex((x) => x.id === s.id);
+    setOpenIdx(i >= 0 ? i : null);
+  }, [gridScans]);
 
   const promptById = useMemo(() => new Map(data?.prompts.map((p) => [p.id, p]) ?? []), [data]);
   const cell = useMemo(() => {
@@ -222,6 +360,12 @@ function BrandReport() {
       if (kind === "audit") setTab("audit");
     }
   }
+
+  commandRef.current = (c) => {
+    if (c === "scan" || c === "audit") {
+      if (!busy) void act(c);
+    } else setTab(c.slice(4) as Tab);
+  };
 
   async function addPrompt(e: React.FormEvent) {
     e.preventDefault();
@@ -283,21 +427,22 @@ function BrandReport() {
         </div>
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={() => act("scan")} disabled={!!busy} className="btn-primary">
-            {busy === "scan" ? <><span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />Scanning engines…</> : "Run scan now"}
+            {busy === "scan" ? <><span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />Scanning engines…</> : <>Run scan now<kbd className="ml-2 rounded bg-white/20 px-1.5 text-[10px] font-semibold">S</kbd></>}
           </button>
           <button type="button" onClick={() => act("audit")} disabled={!!busy} className="btn-secondary">
-            {busy === "audit" ? "Auditing…" : "Re-audit site"}
+            {busy === "audit" ? "Auditing…" : <>Re-audit site<kbd className="ml-2 rounded bg-slate-100 px-1.5 text-[10px] font-semibold text-slate-500">A</kbd></>}
           </button>
         </div>
       </div>
 
-      {(onboarding || params.get("onboarding")) && !data.scans.length && <Onboarding data={data} />}
+      {busy === "scan" && <ScanProgress engines={engines} />}
+      {busy !== "scan" && (onboarding || params.get("onboarding")) && !data.scans.length && <Onboarding data={data} />}
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Kpi label="Visibility" value={`${metrics.visibilityRate}%`} sub={`${visibilityLabel(metrics.visibilityRate)} · answers naming you`} delta={cur && prev ? cur.visibilityRate - prev.visibilityRate : null} suffix=" pts" />
-        <Kpi label="Citation rate" value={`${metrics.citationRate}%`} sub="Answers citing your domain" delta={cur && prev ? cur.citationRate - prev.citationRate : null} suffix=" pts" />
-        <Kpi label="Avg. position" value={metrics.avgPosition ? `#${metrics.avgPosition}` : "—"} sub="Rank among brands named" />
-        <Kpi label="Share of voice" value={`${ownShare}%`} sub={`vs ${brand.competitors.length} competitor${brand.competitors.length === 1 ? "" : "s"}`} />
+        <Kpi accent="#0d9488" label="Visibility" value={metrics.visibilityRate} unit="%" sub={`${visibilityLabel(metrics.visibilityRate)} · answers naming you`} delta={cur && prev ? cur.visibilityRate - prev.visibilityRate : null} suffix=" pts" />
+        <Kpi accent="#7c3aed" label="Citation rate" value={metrics.citationRate} unit="%" sub="Answers citing your domain" delta={cur && prev ? cur.citationRate - prev.citationRate : null} suffix=" pts" />
+        <Kpi accent="#f59e0b" label="Avg. position" value={metrics.avgPosition || null} prefix="#" sub="Rank among brands named" />
+        <Kpi accent="#0ea5e9" label="Share of voice" value={ownShare} unit="%" sub={`vs ${brand.competitors.length} competitor${brand.competitors.length === 1 ? "" : "s"}`} />
       </div>
       {data.scans.length > 0 && (
         <p className="mt-2 text-xs text-slate-400">
@@ -307,13 +452,20 @@ function BrandReport() {
       )}
 
       <div className="sticky top-[57px] z-20 -mx-6 mt-6 overflow-x-auto bg-slate-50/95 px-6 backdrop-blur">
-        <div className="flex gap-1 border-b border-slate-200">
-          {TABS.map((t) => (
+        <div role="tablist" className="relative flex gap-1 border-b border-slate-200">
+          <span className="absolute -bottom-px h-0.5 rounded-full bg-teal-600 transition-all duration-300 ease-out" style={{ left: indicator.left, width: indicator.width }} />
+          {TABS.map((t, i) => (
             <button
               key={t.id}
+              ref={(el) => {
+                tabRefs.current[t.id] = el;
+              }}
+              role="tab"
+              aria-selected={tab === t.id}
               type="button"
               onClick={() => setTab(t.id)}
-              className={`whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-medium transition ${tab === t.id ? "border-teal-600 text-teal-700" : "border-transparent text-slate-500 hover:text-slate-800"}`}
+              title={`Shortcut: ${i + 1}`}
+              className={`whitespace-nowrap px-4 py-2.5 text-sm font-medium transition ${tab === t.id ? "text-teal-700" : "text-slate-500 hover:text-slate-800"}`}
             >
               {t.label}
               {t.id === "actions" && recommendations.length > 0 && <span className="ml-1.5 rounded-full bg-slate-200 px-1.5 text-xs text-slate-600">{recommendations.length - doneCount}</span>}
@@ -383,7 +535,7 @@ function BrandReport() {
 
           <div className="card lg:col-span-3">
             <h3 className="font-semibold text-slate-900">Prompt × engine results</h3>
-            <p className="mt-1 text-xs text-slate-500">Click any cell to read the answer.</p>
+            <p className="mt-1 text-xs text-slate-500">Click any cell to read the full answer, then use <kbd className="kbd">←</kbd> <kbd className="kbd">→</kbd> to browse.</p>
             {data.scans.length === 0 ? (
               <p className="mt-6 text-sm text-slate-500">No results yet — the first scan runs automatically, or hit “Run scan now”.</p>
             ) : (
@@ -392,22 +544,30 @@ function BrandReport() {
                   <thead>
                     <tr className="text-xs text-slate-400">
                       <th className="pb-2 pr-4 text-left font-medium">Prompt</th>
-                      {shownEngines.map((e) => <th key={e.id} className="px-1 pb-2 text-center font-medium">{engineMeta(e.id).name.replace("Microsoft ", "").replace("Google AI Overview", "AI Overview")}</th>)}
+                      {shownEngines.map((e) => <th key={e.id} className={`px-1 pb-2 text-center font-medium transition-colors ${hover?.e === e.id ? "text-slate-900" : ""}`}>{engineMeta(e.id).name.replace("Microsoft ", "").replace("Google AI Overview", "AI Overview")}</th>)}
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody onMouseLeave={() => setHover(null)}>
                     {prompts.map((p) => (
-                      <tr key={p.id} className="border-t border-slate-100">
-                        <td className="max-w-xs py-2 pr-4">
-                          <span className="line-clamp-2 text-slate-700">{p.text}</span>
+                      <tr key={p.id} className={`border-t border-slate-100 transition-colors ${hover?.p === p.id ? "bg-slate-50" : ""}`}>
+                        <td className="max-w-xs py-2 pl-2 pr-4">
+                          <span className={`line-clamp-2 transition-colors ${hover?.p === p.id ? "text-slate-900" : "text-slate-700"}`}>{p.text}</span>
                         </td>
                         {shownEngines.map((e) => {
                           const s = cell.get(`${p.id}:${e.id}`);
                           const cls = !s ? "bg-slate-50 text-slate-300" : s.cited ? "bg-teal-600 text-white" : s.mentioned ? "bg-teal-100 text-teal-800" : s.competitorsMentioned.length ? "bg-rose-50 text-rose-600" : "bg-slate-100 text-slate-400";
                           const label = !s ? "·" : s.cited ? "Cited" : s.mentioned ? `#${s.position ?? "–"}` : s.competitorsMentioned.length ? "Lost" : "—";
                           return (
-                            <td key={e.id} className="px-1 py-1.5 text-center">
-                              <button type="button" disabled={!s} onClick={() => s && setOpen(s)} className={`w-full rounded-lg px-2 py-1.5 text-xs font-semibold transition hover:scale-105 hover:shadow ${cls} ${s && !s.live ? "opacity-80" : ""}`}>
+                            <td key={e.id} className={`px-1 py-1.5 text-center transition-colors ${hover?.e === e.id ? "bg-slate-50" : ""}`}>
+                              <button
+                                type="button"
+                                disabled={!s}
+                                onClick={() => s && openScan(s)}
+                                onMouseEnter={() => setHover({ p: p.id, e: e.id })}
+                                onFocus={() => setHover({ p: p.id, e: e.id })}
+                                title={s ? `${engineMeta(e.id).name}: ${s.cited ? "cited" : s.mentioned ? `mentioned at #${s.position ?? "?"}` : s.competitorsMentioned.length ? `lost to ${s.competitorsMentioned.join(", ")}` : "not mentioned"}${s.live ? "" : " (estimated)"}` : undefined}
+                                className={`w-full rounded-lg px-2 py-1.5 text-xs font-semibold transition hover:scale-105 hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${cls} ${s && !s.live ? "opacity-80" : ""}`}
+                              >
                                 {label}
                               </button>
                             </td>
@@ -451,7 +611,25 @@ function BrandReport() {
                 <li key={p.id} className="card group flex items-center gap-3 py-3">
                   <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${STAGE_TONE[p.stage]}`}>{STAGE_LABEL[p.stage]}</span>
                   <span className="flex-1 text-sm text-slate-800">{p.text}</span>
-                  {rows.length > 0 && <span className="shrink-0 text-xs text-slate-500">{hit}/{rows.length} engines</span>}
+                  {rows.length > 0 && (
+                    <span className="flex shrink-0 items-center gap-1" aria-label={`${hit} of ${rows.length} engines mention you`}>
+                      {engines.map((en) => {
+                        const r = rows.find((x) => x.engine === en.id);
+                        if (!r) return null;
+                        return (
+                          <button
+                            key={en.id}
+                            type="button"
+                            onClick={() => openScan(r)}
+                            title={`${engineMeta(en.id).name}: ${r.cited ? "cited" : r.mentioned ? "mentioned" : "not mentioned"}`}
+                            className={`h-3 w-3 rounded-full ring-2 ring-white transition hover:scale-125 ${r.mentioned ? "" : "opacity-25"}`}
+                            style={{ background: engineMeta(en.id).color }}
+                          />
+                        );
+                      })}
+                      <span className="ml-1.5 text-xs tabular-nums text-slate-500">{hit}/{rows.length}</span>
+                    </span>
+                  )}
                   <button type="button" onClick={() => deletePrompt(p.id)} className="shrink-0 rounded-lg px-2 py-1 text-slate-300 opacity-0 transition hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100" aria-label="Delete prompt">✕</button>
                 </li>
               );
@@ -477,9 +655,23 @@ function BrandReport() {
                 </div>
                 <p className="text-xs text-slate-400">Audited {timeAgo(audit.createdAt)} · re-audits weekly automatically</p>
               </div>
+              <div className="flex flex-wrap gap-2">
+                {(["all", "fail", "warn", "pass"] as const).map((f) => {
+                  const n = f === "all" ? audit.checks.length : audit.checks.filter((c) => c.status === f).length;
+                  const label = { all: "All checks", fail: "Failing", warn: "Warnings", pass: "Passing" }[f];
+                  const dot = { all: "bg-slate-400", fail: "bg-rose-500", warn: "bg-amber-400", pass: "bg-teal-500" }[f];
+                  return (
+                    <button key={f} type="button" onClick={() => setAuditFilter(f)} className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition ${auditFilter === f ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-slate-300"}`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+                      {label}
+                      <span className="tabular-nums opacity-60">{n}</span>
+                    </button>
+                  );
+                })}
+              </div>
               <ul className="space-y-2">
-                {[...audit.checks].sort((a, b) => ({ fail: 0, warn: 1, pass: 2 })[a.status] - ({ fail: 0, warn: 1, pass: 2 })[b.status]).map((c) => (
-                  <li key={c.id} className="card flex gap-4 py-3">
+                {[...audit.checks].filter((c) => auditFilter === "all" || c.status === auditFilter).sort((a, b) => ({ fail: 0, warn: 1, pass: 2 })[a.status] - ({ fail: 0, warn: 1, pass: 2 })[b.status]).map((c) => (
+                  <li key={c.id} className="card fade-swap flex gap-4 py-3">
                     <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${c.status === "pass" ? "bg-teal-500" : c.status === "warn" ? "bg-amber-400" : "bg-rose-500"}`} />
                     <div>
                       <p className="text-sm font-medium text-slate-900">{c.label} <span className="ml-1 text-xs font-normal uppercase text-slate-400">{c.impact}</span></p>
@@ -498,12 +690,15 @@ function BrandReport() {
       {tab === "actions" && (
         <div className="fade-swap mt-6 space-y-4">
           {recommendations.length > 0 && (
-            <div className="card">
+            <div className="card relative">
+              {celebrate > 0 && doneCount === recommendations.length && <Confetti key={celebrate} count={26} />}
               <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-slate-900">{doneCount} of {recommendations.length} actions done</span>
+                <span className="font-medium text-slate-900">
+                  {doneCount === recommendations.length ? "Every action done — the next scan will show the impact." : `${doneCount} of ${recommendations.length} actions done`}
+                </span>
                 <span className="text-slate-500">{Math.round((doneCount / recommendations.length) * 100)}%</span>
               </div>
-              <div className="mt-2 h-2 rounded-full bg-slate-100"><div className="h-2 rounded-full bg-gradient-to-r from-teal-500 to-violet-500 transition-all" style={{ width: `${(doneCount / recommendations.length) * 100}%` }} /></div>
+              <div className="mt-2 h-2 rounded-full bg-slate-100"><div className="h-2 rounded-full bg-gradient-to-r from-teal-500 to-violet-500 transition-all duration-500 ease-out" style={{ width: `${(doneCount / recommendations.length) * 100}%` }} /></div>
               <div className="mt-4 flex flex-wrap gap-2">
                 {(["all", "todo", "in_progress", "done"] as const).map((f) => (
                   <button key={f} type="button" onClick={() => setRecFilter(f)} className={`rounded-full px-3 py-1 text-xs font-medium ${recFilter === f ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
@@ -515,7 +710,7 @@ function BrandReport() {
           )}
           {recommendations.length === 0 && <p className="text-slate-500">Your action plan appears after the first scan or audit.</p>}
           {recommendations.filter((r) => recFilter === "all" || r.status === recFilter).map((r) => (
-            <div key={r.id} className={`card transition ${r.status === "done" ? "opacity-60" : ""}`}>
+            <div key={r.id} className={`card spotlight transition duration-300 ${r.status === "done" ? "opacity-60" : ""}`}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap gap-1.5">
@@ -527,7 +722,7 @@ function BrandReport() {
                 </div>
                 <div className="flex shrink-0 rounded-lg bg-slate-100 p-0.5 text-xs font-medium">
                   {(["todo", "in_progress", "done"] as const).map((s) => (
-                    <button key={s} type="button" onClick={() => setRec(r.id, s)} className={`rounded-md px-2.5 py-1 ${r.status === s ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}>
+                    <button key={s} type="button" onClick={() => setRec(r.id, s)} className={`rounded-md px-2.5 py-1 transition ${r.status === s ? (s === "done" ? "bg-teal-600 text-white shadow-sm" : "bg-white text-slate-900 shadow-sm") : "text-slate-500 hover:text-slate-800"}`}>
                       {s === "todo" ? "To do" : s === "in_progress" ? "Doing" : "Done"}
                     </button>
                   ))}
@@ -569,7 +764,7 @@ function BrandReport() {
         </div>
       )}
 
-      {open && <AnswerDrawer scan={open} prompt={promptById.get(open.promptId)} onClose={() => setOpen(null)} />}
+      {openIdx != null && <AnswerDrawer scans={gridScans} index={openIdx} onIndex={setOpenIdx} promptById={promptById} brand={brand} onClose={() => setOpenIdx(null)} />}
     </main>
   );
 }

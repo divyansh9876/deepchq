@@ -21,7 +21,7 @@ export default function EnginesIndex() {
         {ENGINE_PAGES.map((e) => {
           const color = AI_ENGINES.find((x) => x.id === e.engine)?.color ?? "#0d7367";
           return (
-            <Link key={e.slug} href={`/ai-visibility/${e.slug}`} className="group rounded-2xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md" style={{ borderColor: `${color}55` }}>
+            <Link key={e.slug} href={`/ai-visibility/${e.slug}`} className="spotlight group rounded-2xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md" style={{ borderColor: `${color}55` }}>
               <span className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold text-white" style={{ background: color }}>{e.name[0]}</span>
               <h2 className="mt-4 font-semibold text-slate-900">{e.title}</h2>
               <p className="mt-2 text-sm text-slate-600">{e.description}</p>

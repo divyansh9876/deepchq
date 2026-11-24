@@ -52,7 +52,7 @@ export function PricingGrid() {
           const price = !paid ? p.price : annual ? (p.id === "growth" ? "$65" : "$207") : p.price;
           const period = !paid ? p.period : annual ? "/ month, billed yearly" : p.period;
           return (
-            <div key={p.id} className={`flex flex-col rounded-2xl border p-6 shadow-sm transition hover:-translate-y-1 ${PLAN_WRAP[p.id]}`}>
+            <div key={p.id} className={`spotlight flex flex-col rounded-2xl border p-6 shadow-sm transition hover:-translate-y-1 ${PLAN_WRAP[p.id]}`}>
               {p.featured && (
                 <span className="absolute -top-3 left-6 rounded-full bg-teal-600 px-3 py-1 text-xs font-semibold text-white">
                   Most popular

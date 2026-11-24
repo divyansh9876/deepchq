@@ -44,7 +44,7 @@ export default function LearnIndex() {
               <Link
                 key={g.slug}
                 href={`/learn/${g.slug}`}
-                className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-teal-300 hover:shadow-md"
+                className="spotlight group flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-teal-300 hover:shadow-md"
               >
                 <span className={`w-fit rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ${TONE[g.category]}`}>{g.category}</span>
                 <h3 className="mt-3 font-semibold text-slate-900 group-hover:text-teal-700">{g.title}</h3>
