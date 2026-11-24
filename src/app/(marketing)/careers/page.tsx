@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { BRAND_NAME } from "@/lib/brand";
 
-export const metadata: Metadata = {
-  title: `Careers — ${BRAND_NAME}`,
-  description: "Open roles at Deepchq.",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Careers",
+  description: "Open roles at Deepchq, the AI search visibility platform.",
+  path: "/careers",
+});
 
 const ROLES = [
   {

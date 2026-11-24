@@ -1,4 +1,5 @@
 import { newId } from "@/lib/id";
+import { engineName } from "@/lib/geo/metrics";
 import type { Brand, BrandMetrics, GeoAudit, Prompt, Recommendation, ScanResult } from "@/lib/types";
 
 export function generateRecommendations(
@@ -72,14 +73,22 @@ export function generateRecommendations(
     });
   }
 
-  for (const scan of scans.filter((s) => !s.mentioned && s.competitorsMentioned.length > 0).slice(0, 3)) {
+  const promptText = new Map(prompts.map((p) => [p.id, p.text]));
+  const lost = scans
+    .filter((s) => !s.mentioned && s.competitorsMentioned.length > 0)
+    .sort((a, b) => Number(b.live ?? false) - Number(a.live ?? false));
+  const seenPrompts = new Set<string>();
+  for (const scan of lost) {
+    if (seenPrompts.has(scan.promptId) || seenPrompts.size >= 3) continue;
+    seenPrompts.add(scan.promptId);
+    const q = promptText.get(scan.promptId) ?? "a tracked prompt";
     add({
       type: "content",
       area: "on-page",
       impact: "medium",
       engine: scan.engine,
-      title: `Win prompt on ${scan.engine}`,
-      description: `For "${scan.answerSnippet.slice(0, 60)}…" — competitors ${scan.competitorsMentioned.join(", ")} are cited instead of you.`,
+      title: `Win "${q.length > 60 ? `${q.slice(0, 57)}…` : q}" on ${engineName(scan.engine)}`,
+      description: `${engineName(scan.engine)} names ${scan.competitorsMentioned.join(", ")} but not ${brand.name}. Publish a page that answers this question directly, compares options honestly, and is linked from your homepage.`,
     });
   }
 
@@ -90,8 +99,8 @@ export function generateRecommendations(
         area: "on-page",
         impact: "high",
         engine: "all",
-        title: c.label,
-        description: c.detail,
+        title: `Fix: ${c.label}`,
+        description: c.fix ? `${c.detail} ${c.fix}` : c.detail,
       });
     }
     if (audit.overallScore < 60) {

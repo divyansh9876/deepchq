@@ -47,6 +47,16 @@ export function computeBrandMetrics(
     promptCount,
     engineBreakdown,
     competitorShare,
+    liveShare: latest.length ? Math.round((latest.filter((s) => s.live).length / latest.length) * 100) : 0,
+    avgPosition: (() => {
+      const pos = latest.map((s) => s.position).filter((p): p is number => p != null);
+      return pos.length ? Math.round((pos.reduce((a, b) => a + b, 0) / pos.length) * 10) / 10 : null;
+    })(),
+    sentiment: {
+      positive: latest.filter((s) => s.sentiment === "positive").length,
+      neutral: latest.filter((s) => s.sentiment === "neutral").length,
+      negative: latest.filter((s) => s.sentiment === "negative").length,
+    },
   };
 }
 

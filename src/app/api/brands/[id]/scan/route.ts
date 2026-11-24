@@ -1,39 +1,26 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth/session";
+import { NextResponse } from "next/server";
+import { requireBrand } from "@/lib/auth/guard";
 import { db } from "@/lib/db/client";
-import { runVisibilityScan } from "@/lib/geo/scan";
-import { computeBrandMetrics } from "@/lib/geo/metrics";
-import { generateRecommendations } from "@/lib/geo/recommendations";
+import { HttpError, rateLimit, route } from "@/lib/http";
+import { limitsFor } from "@/lib/plans";
+import { scanBrand } from "@/lib/automation/cycle";
 
-type Params = { params: Promise<{ id: string }> };
+type Ctx = { params: Promise<{ id: string }> };
 
-export async function POST(_req: NextRequest, { params }: Params) {
-  const user = await getSessionUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export const maxDuration = 300;
 
-  const { id } = await params;
-  const brand = db.brands.get(id);
-  if (!brand || brand.userId !== user.id) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+export const POST = route<Ctx>(async (_req, { params }) => {
+  const { user, brand } = await requireBrand((await params).id);
+  rateLimit(`scan:${brand.id}`, 1, 20_000);
+  const limits = limitsFor(user);
+  const brandIds = db.brands.list(user.id).map((b) => b.id);
+  const today = db.scanResults.runsSince(brandIds, new Date(Date.now() - 86400_000));
+  if (today >= limits.manualScansPerDay) {
+    throw new HttpError(429, `You've used today's ${limits.manualScansPerDay} scans. Scheduled scans still run automatically.`, {
+      upgrade: true,
+    });
   }
-
-  const prompts = db.prompts.list(id);
-  if (!prompts.length) {
-    return NextResponse.json({ error: "Add prompts before scanning" }, { status: 400 });
-  }
-
-  const results = await runVisibilityScan(brand, prompts);
-  for (const r of results) db.scanResults.create(r);
-
-  const scans = db.scanResults.latestPerPromptEngine(id);
-  const audit = db.audits.latest(id);
-  const metrics = computeBrandMetrics(brand, scans, prompts.length);
-  const recs = generateRecommendations(brand, metrics, prompts, scans, audit);
-  db.recommendations.replaceForBrand(id, recs);
-
-  return NextResponse.json({
-    scanned: results.length,
-    metrics,
-    recommendations: recs.length,
-  });
-}
+  const result = await scanBrand(brand, user);
+  if (!result) throw new HttpError(400, "Add at least one prompt before scanning.");
+  return NextResponse.json(result);
+});

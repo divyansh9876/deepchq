@@ -1,27 +1,27 @@
-import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db/client";
-import { authCookieOptions } from "@/lib/auth/session";
+import { hashPassword, verifyPassword } from "@/lib/auth/password";
+import { setSessionCookie } from "@/lib/auth/session";
+import { clientIp, rateLimit, route } from "@/lib/http";
 
 const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  email: z.string().trim().email().max(200),
+  password: z.string().min(1).max(200),
 });
 
-function hash(pw: string) {
-  return crypto.createHash("sha256").update(pw).digest("hex");
-}
-
-export async function POST(req: NextRequest) {
+export const POST = route(async (req) => {
+  rateLimit(`login:${clientIp(req)}`, 10, 15 * 60_000);
   const body = schema.parse(await req.json());
+  rateLimit(`login-email:${body.email.toLowerCase()}`, 8, 15 * 60_000);
   const user = db.users.getByEmail(body.email);
-
-  if (!user?.passwordHash || user.passwordHash !== hash(body.password)) {
+  const { ok, needsRehash } = verifyPassword(body.password, user?.passwordHash ?? null);
+  if (!user || !ok) {
     return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
   }
+  if (needsRehash) db.users.update(user.id, { passwordHash: hashPassword(body.password) });
 
   const res = NextResponse.json({ userId: user.id, email: user.email });
-  res.cookies.set("user_id", user.id, authCookieOptions());
+  setSessionCookie(res, user.id);
   return res;
-}
+});

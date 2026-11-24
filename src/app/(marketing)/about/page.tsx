@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BRAND_NAME } from "@/lib/brand";
-import { TEAM } from "@/lib/marketing";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: `About — ${BRAND_NAME}`,
-  description: "Why we built Deepchq and who is behind the GEO platform.",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "About",
+  description: `Why we built ${BRAND_NAME}: making AI search visibility measurable for marketers, SEO leads and agencies.`,
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (
@@ -57,19 +58,16 @@ export default function AboutPage() {
       </section>
 
       <section className="mt-20">
-        <h2 className="text-2xl font-bold text-slate-900">Team</h2>
+        <h2 className="text-2xl font-bold text-slate-900">How we work</h2>
         <div className="mt-8 grid gap-6 md:grid-cols-3">
-          {TEAM.map((m) => (
-            <div key={m.name} className="card-hover">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-700">
-                {m.name
-                  .split(" ")
-                  .map((p) => p[0])
-                  .join("")}
-              </div>
-              <h3 className="font-semibold text-slate-900">{m.name}</h3>
-              <p className="text-sm text-brand-600">{m.role}</p>
-              <p className="mt-2 text-sm text-slate-600">{m.bio}</p>
+          {[
+            { t: "Live data first", d: "Where an engine offers an official API we query it for real and show the exact answer. Where it doesn't, results are labelled Estimated — never passed off as live." },
+            { t: "Automation by default", d: "Prompts, audits, scans, recommendations and email digests run on a schedule so GEO becomes a habit, not a project." },
+            { t: "We eat our own cooking", d: "This site ships the robots.txt, llms.txt, schema and answer-first guides we recommend to customers." },
+          ].map((x) => (
+            <div key={x.t} className="card-hover">
+              <h3 className="font-semibold text-slate-900">{x.t}</h3>
+              <p className="mt-2 text-sm text-slate-600">{x.d}</p>
             </div>
           ))}
         </div>

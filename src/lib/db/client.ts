@@ -3,11 +3,19 @@ import path from "path";
 import type {
   Brand,
   GeoAudit,
+  Lead,
   Prompt,
+  PublicAudit,
   Recommendation,
   ScanResult,
   User,
+  VisibilityPoint,
 } from "@/lib/types";
+
+/**
+ * Single-file JSON store. All access is synchronous so a read-modify-write is atomic
+ * within one Node process. Run exactly one instance against a given file.
+ */
 
 type DbShape = {
   users: User[];
@@ -16,68 +24,113 @@ type DbShape = {
   scanResults: ScanResult[];
   audits: GeoAudit[];
   recommendations: Recommendation[];
+  leads: Lead[];
+  publicAudits: PublicAudit[];
+  meta: { lastCronAt?: string | null };
 };
 
-const defaultDb: DbShape = {
-  users: [],
-  brands: [],
-  prompts: [],
-  scanResults: [],
-  audits: [],
-  recommendations: [],
-};
+const COLLECTIONS = [
+  "users",
+  "brands",
+  "prompts",
+  "scanResults",
+  "audits",
+  "recommendations",
+  "leads",
+  "publicAudits",
+] as const;
+
+function emptyDb(): DbShape {
+  return {
+    users: [],
+    brands: [],
+    prompts: [],
+    scanResults: [],
+    audits: [],
+    recommendations: [],
+    leads: [],
+    publicAudits: [],
+    meta: {},
+  };
+}
 
 function dbPath() {
   const raw =
-    process.env.DATABASE_URL?.replace(/^file:/, "") ??
-    path.join(process.cwd(), "data", "deepchq.json");
+    process.env.DATABASE_URL?.replace(/^file:/, "") ?? path.join(process.cwd(), "data", "deepchq.json");
   const dir = path.dirname(raw);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   return raw;
 }
 
-function reviveDates<T extends Record<string, unknown>>(row: T): T {
-  const out = { ...row };
+function reviveDates<T>(row: T): T {
+  const out = { ...(row as Record<string, unknown>) };
   for (const key of Object.keys(out)) {
     const val = out[key];
-    if (typeof val === "string" && /^\d{4}-\d{2}-\d{2}T/.test(val) && key.endsWith("At")) {
-      (out as Record<string, unknown>)[key] = new Date(val);
+    if (typeof val === "string" && key.endsWith("At") && /^\d{4}-\d{2}-\d{2}T/.test(val)) {
+      out[key] = new Date(val);
     }
   }
-  return out;
+  return out as T;
 }
+
+type Cache = { file: string; mtimeMs: number; size: number; data: DbShape };
+const g = globalThis as unknown as { __deepchqDb?: Cache };
 
 function readDb(): DbShape {
   const file = dbPath();
   if (!fs.existsSync(file)) {
-    fs.writeFileSync(file, JSON.stringify(defaultDb, null, 2));
-    return structuredClone(defaultDb);
+    const data = emptyDb();
+    writeDb(data);
+    return data;
   }
-  const parsed = JSON.parse(fs.readFileSync(file, "utf8")) as DbShape;
-  return {
-    users: parsed.users.map((r) => reviveDates(r)),
-    brands: parsed.brands.map((r) => reviveDates(r)),
-    prompts: parsed.prompts.map((r) => reviveDates(r)),
-    scanResults: parsed.scanResults.map((r) => reviveDates(r)),
-    audits: parsed.audits.map((r) => reviveDates(r)),
-    recommendations: parsed.recommendations.map((r) => reviveDates(r)),
-  };
+  const stat = fs.statSync(file);
+  const c = g.__deepchqDb;
+  if (c && c.file === file && c.mtimeMs === stat.mtimeMs && c.size === stat.size) return c.data;
+
+  const parsed = JSON.parse(fs.readFileSync(file, "utf8")) as Partial<DbShape>;
+  const data = emptyDb();
+  for (const key of COLLECTIONS) {
+    const rows = (parsed[key] ?? []) as unknown[];
+    (data[key] as unknown[]) = rows.map((r) => reviveDates(r));
+  }
+  data.meta = parsed.meta ?? {};
+  g.__deepchqDb = { file, mtimeMs: stat.mtimeMs, size: stat.size, data };
+  return data;
 }
 
 function writeDb(data: DbShape) {
   const file = dbPath();
-  const tmp = `${file}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
+  const tmp = `${file}.${process.pid}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(data));
   fs.renameSync(tmp, file);
+  const stat = fs.statSync(file);
+  g.__deepchqDb = { file, mtimeMs: stat.mtimeMs, size: stat.size, data };
 }
 
-function mutate(fn: (data: DbShape) => void) {
+function mutate<T>(fn: (data: DbShape) => T): T {
   const data = readDb();
-  fn(data);
+  const out = fn(data);
   writeDb(data);
+  return out;
 }
+
+const byNewest = <T extends { createdAt: Date }>(a: T, b: T) => b.createdAt.getTime() - a.createdAt.getTime();
 
 export const db = {
+  health() {
+    readDb();
+    return true;
+  },
+  meta: {
+    get() {
+      return readDb().meta;
+    },
+    set(patch: DbShape["meta"]) {
+      mutate((d) => {
+        d.meta = { ...d.meta, ...patch };
+      });
+    },
+  },
   users: {
     create(row: User) {
       mutate((d) => {
@@ -91,6 +144,18 @@ export const db = {
     getByEmail(email: string) {
       return readDb().users.find((u) => u.email === email.toLowerCase()) ?? null;
     },
+    getBySubscription(subscriptionId: string) {
+      return readDb().users.find((u) => u.subscriptionId === subscriptionId) ?? null;
+    },
+    all() {
+      return readDb().users;
+    },
+    update(id: string, patch: Partial<User>) {
+      mutate((d) => {
+        const i = d.users.findIndex((u) => u.id === id);
+        if (i >= 0) d.users[i] = { ...d.users[i], ...patch };
+      });
+    },
   },
   brands: {
     create(row: Brand) {
@@ -98,6 +163,9 @@ export const db = {
     },
     list(userId: string) {
       return readDb().brands.filter((b) => b.userId === userId);
+    },
+    all() {
+      return readDb().brands;
     },
     get(id: string) {
       return readDb().brands.find((b) => b.id === id) ?? null;
@@ -122,6 +190,16 @@ export const db = {
     create(row: Prompt) {
       mutate((d) => d.prompts.push(row));
     },
+    createMany(rows: Prompt[]) {
+      mutate((d) => {
+        const existing = new Set(d.prompts.filter((p) => p.brandId === rows[0]?.brandId).map((p) => p.text.toLowerCase()));
+        for (const r of rows) {
+          if (existing.has(r.text.toLowerCase())) continue;
+          existing.add(r.text.toLowerCase());
+          d.prompts.push(r);
+        }
+      });
+    },
     list(brandId: string) {
       return readDb().prompts.filter((p) => p.brandId === brandId);
     },
@@ -136,23 +214,56 @@ export const db = {
     },
   },
   scanResults: {
-    create(row: ScanResult) {
-      mutate((d) => d.scanResults.push(row));
+    createMany(rows: ScanResult[]) {
+      mutate((d) => d.scanResults.push(...rows));
     },
     list(brandId: string) {
-      return readDb()
-        .scanResults.filter((s) => s.brandId === brandId)
-        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      return readDb().scanResults.filter((s) => s.brandId === brandId).sort(byNewest);
     },
     latestPerPromptEngine(brandId: string) {
-      const all = readDb().scanResults.filter((s) => s.brandId === brandId);
       const map = new Map<string, ScanResult>();
-      for (const row of all) {
+      for (const row of readDb().scanResults) {
+        if (row.brandId !== brandId) continue;
         const key = `${row.promptId}:${row.engine}`;
         const existing = map.get(key);
         if (!existing || row.createdAt > existing.createdAt) map.set(key, row);
       }
       return [...map.values()];
+    },
+    /** One point per scan run, oldest first. */
+    history(brandId: string, limit = 26): VisibilityPoint[] {
+      const runs = new Map<string, { at: Date; total: number; mentioned: number; cited: number }>();
+      for (const s of readDb().scanResults) {
+        if (s.brandId !== brandId) continue;
+        const key = s.runId ?? s.createdAt.toISOString();
+        const r = runs.get(key) ?? { at: s.createdAt, total: 0, mentioned: 0, cited: 0 };
+        r.total += 1;
+        if (s.mentioned) r.mentioned += 1;
+        if (s.cited) r.cited += 1;
+        runs.set(key, r);
+      }
+      return [...runs.entries()]
+        .map(([runId, r]) => ({
+          runId,
+          at: r.at,
+          visibilityRate: Math.round((r.mentioned / r.total) * 100),
+          citationRate: Math.round((r.cited / r.total) * 100),
+        }))
+        .sort((a, b) => a.at.getTime() - b.at.getTime())
+        .slice(-limit);
+    },
+    runsSince(brandIds: string[], since: Date) {
+      const ids = new Set(brandIds);
+      const runs = new Set<string>();
+      for (const s of readDb().scanResults) {
+        if (ids.has(s.brandId) && s.createdAt >= since) runs.add(s.runId ?? s.createdAt.toISOString());
+      }
+      return runs.size;
+    },
+    prune(olderThan: Date) {
+      mutate((d) => {
+        d.scanResults = d.scanResults.filter((s) => s.createdAt >= olderThan);
+      });
     },
   },
   audits: {
@@ -160,32 +271,61 @@ export const db = {
       mutate((d) => d.audits.push(row));
     },
     latest(brandId: string) {
-      return (
-        readDb()
-          .audits.filter((a) => a.brandId === brandId)
-          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0] ?? null
-      );
+      return readDb().audits.filter((a) => a.brandId === brandId).sort(byNewest)[0] ?? null;
     },
   },
   recommendations: {
     replaceForBrand(brandId: string, rows: Recommendation[]) {
       mutate((d) => {
+        // Keep progress on recommendations that are regenerated with the same title.
+        const prev = new Map(
+          d.recommendations.filter((r) => r.brandId === brandId).map((r) => [r.title, r.status]),
+        );
         d.recommendations = d.recommendations.filter((r) => r.brandId !== brandId);
-        d.recommendations.push(...rows);
+        d.recommendations.push(...rows.map((r) => ({ ...r, status: prev.get(r.title) ?? r.status })));
       });
     },
     list(brandId: string) {
+      const impact = { high: 0, medium: 1, low: 2 };
       return readDb()
         .recommendations.filter((r) => r.brandId === brandId)
-        .sort((a, b) => {
-          const impact = { high: 0, medium: 1, low: 2 };
-          return impact[a.impact] - impact[b.impact];
-        });
+        .sort((a, b) => impact[a.impact] - impact[b.impact]);
     },
-    updateStatus(id: string, status: Recommendation["status"]) {
-      mutate((d) => {
-        const i = d.recommendations.findIndex((r) => r.id === id);
+    updateStatus(brandId: string, id: string, status: Recommendation["status"]) {
+      return mutate((d) => {
+        const i = d.recommendations.findIndex((r) => r.id === id && r.brandId === brandId);
         if (i >= 0) d.recommendations[i].status = status;
+        return i >= 0;
+      });
+    },
+  },
+  leads: {
+    create(row: Lead) {
+      mutate((d) => d.leads.push(row));
+    },
+  },
+  publicAudits: {
+    create(row: PublicAudit) {
+      mutate((d) => {
+        d.publicAudits.push(row);
+        if (d.publicAudits.length > 5000) d.publicAudits = d.publicAudits.slice(-4000);
+      });
+    },
+    get(id: string) {
+      return readDb().publicAudits.find((a) => a.id === id) ?? null;
+    },
+    recentForDomain(domain: string, withinMs: number) {
+      const since = Date.now() - withinMs;
+      return (
+        readDb()
+          .publicAudits.filter((a) => a.domain === domain && a.createdAt.getTime() > since)
+          .sort(byNewest)[0] ?? null
+      );
+    },
+    attachEmail(id: string, email: string) {
+      mutate((d) => {
+        const a = d.publicAudits.find((x) => x.id === id);
+        if (a) a.email = email;
       });
     },
   },

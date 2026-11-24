@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { AI_ENGINES, BRAND_NAME } from "@/lib/brand";
 import { FEATURES, STEPS } from "@/lib/marketing";
 
-export const metadata: Metadata = {
-  title: `Features — ${BRAND_NAME}`,
-  description: "Prompt tracking, multi-engine scans, GEO audits, and recommendations.",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Features: Prompt Tracking, Multi-Engine Scans & GEO Audits",
+  description: "Track AI search visibility end to end: prompt research, live scans of ChatGPT, Perplexity, Gemini and Claude, share of voice, a 20-check GEO audit and automated action plans.",
+  path: "/features",
+});
 
 export default function FeaturesPage() {
   return (

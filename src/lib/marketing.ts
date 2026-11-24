@@ -1,9 +1,9 @@
 export const NAV_LINKS = [
   { href: "/features", label: "Features" },
+  { href: "/tools/geo-audit", label: "Free audit" },
+  { href: "/learn", label: "Guides" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/about", label: "About" },
   { href: "/faq", label: "FAQ" },
-  { href: "/contact", label: "Contact" },
 ] as const;
 
 export const PLANS = [
@@ -37,7 +37,8 @@ export const PLANS = [
       "5 brand reports",
       "50 tracked prompts",
       "All 6 AI engines",
-      "Weekly scans + competitor share of voice",
+      "Weekly automated scans + email digests",
+      "Competitor share of voice",
       "Unlimited GEO audits",
       "Prioritized action plans",
       "CSV export",
@@ -48,18 +49,18 @@ export const PLANS = [
     name: "Agency",
     price: "$249",
     period: "/ month",
-    blurb: "White-label reports for clients and retainers.",
-    cta: "Talk to sales",
-    href: "/contact?plan=agency",
+    blurb: "Run GEO retainers across every client brand.",
+    cta: "Start Agency",
+    href: "/register?plan=agency",
     featured: false,
     features: [
-      "Unlimited brands & clients",
-      "Unlimited prompts",
-      "Daily scans",
-      "Client-ready PDF reports",
-      "Shared workspaces & roles",
-      "Priority support",
-      "Custom onboarding",
+      "Up to 100 brands & clients",
+      "1,000 tracked prompts per brand",
+      "All 6 AI engines",
+      "Daily automated scans + email digests",
+      "Unlimited GEO audits",
+      "CSV export for client reporting",
+      "Priority support & onboarding",
     ],
   },
 ] as const;
@@ -187,61 +188,27 @@ export const FAQS = [
     a: "ChatGPT, Perplexity, Google AI Overviews, Gemini, Claude, and Microsoft Copilot. Starter covers the first three; Growth and Agency include all six.",
   },
   {
-    q: "Do you run real ChatGPT queries?",
-    a: "Yes, when an OpenAI API key is configured. Other engines use intelligent simulated scans so you can still compare share of voice while live connectors roll out.",
+    q: "Are the AI answers real?",
+    a: "Yes. ChatGPT, Perplexity, Gemini and Claude are queried through their official APIs and every answer is analysed for mentions, citations, position and sentiment. Google AI Overviews and Copilot have no public answer API, so those rows are clearly labelled Estimated and paired with a live audit of the signals you control.",
   },
   {
     q: "Can I cancel anytime?",
-    a: "Yes. Starter is free forever. Paid plans can be canceled from your workspace; you keep access through the current billing period.",
+    a: "Yes. Starter is free forever. Paid plans can be cancelled from Settings in one click; you keep access until the end of the billing period.",
+  },
+  {
+    q: "Is everything automated?",
+    a: "Yes. When you add a brand we generate starter prompts, audit the site and run the first scan automatically. After that, scans repeat on your plan's schedule (monthly, weekly or daily), recommendations refresh, and a digest lands in your inbox.",
   },
   {
     q: "Do you offer annual billing?",
-    a: "Yes — two months free on Growth and Agency when billed annually. Contact us and we will switch your workspace.",
+    a: "Yes — about two months free on Growth and Agency when billed annually. Pick annual at checkout.",
   },
 ] as const;
 
 export const STATS = [
-  { value: 6, suffix: "", label: "AI engines tracked" },
-  { value: 40, suffix: "k+", label: "prompts scanned" },
-  { value: 2, suffix: "x", label: "faster GEO loops" },
-  { value: 72, suffix: "%", label: "avg. visibility lift*" },
+  { value: 6, suffix: "", label: "AI engines covered" },
+  { value: 4, suffix: "", label: "engines queried live via official APIs" },
+  { value: 20, suffix: "", label: "GEO audit checks" },
+  { value: 7, suffix: " days", label: "between automatic scans on Growth" },
 ] as const;
 
-export const TESTIMONIALS = [
-  {
-    quote:
-      "We finally stopped guessing whether ChatGPT recommended us. Deepchq made AI search a weekly report, not a rumor from sales.",
-    name: "Rebecca Chen",
-    role: "Content lead, Instant Stack",
-  },
-  {
-    quote:
-      "Share of voice vs three competitors, by engine. That is what I needed to get budget for GEO.",
-    name: "Marcus Hale",
-    role: "SEO director, Northline",
-  },
-  {
-    quote:
-      "The audit-to-action list is the difference. We ship the top three items and re-scan. Visibility actually moved.",
-    name: "Sofia Alvarez",
-    role: "Agency partner, Stella Digital",
-  },
-] as const;
-
-export const TEAM = [
-  {
-    name: "Priya Mehta",
-    role: "CEO",
-    bio: "Previously led growth at a B2B SaaS company that lived and died by organic search.",
-  },
-  {
-    name: "Arjun Shah",
-    role: "CTO",
-    bio: "Built ranking and crawl systems. Now obsessed with how language models pick sources.",
-  },
-  {
-    name: "Elena Rossi",
-    role: "Head of GEO",
-    bio: "Content strategist turned measurement nerd. Writes the playbooks behind our recommendations.",
-  },
-] as const;
